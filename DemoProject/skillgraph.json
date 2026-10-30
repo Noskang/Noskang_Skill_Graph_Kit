@@ -1,0 +1,17 @@
+{
+ "language": "en",
+ "dataDir": "SkillData",
+ "keyframes": {
+  "animRoot": "Assets/SkillGraphDemo/Animations"
+ },
+ "rules": {
+  "companions": [
+   {
+    "kind": "effect",
+    "event": "Hit",
+    "requires": "HitShape",
+    "spawnedOnly": true
+   }
+  ]
+ }
+}

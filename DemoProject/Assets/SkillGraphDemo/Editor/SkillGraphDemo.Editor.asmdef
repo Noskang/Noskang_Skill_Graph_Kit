@@ -1,0 +1,8 @@
+{
+  "name": "SkillGraphDemo.Editor",
+  "rootNamespace": "SkillGraphDemo.Editor",
+  "references": ["SkillGraphDemo", "Noskang.SkillGraph", "Noskang.SkillGraph.Editor"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "autoReferenced": true
+}

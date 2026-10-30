@@ -1,0 +1,11 @@
+{
+  "name": "SkillGraphDemo.Tests",
+  "rootNamespace": "SkillGraphDemo.Tests",
+  "references": ["SkillGraphDemo", "Noskang.SkillGraph", "Noskang.SkillGraph.Editor", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

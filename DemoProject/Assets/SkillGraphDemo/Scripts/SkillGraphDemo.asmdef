@@ -1,0 +1,8 @@
+{
+  "name": "SkillGraphDemo",
+  "rootNamespace": "SkillGraphDemo",
+  "references": ["Noskang.SkillGraph"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "autoReferenced": true
+}

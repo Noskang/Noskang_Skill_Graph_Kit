@@ -7,8 +7,10 @@ List format: one term per line, case-insensitive substring match.
 Lines starting with "re:" are case-insensitive regular expressions. "#" lines and blank lines are ignored.
 
 Optional allow file (default: .local/audit-allow.txt): lines of "<key>\t<term>" that were
-reviewed by a person and accepted. <key> is a location printed by this script, or a file path
-(e.g. "README.md") to accept the term in every version of that file.
+reviewed by a person and accepted. <key> is a location printed by this script, a file path
+(e.g. "README.md") to accept the term in every version of that file, or "glob:<pattern>" to accept it
+in every matching path (fnmatch; "*" also crosses "/", e.g. "glob:*.meta" for Unity asset GUIDs).
+<term> "*" accepts every term for that key.
 
 Usage:
   python tools/audit_public.py                 # working tree + full history
@@ -18,6 +20,7 @@ Exit code: 0 = no findings, 1 = findings, 2 = setup error.
 Images are not read; their paths are listed for a visual check.
 """
 import argparse
+import fnmatch
 import io
 import re
 import subprocess
@@ -50,14 +53,17 @@ def load_terms(path):
 
 
 def load_allow(path):
+    allow, globs = set(), []
     if not path or not path.exists():
-        return set()
-    allow = set()
+        return allow, globs
     for line in path.read_text(encoding='utf-8').splitlines():
         if line.strip() and not line.startswith('#') and '\t' in line:
-            loc, term = line.split('\t', 1)
-            allow.add((loc.strip(), term.strip()))
-    return allow
+            loc, term = (x.strip() for x in line.split('\t', 1))
+            if loc.startswith('glob:'):
+                globs.append((loc[5:], term))
+            else:
+                allow.add((loc, term))
+    return allow, globs
 
 
 def git(*args, binary=False):
@@ -81,11 +87,14 @@ def texts_of(name, data):
 
 class Audit:
     def __init__(self, terms, allow):
-        self.terms, self.allow = terms, allow
+        self.terms, (self.allow, self.globs) = terms, allow
         self.findings, self.images = [], set()
 
     def allowed(self, term, *keys):
-        return any((k, term) in self.allow for k in keys if k)
+        keys = [k for k in keys if k]
+        if any((k, term) in self.allow or (k, '*') in self.allow for k in keys):
+            return True
+        return any(want in (term, '*') and fnmatch.fnmatchcase(k, pattern) for k in keys for pattern, want in self.globs)
 
     def scan(self, where, text, path=None):
         for n, line in enumerate(text.splitlines(), 1):

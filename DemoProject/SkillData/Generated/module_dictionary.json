@@ -1,0 +1,705 @@
+{
+ "format": "SkillGraph Module Dictionary 1",
+ "events": [
+  "CastStart",
+  "Moment",
+  "Create",
+  "Step",
+  "Alarm",
+  "Hit",
+  "LifeEnd",
+  "Destroy",
+  "Cancel",
+  "CheckPass",
+  "CheckFail",
+  "StatusApply",
+  "StatusExpire",
+  "StatusRemove",
+  "OnHurt"
+ ],
+ "kindEvents": {
+  "Skill": [
+   "CastStart",
+   "Moment",
+   "Cancel",
+   "CheckPass",
+   "CheckFail"
+  ],
+  "Effect": [
+   "Create",
+   "Step",
+   "Alarm",
+   "Hit",
+   "LifeEnd",
+   "Destroy",
+   "CheckPass",
+   "CheckFail"
+  ],
+  "Buff": [
+   "StatusApply",
+   "StatusExpire",
+   "StatusRemove",
+   "Step",
+   "Alarm",
+   "CheckPass",
+   "CheckFail",
+   "OnHurt"
+  ]
+ },
+ "presentationEvents": [
+  "CastStart",
+  "Moment",
+  "Create",
+  "Hit",
+  "Destroy",
+  "CheckPass",
+  "CheckFail",
+  "StatusApply",
+  "StatusExpire"
+ ],
+ "subscriptionEvents": [
+  "OnHurt"
+ ],
+ "subjects": [
+  "Self",
+  "Ally",
+  "Enemy",
+  "Any"
+ ],
+ "timedEvents": [
+  "Moment",
+  "Alarm"
+ ],
+ "exitEvents": [
+  "CheckPass",
+  "CheckFail"
+ ],
+ "startEvent": "CastStart",
+ "slotEnums": {
+  "ATTACH": [
+   "Effect",
+   "Body",
+   "Ground"
+  ],
+  "DAMAGE_KIND": [
+   "Normal",
+   "Pierce"
+  ],
+  "MOVE_MODE": [
+   "Dash",
+   "Leap",
+   "Teleport"
+  ],
+  "SHAPE": [
+   "Circle",
+   "Box"
+  ],
+  "STAT": [
+   "Attack",
+   "Defense",
+   "MoveSpeed"
+  ],
+  "STAT_OP": [
+   "Add",
+   "Multiply"
+  ],
+  "TARGET": [
+   "Self",
+   "HitTarget",
+   "Allies"
+  ],
+  "WHILE": [
+   "Owner",
+   "Charging",
+   "Released"
+  ]
+ },
+ "modules": [
+  {
+   "name": "CastLock",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "CastStart"
+   ],
+   "slots": [
+    [
+     "Duration",
+     "time",
+     "s",
+     "balance",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "MoveLockUntil",
+     "time",
+     "s",
+     "balance",
+     0,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "SpawnEffect",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "CheckPass",
+    "CheckFail"
+   ],
+   "slots": [
+    [
+     "BundleKey",
+     "key:moduleBundle",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Count",
+     "int",
+     "",
+     "balance",
+     1,
+     "cast",
+     null
+    ],
+    [
+     "OffsetX",
+     "float",
+     "m",
+     "balance",
+     0,
+     "cast",
+     null
+    ],
+    [
+     "AngleStep",
+     "float",
+     "deg",
+     "balance",
+     0,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "SelfMove",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment"
+   ],
+   "slots": [
+    [
+     "Mode",
+     "enum:MOVE_MODE",
+     "",
+     "structure",
+     "Dash",
+     "cast",
+     null
+    ],
+    [
+     "Distance",
+     "float",
+     "m",
+     "balance",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Duration",
+     "time",
+     "s",
+     "balance",
+     null,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "Charge",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "CastStart"
+   ],
+   "slots": [
+    [
+     "MaxTime",
+     "time",
+     "s",
+     "balance",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "MinTime",
+     "time",
+     "s",
+     "balance",
+     0,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [
+    "Pass",
+    "Fail"
+   ],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "ApplyStatus",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Hit",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply"
+   ],
+   "slots": [
+    [
+     "BuffKey",
+     "key:buff",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Target",
+     "enum:TARGET",
+     "",
+     "structure",
+     "HitTarget",
+     "cast",
+     null
+    ],
+    [
+     "Duration",
+     "time",
+     "s",
+     "balance",
+     null,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "StatModify",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "StatusApply"
+   ],
+   "slots": [
+    [
+     "Stat",
+     "enum:STAT",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Op",
+     "enum:STAT_OP",
+     "",
+     "structure",
+     "Add",
+     "cast",
+     null
+    ],
+    [
+     "Value",
+     "float",
+     "",
+     "balance",
+     null,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "SetLifetime",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Create"
+   ],
+   "slots": [
+    [
+     "Duration",
+     "time",
+     "s",
+     "balance",
+     null,
+     "spawn",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "MoveProjectile",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Create"
+   ],
+   "slots": [
+    [
+     "Speed",
+     "float",
+     "m/s",
+     "balance",
+     null,
+     "spawn",
+     null
+    ],
+    [
+     "Range",
+     "float",
+     "m",
+     "balance",
+     0,
+     "spawn",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "HitShape",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Create"
+   ],
+   "slots": [
+    [
+     "Shape",
+     "enum:SHAPE",
+     "",
+     "structure",
+     "Circle",
+     "spawn",
+     null
+    ],
+    [
+     "Radius",
+     "float",
+     "m",
+     "balance",
+     0,
+     "spawn",
+     null
+    ],
+    [
+     "Width",
+     "float",
+     "m",
+     "balance",
+     0,
+     "spawn",
+     null
+    ],
+    [
+     "Height",
+     "float",
+     "m",
+     "balance",
+     0,
+     "spawn",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "HitWindow",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Create"
+   ],
+   "slots": [
+    [
+     "From",
+     "time",
+     "s",
+     "balance",
+     0,
+     "spawn",
+     null
+    ],
+    [
+     "Until",
+     "time",
+     "s",
+     "balance",
+     null,
+     "spawn",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "Damage",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Hit"
+   ],
+   "slots": [
+    [
+     "Amount",
+     "float",
+     "",
+     "balance",
+     null,
+     "hit",
+     null
+    ],
+    [
+     "Kind",
+     "enum:DAMAGE_KIND",
+     "",
+     "structure",
+     "Normal",
+     "hit",
+     [
+      "Normal"
+     ]
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "Knockback",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Hit"
+   ],
+   "slots": [
+    [
+     "Force",
+     "float",
+     "m",
+     "balance",
+     null,
+     "hit",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": false
+  },
+  {
+   "name": "Destroy",
+   "line": "Logic",
+   "group": "common",
+   "events": [
+    "Hit",
+    "Alarm",
+    "LifeEnd",
+    "CheckPass",
+    "CheckFail"
+   ],
+   "slots": [],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "PlayMotion",
+   "line": "Presentation",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment"
+   ],
+   "slots": [
+    [
+     "PresentationKey",
+     "key:presentation",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Speed",
+     "float",
+     "x",
+     "structure",
+     1.0,
+     "cast",
+     null
+    ],
+    [
+     "While",
+     "enum:WHILE",
+     "",
+     "structure",
+     "Owner",
+     "cast",
+     null
+    ],
+    [
+     "Until",
+     "time",
+     "s",
+     "structure",
+     0,
+     "cast",
+     null
+    ],
+    [
+     "LoopFrom",
+     "time",
+     "s",
+     "structure",
+     0,
+     "cast",
+     null
+    ],
+    [
+     "LoopPeriod",
+     "time",
+     "s",
+     "structure",
+     0,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "PlaySound",
+   "line": "Presentation",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Hit",
+    "Destroy",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply"
+   ],
+   "slots": [
+    [
+     "PresentationKey",
+     "key:presentation",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "ShowVisual",
+   "line": "Presentation",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Hit",
+    "Destroy",
+    "StatusApply",
+    "StatusExpire"
+   ],
+   "slots": [
+    [
+     "PresentationKey",
+     "key:presentation",
+     "",
+     "structure",
+     null,
+     "cast",
+     null
+    ],
+    [
+     "Attach",
+     "enum:ATTACH",
+     "",
+     "structure",
+     "Effect",
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  }
+ ]
+}

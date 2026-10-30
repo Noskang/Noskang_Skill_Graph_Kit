@@ -5,7 +5,7 @@ import unittest
 
 import openpyxl
 
-from helpers import Temp, sha
+from helpers import PYTHON, Temp, sha
 from skillgraph import editor as se
 from skillgraph.pipeline import build
 
@@ -245,6 +245,15 @@ class EditorTests(unittest.TestCase):
             with self.assertRaisesRegex(se.OpError, 'Operation #2'):
                 se.apply_ops(se.Loaded(se.Workspace(t.cfg)), [dict(op='setMemo', bundle=1, node=1, text='a'),
                                                               dict(op='setLink', bundle=2999999, node=1, slot='X', source='Ref', value='A.B')])
+
+    def test_unity_fixture_is_current(self):
+        # The Unity EditMode tests read Tests/Editor/Fixtures/demo_model.json; it must match what the backend builds today.
+        fixture = PYTHON.parent.parent / 'Tests' / 'Editor' / 'Fixtures' / 'demo_model.json'
+        with Temp() as t:
+            m = se.Backend(t.cfg).handle(dict(cmd='model'))['model']
+            fresh = json.loads(json.dumps(m, ensure_ascii=False, sort_keys=True, default=str))
+            saved = json.loads(fixture.read_text(encoding='utf-8'))
+            self.assertEqual(fresh, saved, 'run: python -m skillgraph model --config ../../Samples~/Demo/skillgraph.json --out ../../Tests/Editor/Fixtures/demo_model.json')
 
     def test_serve(self):
         with Temp() as t:

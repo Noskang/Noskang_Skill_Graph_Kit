@@ -1,0 +1,5778 @@
+{
+ "aux": {
+  "bundles": {},
+  "combos": [],
+  "format": "SkillGraph Aux 1"
+ },
+ "bundles": [
+  {
+   "chain": [
+    2200001
+   ],
+   "desc": "Base skill: cast lock",
+   "key": 2200001,
+   "keyframes": [],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100101,
+    2100102,
+    2100103,
+    2100104,
+    2100201,
+    2100202,
+    2100203,
+    2100204,
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2200002
+   ],
+   "desc": "Base hit area: lifetime, shape, damage",
+   "key": 2200002,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Hit.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200002,
+       "name": "Radius",
+       "own": true,
+       "source": "ref",
+       "value": "Hit.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Amount",
+       "own": true,
+       "source": "ref",
+       "value": "Hit.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Hit"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100101,
+    2100102
+   ]
+  },
+  {
+   "chain": [
+    2200003
+   ],
+   "desc": "Base projectile: flies, hits once, disappears",
+   "key": 2200003,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Bolt.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "MoveProjectile",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Speed",
+       "own": true,
+       "source": "ref",
+       "value": "Bolt.Speed"
+      },
+      {
+       "definedIn": null,
+       "name": "Range",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 30,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200003,
+       "name": "Radius",
+       "own": true,
+       "source": "ref",
+       "value": "Bolt.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 4,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Amount",
+       "own": true,
+       "source": "ref",
+       "value": "Bolt.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 5,
+     "line": "Logic",
+     "module": "Destroy",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": []
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Bolt"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100201,
+    2100202,
+    2100203,
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200101
+   ],
+   "desc": "Slash",
+   "key": 2200101,
+   "keyframes": [
+    {
+     "clip": "Demo_Slash",
+     "keys": [
+      {
+       "frame": 0,
+       "name": "Start",
+       "rate": 60.0,
+       "seconds": 0.0
+      },
+      {
+       "frame": 6,
+       "name": "Windup",
+       "rate": 60.0,
+       "seconds": 0.1
+      },
+      {
+       "frame": 15,
+       "name": "Swing",
+       "rate": 60.0,
+       "seconds": 0.25
+      },
+      {
+       "frame": 30,
+       "name": "Recover",
+       "rate": 60.0,
+       "seconds": 0.5
+      }
+     ],
+     "length": 1.0,
+     "node": 10,
+     "speed": 1.0,
+     "start": 0.0
+    }
+   ],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Presentation",
+     "module": "PlayMotion",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500101
+      },
+      {
+       "definedIn": null,
+       "name": "Speed",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "While",
+       "own": false,
+       "source": "default",
+       "value": "Owner"
+      },
+      {
+       "definedIn": null,
+       "name": "Until",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopFrom",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopPeriod",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "Moment",
+     "eventValue": "@10:Swing",
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "Hit follows the animation",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200002
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "Moment",
+     "eventValue": "@10:Swing",
+     "fields": {},
+     "fromNode": null,
+     "id": 12,
+     "line": "Presentation",
+     "module": "PlaySound",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500102
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100101
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200102
+   ],
+   "desc": "Ground Spike",
+   "key": 2200102,
+   "keyframes": [],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200102,
+     "event": "Moment",
+     "eventValue": "Spike.Time",
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200102,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200112
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": 2200102,
+       "name": "OffsetX",
+       "own": true,
+       "source": "ref",
+       "value": "Spike.Offset"
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200102,
+     "event": "Moment",
+     "eventValue": "Spike.Time",
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Presentation",
+     "module": "ShowVisual",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200102,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500104
+      },
+      {
+       "definedIn": null,
+       "name": "Attach",
+       "own": false,
+       "source": "default",
+       "value": "Effect"
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Cast",
+    "Spike"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100102
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200103
+   ],
+   "desc": "War Cry",
+   "key": 2200103,
+   "keyframes": [],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200103,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "ApplyStatus",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200103,
+       "name": "BuffKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2110101
+      },
+      {
+       "definedIn": 2200103,
+       "name": "Target",
+       "own": true,
+       "source": "fixed",
+       "value": "Self"
+      },
+      {
+       "definedIn": 2200103,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Cry.Duration"
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200103,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Presentation",
+     "module": "PlaySound",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200103,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500105
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Cast",
+    "Cry"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100103
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200104
+   ],
+   "desc": "Dash",
+   "key": 2200104,
+   "keyframes": [
+    {
+     "clip": "Demo_Dash",
+     "keys": [
+      {
+       "frame": 0,
+       "name": "Start",
+       "rate": 60.0,
+       "seconds": 0.0
+      },
+      {
+       "frame": 12,
+       "name": "Land",
+       "rate": 60.0,
+       "seconds": 0.4
+      }
+     ],
+     "length": 0.5,
+     "node": 11,
+     "speed": 1.0,
+     "start": 0.0
+    }
+   ],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200104,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "SelfMove",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200104,
+       "name": "Mode",
+       "own": true,
+       "source": "fixed",
+       "value": "Dash"
+      },
+      {
+       "definedIn": 2200104,
+       "name": "Distance",
+       "own": true,
+       "source": "ref",
+       "value": "Dash.Distance"
+      },
+      {
+       "definedIn": 2200104,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Dash.Duration"
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200104,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Presentation",
+     "module": "PlayMotion",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200104,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500103
+      },
+      {
+       "definedIn": null,
+       "name": "Speed",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "While",
+       "own": false,
+       "source": "default",
+       "value": "Owner"
+      },
+      {
+       "definedIn": null,
+       "name": "Until",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopFrom",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopPeriod",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Dash",
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100104
+   ]
+  },
+  {
+   "chain": [
+    2200111
+   ],
+   "desc": "Battle Cry",
+   "key": 2200111,
+   "keyframes": [],
+   "kind": "Buff",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200111,
+     "event": "StatusApply",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "StatModify",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200111,
+       "name": "Stat",
+       "own": true,
+       "source": "fixed",
+       "value": "Attack"
+      },
+      {
+       "definedIn": 2200111,
+       "name": "Op",
+       "own": true,
+       "source": "fixed",
+       "value": "Multiply"
+      },
+      {
+       "definedIn": 2200111,
+       "name": "Value",
+       "own": true,
+       "source": "ref",
+       "value": "Cry.Attack"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200111,
+     "event": "StatusApply",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Presentation",
+     "module": "ShowVisual",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200111,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500106
+      },
+      {
+       "definedIn": null,
+       "name": "Attach",
+       "own": false,
+       "source": "default",
+       "value": "Effect"
+      }
+     ]
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Cry"
+   ],
+   "removed": [],
+   "usedBy": [
+    2110101
+   ]
+  },
+  {
+   "chain": [
+    2200002,
+    2200112
+   ],
+   "desc": "Ground Spike area",
+   "key": 2200112,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200112,
+       "name": "Shape",
+       "own": true,
+       "source": "fixed",
+       "value": "Box"
+      },
+      {
+       "definedIn": 2200112,
+       "name": "Radius",
+       "own": true,
+       "source": "fixed",
+       "value": 0
+      },
+      {
+       "definedIn": 2200112,
+       "name": "Width",
+       "own": true,
+       "source": "ref",
+       "value": "Spike.Width"
+      },
+      {
+       "definedIn": 2200112,
+       "name": "Height",
+       "own": true,
+       "source": "ref",
+       "value": "Spike.Height"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Amount",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    }
+   ],
+   "parent": 2200002,
+   "prefixes": [
+    "Hit",
+    "Spike"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100102
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200201
+   ],
+   "desc": "Fire Bolt",
+   "key": 2200201,
+   "keyframes": [
+    {
+     "clip": "Demo_Cast",
+     "keys": [
+      {
+       "frame": 0,
+       "name": "Start",
+       "rate": 60.0,
+       "seconds": 0.0
+      },
+      {
+       "frame": 18,
+       "name": "Release",
+       "rate": 60.0,
+       "seconds": 0.3
+      }
+     ],
+     "length": 1.0,
+     "node": 10,
+     "speed": 1.0,
+     "start": 0.0
+    }
+   ],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200201,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Presentation",
+     "module": "PlayMotion",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500201
+      },
+      {
+       "definedIn": null,
+       "name": "Speed",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "While",
+       "own": false,
+       "source": "default",
+       "value": "Owner"
+      },
+      {
+       "definedIn": null,
+       "name": "Until",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopFrom",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopPeriod",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200201,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200211
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200201,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 12,
+     "line": "Presentation",
+     "module": "PlaySound",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500202
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100201,
+    2100202,
+    2100203
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200201,
+    2200202
+   ],
+   "desc": "Fire Bolt II",
+   "key": 2200202,
+   "keyframes": [
+    {
+     "clip": "Demo_Cast",
+     "keys": [
+      {
+       "frame": 0,
+       "name": "Start",
+       "rate": 60.0,
+       "seconds": 0.0
+      },
+      {
+       "frame": 18,
+       "name": "Release",
+       "rate": 60.0,
+       "seconds": 0.3
+      }
+     ],
+     "length": 1.0,
+     "node": 10,
+     "speed": 1.0,
+     "start": 0.0
+    }
+   ],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200201,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Presentation",
+     "module": "PlayMotion",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "PresentationKey",
+       "own": false,
+       "source": "fixed",
+       "value": 2500201
+      },
+      {
+       "definedIn": null,
+       "name": "Speed",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "While",
+       "own": false,
+       "source": "default",
+       "value": "Owner"
+      },
+      {
+       "definedIn": null,
+       "name": "Until",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopFrom",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopPeriod",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200201,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "BundleKey",
+       "own": false,
+       "source": "fixed",
+       "value": 2200211
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": 2200202,
+       "name": "AngleStep",
+       "own": true,
+       "source": "ref",
+       "value": "Bolt.Spread"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200201,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 12,
+     "line": "Presentation",
+     "module": "PlaySound",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "PresentationKey",
+       "own": false,
+       "source": "fixed",
+       "value": 2500202
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200202,
+     "event": "Moment",
+     "eventValue": "Bolt.Release2",
+     "fields": {},
+     "fromNode": null,
+     "id": 100,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200202,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200211
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    }
+   ],
+   "parent": 2200201,
+   "prefixes": [
+    "Cast",
+    "Bolt"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100202
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200201,
+    2200203
+   ],
+   "desc": "Fire Bolt III",
+   "key": 2200203,
+   "keyframes": [
+    {
+     "clip": "Demo_Cast",
+     "keys": [
+      {
+       "frame": 0,
+       "name": "Start",
+       "rate": 60.0,
+       "seconds": 0.0
+      },
+      {
+       "frame": 18,
+       "name": "Release",
+       "rate": 60.0,
+       "seconds": 0.3
+      }
+     ],
+     "length": 1.0,
+     "node": 10,
+     "speed": 1.0,
+     "start": 0.0
+    }
+   ],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200201,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Presentation",
+     "module": "PlayMotion",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "PresentationKey",
+       "own": false,
+       "source": "fixed",
+       "value": 2500201
+      },
+      {
+       "definedIn": null,
+       "name": "Speed",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "While",
+       "own": false,
+       "source": "default",
+       "value": "Owner"
+      },
+      {
+       "definedIn": null,
+       "name": "Until",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopFrom",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "LoopPeriod",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200201,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200201,
+       "name": "BundleKey",
+       "own": false,
+       "source": "fixed",
+       "value": 2200211
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200203,
+     "event": "Moment",
+     "eventValue": "Bolt.Release2",
+     "fields": {},
+     "fromNode": null,
+     "id": 100,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200203,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200211
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200203,
+     "event": "Moment",
+     "eventValue": "Bolt.Release",
+     "fields": {},
+     "fromNode": null,
+     "id": 101,
+     "line": "Presentation",
+     "module": "ShowVisual",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200203,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500204
+      },
+      {
+       "definedIn": null,
+       "name": "Attach",
+       "own": false,
+       "source": "default",
+       "value": "Effect"
+      }
+     ]
+    }
+   ],
+   "parent": 2200201,
+   "prefixes": [
+    "Cast"
+   ],
+   "removed": [
+    {
+     "event": "Moment",
+     "id": 12,
+     "line": "Presentation",
+     "module": "PlaySound"
+    }
+   ],
+   "usedBy": [
+    2100203
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200204
+   ],
+   "desc": "Guard Field",
+   "key": 2200204,
+   "keyframes": [],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200204,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200204,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200214
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100204
+   ]
+  },
+  {
+   "chain": [
+    2200001,
+    2200205
+   ],
+   "desc": "Charge Beam",
+   "key": 2200205,
+   "keyframes": [],
+   "kind": "Skill",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200001,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "CastLock",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200001,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Cast.Duration"
+      },
+      {
+       "definedIn": null,
+       "name": "MoveLockUntil",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200205,
+     "event": "CastStart",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "Charge",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200205,
+       "name": "MaxTime",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.MaxCharge"
+      },
+      {
+       "definedIn": 2200205,
+       "name": "MinTime",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.MinCharge"
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200205,
+     "event": "CheckPass",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": 10,
+     "id": 11,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200205,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200215
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200205,
+     "event": "CheckFail",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": 10,
+     "id": 12,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200205,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200216
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200205,
+     "event": "CheckPass",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": 10,
+     "id": 13,
+     "line": "Presentation",
+     "module": "PlaySound",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200205,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500206
+      }
+     ]
+    }
+   ],
+   "parent": 2200001,
+   "prefixes": [
+    "Beam",
+    "Cast"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2200003,
+    2200211
+   ],
+   "desc": "Fire bolt",
+   "key": 2200211,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Bolt.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "MoveProjectile",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Speed",
+       "own": false,
+       "source": "ref",
+       "value": "Bolt.Speed"
+      },
+      {
+       "definedIn": null,
+       "name": "Range",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 30,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200003,
+       "name": "Radius",
+       "own": false,
+       "source": "ref",
+       "value": "Bolt.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 4,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200003,
+       "name": "Amount",
+       "own": false,
+       "source": "ref",
+       "value": "Bolt.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 5,
+     "line": "Logic",
+     "module": "Destroy",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": []
+    },
+    {
+     "added": true,
+     "definedIn": 2200211,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Presentation",
+     "module": "ShowVisual",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200211,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500203
+      },
+      {
+       "definedIn": null,
+       "name": "Attach",
+       "own": false,
+       "source": "default",
+       "value": "Effect"
+      }
+     ]
+    }
+   ],
+   "parent": 2200003,
+   "prefixes": [
+    "Bolt"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100201,
+    2100202,
+    2100203
+   ]
+  },
+  {
+   "chain": [
+    2200214
+   ],
+   "desc": "Guard field area",
+   "key": 2200214,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200214,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200214,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Field.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200214,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200214,
+       "name": "Radius",
+       "own": true,
+       "source": "ref",
+       "value": "Field.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200214,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "HitWindow",
+     "note": "",
+     "order": 30,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200214,
+       "name": "From",
+       "own": true,
+       "source": "ref",
+       "value": "Field.ActiveFrom"
+      },
+      {
+       "definedIn": 2200214,
+       "name": "Until",
+       "own": true,
+       "source": "ref",
+       "value": "Field.ActiveUntil"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200214,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 4,
+     "line": "Logic",
+     "module": "ApplyStatus",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200214,
+       "name": "BuffKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2110201
+      },
+      {
+       "definedIn": 2200214,
+       "name": "Target",
+       "own": true,
+       "source": "fixed",
+       "value": "Allies"
+      },
+      {
+       "definedIn": 2200214,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Guard.Duration"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200214,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 5,
+     "line": "Presentation",
+     "module": "ShowVisual",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200214,
+       "name": "PresentationKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2500205
+      },
+      {
+       "definedIn": 2200214,
+       "name": "Attach",
+       "own": true,
+       "source": "fixed",
+       "value": "Ground"
+      }
+     ]
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Field",
+    "Guard"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100204
+   ]
+  },
+  {
+   "chain": [
+    2200003,
+    2200215
+   ],
+   "desc": "Charged beam",
+   "key": 2200215,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200215,
+       "name": "Duration",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "MoveProjectile",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200215,
+       "name": "Speed",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.Speed"
+      },
+      {
+       "definedIn": null,
+       "name": "Range",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 30,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200215,
+       "name": "Radius",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 4,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200215,
+       "name": "Amount",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.Damage"
+      },
+      {
+       "definedIn": 2200215,
+       "name": "Kind",
+       "own": true,
+       "source": "fixed",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 5,
+     "line": "Logic",
+     "module": "Destroy",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": []
+    }
+   ],
+   "parent": 2200003,
+   "prefixes": [
+    "Beam"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2200003,
+    2200215,
+    2200216
+   ],
+   "desc": "Weak beam",
+   "key": 2200216,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200215,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Beam.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "MoveProjectile",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200215,
+       "name": "Speed",
+       "own": false,
+       "source": "ref",
+       "value": "Beam.Speed"
+      },
+      {
+       "definedIn": null,
+       "name": "Range",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 30,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200215,
+       "name": "Radius",
+       "own": false,
+       "source": "ref",
+       "value": "Beam.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 4,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200216,
+       "name": "Amount",
+       "own": true,
+       "source": "ref",
+       "value": "Beam.WeakDamage"
+      },
+      {
+       "definedIn": 2200215,
+       "name": "Kind",
+       "own": false,
+       "source": "fixed",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200003,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 5,
+     "line": "Logic",
+     "module": "Destroy",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": []
+    }
+   ],
+   "parent": 2200215,
+   "prefixes": [
+    "Beam"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2200221
+   ],
+   "desc": "Guarded",
+   "key": 2200221,
+   "keyframes": [],
+   "kind": "Buff",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200221,
+     "event": "StatusApply",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "StatModify",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200221,
+       "name": "Stat",
+       "own": true,
+       "source": "fixed",
+       "value": "Defense"
+      },
+      {
+       "definedIn": null,
+       "name": "Op",
+       "own": false,
+       "source": "default",
+       "value": "Add"
+      },
+      {
+       "definedIn": 2200221,
+       "name": "Value",
+       "own": true,
+       "source": "ref",
+       "value": "Guard.Defense"
+      }
+     ]
+    }
+   ],
+   "parent": null,
+   "prefixes": [
+    "Guard"
+   ],
+   "removed": [],
+   "usedBy": [
+    2110201
+   ]
+  }
+ ],
+ "dictionary": {
+  "drawn": {},
+  "events": [
+   "CastStart",
+   "Moment",
+   "Create",
+   "Step",
+   "Alarm",
+   "Hit",
+   "LifeEnd",
+   "Destroy",
+   "Cancel",
+   "CheckPass",
+   "CheckFail",
+   "StatusApply",
+   "StatusExpire",
+   "StatusRemove",
+   "OnHurt"
+  ],
+  "exitEvents": [
+   "CheckPass",
+   "CheckFail"
+  ],
+  "kindEvents": {
+   "Buff": [
+    "Step",
+    "Alarm",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply",
+    "StatusExpire",
+    "StatusRemove",
+    "OnHurt"
+   ],
+   "Effect": [
+    "Create",
+    "Step",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "Destroy",
+    "CheckPass",
+    "CheckFail"
+   ],
+   "Skill": [
+    "CastStart",
+    "Moment",
+    "Cancel",
+    "CheckPass",
+    "CheckFail"
+   ]
+  },
+  "modules": [
+   {
+    "events": [
+     "CastStart"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Cast lock",
+    "line": "Logic",
+    "name": "CastLock",
+    "note": "Locks actions while casting",
+    "slots": [
+     {
+      "default": null,
+      "description": "How long the cast lasts",
+      "kind": "balance",
+      "name": "Duration",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     },
+     {
+      "default": 0,
+      "description": "Movement is locked until this time",
+      "kind": "balance",
+      "name": "MoveLockUntil",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Alarm",
+     "Hit",
+     "LifeEnd",
+     "CheckPass",
+     "CheckFail"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Spawn effect",
+    "line": "Logic",
+    "name": "SpawnEffect",
+    "note": "Creates an effect object from another bundle",
+    "slots": [
+     {
+      "default": null,
+      "description": "Effect bundle to create",
+      "kind": "structure",
+      "name": "BundleKey",
+      "supported": null,
+      "timing": "cast",
+      "type": "key:moduleBundle",
+      "unit": ""
+     },
+     {
+      "default": 1,
+      "description": "How many to create",
+      "kind": "balance",
+      "name": "Count",
+      "supported": null,
+      "timing": "cast",
+      "type": "int",
+      "unit": ""
+     },
+     {
+      "default": 0,
+      "description": "Distance in front of the caster",
+      "kind": "balance",
+      "name": "OffsetX",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": "m"
+     },
+     {
+      "default": 0,
+      "description": "Angle between copies",
+      "kind": "balance",
+      "name": "AngleStep",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": "deg"
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Self move",
+    "line": "Logic",
+    "name": "SelfMove",
+    "note": "Moves the caster",
+    "slots": [
+     {
+      "default": "Dash",
+      "description": "How to move",
+      "kind": "structure",
+      "name": "Mode",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:MOVE_MODE",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "Distance",
+      "kind": "balance",
+      "name": "Distance",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": "m"
+     },
+     {
+      "default": null,
+      "description": "Time to cover the distance",
+      "kind": "balance",
+      "name": "Duration",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart"
+    ],
+    "exits": [
+     "Pass",
+     "Fail"
+    ],
+    "implemented": true,
+    "label": "Charge",
+    "line": "Logic",
+    "name": "Charge",
+    "note": "Hold to charge; passes when held long enough",
+    "slots": [
+     {
+      "default": null,
+      "description": "Charging stops here",
+      "kind": "balance",
+      "name": "MaxTime",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     },
+     {
+      "default": 0,
+      "description": "Shorter charges fail",
+      "kind": "balance",
+      "name": "MinTime",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Hit",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Apply buff",
+    "line": "Logic",
+    "name": "ApplyStatus",
+    "note": "Applies a buff",
+    "slots": [
+     {
+      "default": null,
+      "description": "Buff to apply",
+      "kind": "structure",
+      "name": "BuffKey",
+      "supported": null,
+      "timing": "cast",
+      "type": "key:buff",
+      "unit": ""
+     },
+     {
+      "default": "HitTarget",
+      "description": "Who gets it",
+      "kind": "structure",
+      "name": "Target",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:TARGET",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "Buff duration",
+      "kind": "balance",
+      "name": "Duration",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "StatusApply"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Stat modify",
+    "line": "Logic",
+    "name": "StatModify",
+    "note": "Changes a stat while the buff lasts",
+    "slots": [
+     {
+      "default": null,
+      "description": "Stat to change",
+      "kind": "structure",
+      "name": "Stat",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:STAT",
+      "unit": ""
+     },
+     {
+      "default": "Add",
+      "description": "Add or multiply",
+      "kind": "structure",
+      "name": "Op",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:STAT_OP",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "Amount",
+      "kind": "balance",
+      "name": "Value",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "Create"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Lifetime",
+    "line": "Logic",
+    "name": "SetLifetime",
+    "note": "Effect disappears after this time",
+    "slots": [
+     {
+      "default": null,
+      "description": "Lifetime",
+      "kind": "balance",
+      "name": "Duration",
+      "supported": null,
+      "timing": "spawn",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "Create"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Projectile",
+    "line": "Logic",
+    "name": "MoveProjectile",
+    "note": "Flies straight forward",
+    "slots": [
+     {
+      "default": null,
+      "description": "Flight speed",
+      "kind": "balance",
+      "name": "Speed",
+      "supported": null,
+      "timing": "spawn",
+      "type": "float",
+      "unit": "m/s"
+     },
+     {
+      "default": 0,
+      "description": "0 = until lifetime ends",
+      "kind": "balance",
+      "name": "Range",
+      "supported": null,
+      "timing": "spawn",
+      "type": "float",
+      "unit": "m"
+     }
+    ]
+   },
+   {
+    "events": [
+     "Create"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Hit shape",
+    "line": "Logic",
+    "name": "HitShape",
+    "note": "Area that can hit",
+    "slots": [
+     {
+      "default": "Circle",
+      "description": "Circle or box",
+      "kind": "structure",
+      "name": "Shape",
+      "supported": null,
+      "timing": "spawn",
+      "type": "enum:SHAPE",
+      "unit": ""
+     },
+     {
+      "default": 0,
+      "description": "Circle radius",
+      "kind": "balance",
+      "name": "Radius",
+      "supported": null,
+      "timing": "spawn",
+      "type": "float",
+      "unit": "m"
+     },
+     {
+      "default": 0,
+      "description": "Box width",
+      "kind": "balance",
+      "name": "Width",
+      "supported": null,
+      "timing": "spawn",
+      "type": "float",
+      "unit": "m"
+     },
+     {
+      "default": 0,
+      "description": "Box height",
+      "kind": "balance",
+      "name": "Height",
+      "supported": null,
+      "timing": "spawn",
+      "type": "float",
+      "unit": "m"
+     }
+    ]
+   },
+   {
+    "events": [
+     "Create"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Active window",
+    "line": "Logic",
+    "name": "HitWindow",
+    "note": "The hit shape only works inside this window",
+    "slots": [
+     {
+      "default": 0,
+      "description": "Window start",
+      "kind": "balance",
+      "name": "From",
+      "supported": null,
+      "timing": "spawn",
+      "type": "time",
+      "unit": "s"
+     },
+     {
+      "default": null,
+      "description": "Window end",
+      "kind": "balance",
+      "name": "Until",
+      "supported": null,
+      "timing": "spawn",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "Hit"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Damage",
+    "line": "Logic",
+    "name": "Damage",
+    "note": "Deals damage on hit",
+    "slots": [
+     {
+      "default": null,
+      "description": "Damage dealt",
+      "kind": "balance",
+      "name": "Amount",
+      "supported": null,
+      "timing": "hit",
+      "type": "float",
+      "unit": ""
+     },
+     {
+      "default": "Normal",
+      "description": "Damage kind",
+      "kind": "structure",
+      "name": "Kind",
+      "supported": [
+       "Normal"
+      ],
+      "timing": "hit",
+      "type": "enum:DAMAGE_KIND",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "Hit"
+    ],
+    "exits": [],
+    "implemented": false,
+    "label": "Knockback",
+    "line": "Logic",
+    "name": "Knockback",
+    "note": "Pushes the target (no runtime yet)",
+    "slots": [
+     {
+      "default": null,
+      "description": "Push distance",
+      "kind": "balance",
+      "name": "Force",
+      "supported": null,
+      "timing": "hit",
+      "type": "float",
+      "unit": "m"
+     }
+    ]
+   },
+   {
+    "events": [
+     "Hit",
+     "Alarm",
+     "LifeEnd",
+     "CheckPass",
+     "CheckFail"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Destroy",
+    "line": "Logic",
+    "name": "Destroy",
+    "note": "Removes the effect",
+    "slots": []
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Play motion",
+    "line": "Presentation",
+    "name": "PlayMotion",
+    "note": "Plays a body animation",
+    "slots": [
+     {
+      "default": null,
+      "description": "Motion resource",
+      "kind": "structure",
+      "name": "PresentationKey",
+      "supported": null,
+      "timing": "cast",
+      "type": "key:presentation",
+      "unit": ""
+     },
+     {
+      "default": 1.0,
+      "description": "Playback speed",
+      "kind": "structure",
+      "name": "Speed",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": "x"
+     },
+     {
+      "default": "Owner",
+      "description": "When it plays",
+      "kind": "structure",
+      "name": "While",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:WHILE",
+      "unit": ""
+     },
+     {
+      "default": 0,
+      "description": "0 = clip end",
+      "kind": "structure",
+      "name": "Until",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     },
+     {
+      "default": 0,
+      "description": "Loop start",
+      "kind": "structure",
+      "name": "LoopFrom",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     },
+     {
+      "default": 0,
+      "description": "0 = no loop",
+      "kind": "structure",
+      "name": "LoopPeriod",
+      "supported": null,
+      "timing": "cast",
+      "type": "time",
+      "unit": "s"
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Hit",
+     "Destroy",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Play sound",
+    "line": "Presentation",
+    "name": "PlaySound",
+    "note": "Plays a sound",
+    "slots": [
+     {
+      "default": null,
+      "description": "Sound resource",
+      "kind": "structure",
+      "name": "PresentationKey",
+      "supported": null,
+      "timing": "cast",
+      "type": "key:presentation",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Hit",
+     "Destroy",
+     "StatusApply",
+     "StatusExpire"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Show visual",
+    "line": "Presentation",
+    "name": "ShowVisual",
+    "note": "Shows a visual effect",
+    "slots": [
+     {
+      "default": null,
+      "description": "Visual resource",
+      "kind": "structure",
+      "name": "PresentationKey",
+      "supported": null,
+      "timing": "cast",
+      "type": "key:presentation",
+      "unit": ""
+     },
+     {
+      "default": "Effect",
+      "description": "Where it follows",
+      "kind": "structure",
+      "name": "Attach",
+      "supported": null,
+      "timing": "cast",
+      "type": "enum:ATTACH",
+      "unit": ""
+     }
+    ]
+   }
+  ],
+  "presentationEvents": [
+   "CastStart",
+   "Moment",
+   "Create",
+   "Hit",
+   "Destroy",
+   "CheckPass",
+   "CheckFail",
+   "StatusApply",
+   "StatusExpire"
+  ],
+  "slotEnums": {
+   "ATTACH": [
+    "Effect",
+    "Body",
+    "Ground"
+   ],
+   "DAMAGE_KIND": [
+    "Normal",
+    "Pierce"
+   ],
+   "MOVE_MODE": [
+    "Dash",
+    "Leap",
+    "Teleport"
+   ],
+   "SHAPE": [
+    "Circle",
+    "Box"
+   ],
+   "STAT": [
+    "Attack",
+    "Defense",
+    "MoveSpeed"
+   ],
+   "STAT_OP": [
+    "Add",
+    "Multiply"
+   ],
+   "TARGET": [
+    "Self",
+    "HitTarget",
+    "Allies"
+   ],
+   "WHILE": [
+    "Owner",
+    "Charging",
+    "Released"
+   ]
+  },
+  "startEvent": "CastStart",
+  "subjects": [
+   "Self",
+   "Ally",
+   "Enemy",
+   "Any"
+  ],
+  "subscriptionEvents": [
+   "OnHurt"
+  ],
+  "timedEvents": [
+   "Moment",
+   "Alarm"
+  ]
+ },
+ "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+ "display": {
+  "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+  "enumLabels": {},
+  "events": {
+   "Alarm": {
+    "en": "Alarm",
+    "ko": "알람"
+   },
+   "Cancel": {
+    "en": "Cancelled",
+    "ko": "취소"
+   },
+   "CastStart": {
+    "en": "Cast start",
+    "ko": "시전 시작"
+   },
+   "CheckFail": {
+    "en": "Fail",
+    "ko": "실패"
+   },
+   "CheckPass": {
+    "en": "Pass",
+    "ko": "통과"
+   },
+   "Create": {
+    "en": "Created",
+    "ko": "생성"
+   },
+   "Destroy": {
+    "en": "Destroyed",
+    "ko": "소멸"
+   },
+   "Hit": {
+    "en": "Hit",
+    "ko": "명중"
+   },
+   "LifeEnd": {
+    "en": "Life end",
+    "ko": "수명 끝"
+   },
+   "Moment": {
+    "en": "At time",
+    "ko": "시각"
+   },
+   "OnHurt": {
+    "en": "When hurt",
+    "ko": "맞을 때"
+   },
+   "StatusApply": {
+    "en": "Applied",
+    "ko": "적용"
+   },
+   "StatusExpire": {
+    "en": "Expired",
+    "ko": "만료"
+   },
+   "StatusRemove": {
+    "en": "Removed",
+    "ko": "제거"
+   },
+   "Step": {
+    "en": "Every tick",
+    "ko": "매 박자"
+   }
+  },
+  "families": [
+   {
+    "color": "#4E6C8E",
+    "icon": "◷",
+    "label": {
+     "en": "Cast & flow",
+     "ko": "시전·흐름"
+    },
+    "name": "CastFlow"
+   },
+   {
+    "color": "#A7862C",
+    "icon": "✦",
+    "label": {
+     "en": "Spawn & life",
+     "ko": "생성·수명"
+    },
+    "name": "SpawnLife"
+   },
+   {
+    "color": "#3E8A57",
+    "icon": "→",
+    "label": {
+     "en": "Movement",
+     "ko": "이동"
+    },
+    "name": "Move"
+   },
+   {
+    "color": "#AE4646",
+    "icon": "✕",
+    "label": {
+     "en": "Hit & damage",
+     "ko": "판정·피해"
+    },
+    "name": "HitDamage"
+   },
+   {
+    "color": "#7552A8",
+    "icon": "◆",
+    "label": {
+     "en": "Status & buffs",
+     "ko": "상태·버프"
+    },
+    "name": "StatusBuff"
+   },
+   {
+    "color": "#C0742C",
+    "icon": "▶",
+    "label": {
+     "en": "Presentation",
+     "ko": "연출"
+    },
+    "name": "Presentation"
+   }
+  ],
+  "format": "SkillGraph Module Display 1",
+  "modules": [
+   {
+    "choose": null,
+    "family": "CastFlow",
+    "kind": null,
+    "label": {
+     "en": "Cast lock",
+     "ko": "시전 잠금"
+    },
+    "name": "CastLock",
+    "note": {
+     "en": "Locks actions while casting",
+     "ko": "시전 동안 다른 행동을 막음"
+    },
+    "slots": [
+     [
+      "Duration",
+      {
+       "en": "Duration",
+       "ko": "길이"
+      },
+      {
+       "en": "How long the cast lasts",
+       "ko": "시전이 이어지는 시간"
+      }
+     ],
+     [
+      "MoveLockUntil",
+      {
+       "en": "Move lock",
+       "ko": "이동 잠금"
+      },
+      {
+       "en": "Movement is locked until this time",
+       "ko": "이 시각까지 걷지 못함"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Duration",
+       "MoveLockUntil"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "SpawnLife",
+    "kind": null,
+    "label": {
+     "en": "Spawn effect",
+     "ko": "효과 생성"
+    },
+    "name": "SpawnEffect",
+    "note": {
+     "en": "Creates an effect object from another bundle",
+     "ko": "다른 묶음의 효과 객체를 만듦"
+    },
+    "slots": [
+     [
+      "BundleKey",
+      {
+       "en": "Effect",
+       "ko": "효과"
+      },
+      {
+       "en": "Effect bundle to create",
+       "ko": "만들 효과 묶음"
+      }
+     ],
+     [
+      "Count",
+      {
+       "en": "Count",
+       "ko": "개수"
+      },
+      {
+       "en": "How many to create",
+       "ko": "만드는 개수"
+      }
+     ],
+     [
+      "OffsetX",
+      {
+       "en": "Forward offset",
+       "ko": "앞 거리"
+      },
+      {
+       "en": "Distance in front of the caster",
+       "ko": "시전자 앞쪽 거리"
+      }
+     ],
+     [
+      "AngleStep",
+      {
+       "en": "Angle step",
+       "ko": "각도 간격"
+      },
+      {
+       "en": "Angle between copies",
+       "ko": "여러 개일 때 사이 각도"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "BundleKey",
+       "Count",
+       "OffsetX",
+       "AngleStep"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Move",
+    "kind": null,
+    "label": {
+     "en": "Self move",
+     "ko": "자기 이동"
+    },
+    "name": "SelfMove",
+    "note": {
+     "en": "Moves the caster",
+     "ko": "시전자를 움직임"
+    },
+    "slots": [
+     [
+      "Mode",
+      {
+       "en": "Mode",
+       "ko": "방식"
+      },
+      {
+       "en": "How to move",
+       "ko": "움직이는 방식"
+      }
+     ],
+     [
+      "Distance",
+      {
+       "en": "Distance",
+       "ko": "거리"
+      },
+      {
+       "en": "Distance",
+       "ko": "거리"
+      }
+     ],
+     [
+      "Duration",
+      {
+       "en": "Duration",
+       "ko": "시간"
+      },
+      {
+       "en": "Time to cover the distance",
+       "ko": "거리를 가는 시간"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Mode",
+       "Distance",
+       "Duration"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "CastFlow",
+    "kind": null,
+    "label": {
+     "en": "Charge",
+     "ko": "충전"
+    },
+    "name": "Charge",
+    "note": {
+     "en": "Hold to charge; passes when held long enough",
+     "ko": "누르고 모음. 충분히 모으면 통과"
+    },
+    "slots": [
+     [
+      "MaxTime",
+      {
+       "en": "Max time",
+       "ko": "최대"
+      },
+      {
+       "en": "Charging stops here",
+       "ko": "이 시각에 충전이 끝남"
+      }
+     ],
+     [
+      "MinTime",
+      {
+       "en": "Min time",
+       "ko": "최소"
+      },
+      {
+       "en": "Shorter charges fail",
+       "ko": "이보다 짧으면 실패"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "MaxTime",
+       "MinTime"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "StatusBuff",
+    "kind": null,
+    "label": {
+     "en": "Apply buff",
+     "ko": "버프 걸기"
+    },
+    "name": "ApplyStatus",
+    "note": {
+     "en": "Applies a buff",
+     "ko": "버프를 건다"
+    },
+    "slots": [
+     [
+      "BuffKey",
+      {
+       "en": "Buff",
+       "ko": "버프"
+      },
+      {
+       "en": "Buff to apply",
+       "ko": "걸 버프"
+      }
+     ],
+     [
+      "Target",
+      {
+       "en": "Target",
+       "ko": "대상"
+      },
+      {
+       "en": "Who gets it",
+       "ko": "받는 대상"
+      }
+     ],
+     [
+      "Duration",
+      {
+       "en": "Duration",
+       "ko": "지속"
+      },
+      {
+       "en": "Buff duration",
+       "ko": "버프 지속 시간"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "BuffKey",
+       "Target",
+       "Duration"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "StatusBuff",
+    "kind": null,
+    "label": {
+     "en": "Stat modify",
+     "ko": "능력치 변경"
+    },
+    "name": "StatModify",
+    "note": {
+     "en": "Changes a stat while the buff lasts",
+     "ko": "버프 동안 능력치를 바꿈"
+    },
+    "slots": [
+     [
+      "Stat",
+      {
+       "en": "Stat",
+       "ko": "능력치"
+      },
+      {
+       "en": "Stat to change",
+       "ko": "바꿀 능력치"
+      }
+     ],
+     [
+      "Op",
+      {
+       "en": "Operation",
+       "ko": "연산"
+      },
+      {
+       "en": "Add or multiply",
+       "ko": "더하기 또는 곱하기"
+      }
+     ],
+     [
+      "Value",
+      {
+       "en": "Value",
+       "ko": "값"
+      },
+      {
+       "en": "Amount",
+       "ko": "양"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Stat",
+       "Op",
+       "Value"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "SpawnLife",
+    "kind": null,
+    "label": {
+     "en": "Lifetime",
+     "ko": "수명"
+    },
+    "name": "SetLifetime",
+    "note": {
+     "en": "Effect disappears after this time",
+     "ko": "이 시간이 지나면 효과가 사라짐"
+    },
+    "slots": [
+     [
+      "Duration",
+      {
+       "en": "Duration",
+       "ko": "수명"
+      },
+      {
+       "en": "Lifetime",
+       "ko": "수명"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Duration"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Move",
+    "kind": null,
+    "label": {
+     "en": "Projectile",
+     "ko": "투사체"
+    },
+    "name": "MoveProjectile",
+    "note": {
+     "en": "Flies straight forward",
+     "ko": "앞으로 곧게 날아감"
+    },
+    "slots": [
+     [
+      "Speed",
+      {
+       "en": "Speed",
+       "ko": "속도"
+      },
+      {
+       "en": "Flight speed",
+       "ko": "나는 속도"
+      }
+     ],
+     [
+      "Range",
+      {
+       "en": "Range",
+       "ko": "사거리"
+      },
+      {
+       "en": "0 = until lifetime ends",
+       "ko": "0이면 수명까지"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Speed",
+       "Range"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "HitDamage",
+    "kind": {
+     "rules": [
+      {
+       "events": [],
+       "slots": [
+        "Radius"
+       ],
+       "values": [
+        "Circle"
+       ],
+       "verified": true
+      },
+      {
+       "events": [],
+       "slots": [
+        "Width",
+        "Height"
+       ],
+       "values": [
+        "Box"
+       ],
+       "verified": true
+      }
+     ],
+     "slot": "Shape"
+    },
+    "label": {
+     "en": "Hit shape",
+     "ko": "판정 모양"
+    },
+    "name": "HitShape",
+    "note": {
+     "en": "Area that can hit",
+     "ko": "맞히는 영역"
+    },
+    "slots": [
+     [
+      "Shape",
+      {
+       "en": "Shape",
+       "ko": "모양"
+      },
+      {
+       "en": "Circle or box",
+       "ko": "원 또는 상자"
+      }
+     ],
+     [
+      "Radius",
+      {
+       "en": "Radius",
+       "ko": "반지름"
+      },
+      {
+       "en": "Circle radius",
+       "ko": "원 반지름"
+      }
+     ],
+     [
+      "Width",
+      {
+       "en": "Width",
+       "ko": "너비"
+      },
+      {
+       "en": "Box width",
+       "ko": "상자 너비"
+      }
+     ],
+     [
+      "Height",
+      {
+       "en": "Height",
+       "ko": "높이"
+      },
+      {
+       "en": "Box height",
+       "ko": "상자 높이"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Shape",
+       "Radius"
+      ]
+     },
+     {
+      "advanced": true,
+      "name": "Box",
+      "slots": [
+       "Width",
+       "Height"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "HitDamage",
+    "kind": null,
+    "label": {
+     "en": "Active window",
+     "ko": "켜짐 구간"
+    },
+    "name": "HitWindow",
+    "note": {
+     "en": "The hit shape only works inside this window",
+     "ko": "이 구간에만 판정이 켜짐"
+    },
+    "slots": [
+     [
+      "From",
+      {
+       "en": "From",
+       "ko": "시작"
+      },
+      {
+       "en": "Window start",
+       "ko": "켜지는 시각"
+      }
+     ],
+     [
+      "Until",
+      {
+       "en": "Until",
+       "ko": "끝"
+      },
+      {
+       "en": "Window end",
+       "ko": "꺼지는 시각"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "From",
+       "Until"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "HitDamage",
+    "kind": null,
+    "label": {
+     "en": "Damage",
+     "ko": "피해"
+    },
+    "name": "Damage",
+    "note": {
+     "en": "Deals damage on hit",
+     "ko": "맞히면 피해를 줌"
+    },
+    "slots": [
+     [
+      "Amount",
+      {
+       "en": "Amount",
+       "ko": "피해량"
+      },
+      {
+       "en": "Damage dealt",
+       "ko": "주는 피해"
+      }
+     ],
+     [
+      "Kind",
+      {
+       "en": "Kind",
+       "ko": "종류"
+      },
+      {
+       "en": "Damage kind",
+       "ko": "피해 종류"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Amount",
+       "Kind"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "HitDamage",
+    "kind": null,
+    "label": {
+     "en": "Knockback",
+     "ko": "밀치기"
+    },
+    "name": "Knockback",
+    "note": {
+     "en": "Pushes the target (no runtime yet)",
+     "ko": "대상을 밀어냄(실행기 없음)"
+    },
+    "slots": [
+     [
+      "Force",
+      {
+       "en": "Force",
+       "ko": "힘"
+      },
+      {
+       "en": "Push distance",
+       "ko": "미는 거리"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Force"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "SpawnLife",
+    "kind": null,
+    "label": {
+     "en": "Destroy",
+     "ko": "소멸"
+    },
+    "name": "Destroy",
+    "note": {
+     "en": "Removes the effect",
+     "ko": "효과를 없앰"
+    },
+    "slots": [],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": []
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Presentation",
+    "kind": null,
+    "label": {
+     "en": "Play motion",
+     "ko": "모션 재생"
+    },
+    "name": "PlayMotion",
+    "note": {
+     "en": "Plays a body animation",
+     "ko": "몸 애니메이션을 재생"
+    },
+    "slots": [
+     [
+      "PresentationKey",
+      {
+       "en": "Motion",
+       "ko": "모션"
+      },
+      {
+       "en": "Motion resource",
+       "ko": "모션 리소스"
+      }
+     ],
+     [
+      "Speed",
+      {
+       "en": "Speed",
+       "ko": "속도"
+      },
+      {
+       "en": "Playback speed",
+       "ko": "재생 속도"
+      }
+     ],
+     [
+      "While",
+      {
+       "en": "While",
+       "ko": "동안"
+      },
+      {
+       "en": "When it plays",
+       "ko": "재생하는 동안"
+      }
+     ],
+     [
+      "Until",
+      {
+       "en": "Until",
+       "ko": "끝"
+      },
+      {
+       "en": "0 = clip end",
+       "ko": "0이면 클립 끝"
+      }
+     ],
+     [
+      "LoopFrom",
+      {
+       "en": "Loop from",
+       "ko": "반복 시작"
+      },
+      {
+       "en": "Loop start",
+       "ko": "반복 시작 시각"
+      }
+     ],
+     [
+      "LoopPeriod",
+      {
+       "en": "Loop period",
+       "ko": "반복 주기"
+      },
+      {
+       "en": "0 = no loop",
+       "ko": "0이면 반복 없음"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "PresentationKey",
+       "Speed"
+      ]
+     },
+     {
+      "advanced": true,
+      "name": "Timing",
+      "slots": [
+       "While",
+       "Until",
+       "LoopFrom",
+       "LoopPeriod"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Presentation",
+    "kind": null,
+    "label": {
+     "en": "Play sound",
+     "ko": "소리 재생"
+    },
+    "name": "PlaySound",
+    "note": {
+     "en": "Plays a sound",
+     "ko": "소리를 냄"
+    },
+    "slots": [
+     [
+      "PresentationKey",
+      {
+       "en": "Sound",
+       "ko": "소리"
+      },
+      {
+       "en": "Sound resource",
+       "ko": "소리 리소스"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "PresentationKey"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Presentation",
+    "kind": null,
+    "label": {
+     "en": "Show visual",
+     "ko": "그림 표시"
+    },
+    "name": "ShowVisual",
+    "note": {
+     "en": "Shows a visual effect",
+     "ko": "효과 그림을 보여 줌"
+    },
+    "slots": [
+     [
+      "PresentationKey",
+      {
+       "en": "Visual",
+       "ko": "그림"
+      },
+      {
+       "en": "Visual resource",
+       "ko": "그림 리소스"
+      }
+     ],
+     [
+      "Attach",
+      {
+       "en": "Attach",
+       "ko": "붙는 곳"
+      },
+      {
+       "en": "Where it follows",
+       "ko": "따라가는 대상"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "PresentationKey",
+       "Attach"
+      ]
+     }
+    ],
+    "unused": []
+   }
+  ]
+ },
+ "displayStale": false,
+ "externalChange": false,
+ "format": "SkillGraph Edit 1",
+ "issues": [],
+ "keyNames": {
+  "2100101": "Slash",
+  "2100102": "Ground Spike",
+  "2100103": "War Cry",
+  "2100104": "Dash",
+  "2100201": "Fire Bolt",
+  "2100202": "Fire Bolt II",
+  "2100203": "Fire Bolt III",
+  "2100204": "Guard Field",
+  "2100205": "Charge Beam",
+  "2110101": "Battle Cry",
+  "2110201": "Guarded",
+  "2200001": "Base skill: cast lock",
+  "2200002": "Base hit area: lifetime, shape, damage",
+  "2200003": "Base projectile: flies, hits once, disappears",
+  "2200101": "Slash",
+  "2200102": "Ground Spike",
+  "2200103": "War Cry",
+  "2200104": "Dash",
+  "2200111": "Battle Cry",
+  "2200112": "Ground Spike area",
+  "2200201": "Fire Bolt",
+  "2200202": "Fire Bolt II",
+  "2200203": "Fire Bolt III",
+  "2200204": "Guard Field",
+  "2200205": "Charge Beam",
+  "2200211": "Fire bolt",
+  "2200214": "Guard field area",
+  "2200215": "Charged beam",
+  "2200216": "Weak beam",
+  "2200221": "Guarded",
+  "2300001": "Shared cast values",
+  "2300101": "Slash",
+  "2300102": "Ground Spike",
+  "2300103": "War Cry",
+  "2300104": "Dash",
+  "2300111": "Battle Cry buff",
+  "2300201": "Fire Bolt",
+  "2300202": "Fire Bolt II",
+  "2300203": "Fire Bolt III",
+  "2300204": "Guard Field",
+  "2300205": "Charge Beam",
+  "2300221": "Guarded buff",
+  "2400201": "Example passive: +10% bolt damage",
+  "2500101": "Slash swing motion",
+  "2500102": "Swing sound",
+  "2500103": "Dash motion",
+  "2500104": "Spike visual",
+  "2500105": "Shout",
+  "2500106": "Attack aura",
+  "2500201": "Cast motion",
+  "2500202": "Fire sound",
+  "2500203": "Fire hit",
+  "2500204": "Fire burst",
+  "2500205": "Guard ring",
+  "2500206": "Beam sound"
+ },
+ "language": "en",
+ "ops": [],
+ "owners": [
+  {
+   "buffs": [],
+   "bundle": 2200101,
+   "bundles": [
+    2200101,
+    2200002
+   ],
+   "chain": [
+    2200001,
+    2200101
+   ],
+   "key": 2100101,
+   "kind": "Skill",
+   "name": "Slash",
+   "note": "Basic melee: the hit follows the swing keyframe",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300101
+   ],
+   "values": 2300101
+  },
+  {
+   "buffs": [],
+   "bundle": 2200102,
+   "bundles": [
+    2200102,
+    2200112
+   ],
+   "chain": [
+    2200001,
+    2200102
+   ],
+   "key": 2100102,
+   "kind": "Skill",
+   "name": "Ground Spike",
+   "note": "Fixed hit area in front of the caster",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300102
+   ],
+   "values": 2300102
+  },
+  {
+   "buffs": [
+    2110101
+   ],
+   "bundle": 2200103,
+   "bundles": [
+    2200103
+   ],
+   "chain": [
+    2200001,
+    2200103
+   ],
+   "key": 2100103,
+   "kind": "Skill",
+   "name": "War Cry",
+   "note": "Buffs the caster",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300103
+   ],
+   "values": 2300103
+  },
+  {
+   "buffs": [],
+   "bundle": 2200104,
+   "bundles": [
+    2200104
+   ],
+   "chain": [
+    2200001,
+    2200104
+   ],
+   "key": 2100104,
+   "kind": "Skill",
+   "name": "Dash",
+   "note": "Self movement",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300104
+   ],
+   "values": 2300104
+  },
+  {
+   "buffs": [],
+   "bundle": 2200201,
+   "bundles": [
+    2200201,
+    2200211
+   ],
+   "chain": [
+    2200001,
+    2200201
+   ],
+   "key": 2100201,
+   "kind": "Skill",
+   "name": "Fire Bolt",
+   "note": "Projectile, tier 1",
+   "stage": {
+    "family": [
+     2100201,
+     2100202,
+     2100203
+    ],
+    "group": "FireBolt",
+    "level": 1
+   },
+   "valueChain": [
+    2300001,
+    2300201
+   ],
+   "values": 2300201
+  },
+  {
+   "buffs": [],
+   "bundle": 2200202,
+   "bundles": [
+    2200202,
+    2200211
+   ],
+   "chain": [
+    2200001,
+    2200201,
+    2200202
+   ],
+   "key": 2100202,
+   "kind": "Skill",
+   "name": "Fire Bolt II",
+   "note": "Tier 2 adds a second bolt",
+   "stage": {
+    "family": [
+     2100201,
+     2100202,
+     2100203
+    ],
+    "group": "FireBolt",
+    "level": 2
+   },
+   "valueChain": [
+    2300001,
+    2300201,
+    2300202
+   ],
+   "values": 2300202
+  },
+  {
+   "buffs": [],
+   "bundle": 2200203,
+   "bundles": [
+    2200203,
+    2200211
+   ],
+   "chain": [
+    2200001,
+    2200201,
+    2200203
+   ],
+   "key": 2100203,
+   "kind": "Skill",
+   "name": "Fire Bolt III",
+   "note": "Tier 3 swaps the sound for a burst visual",
+   "stage": {
+    "family": [
+     2100201,
+     2100202,
+     2100203
+    ],
+    "group": "FireBolt",
+    "level": 3
+   },
+   "valueChain": [
+    2300001,
+    2300201,
+    2300203
+   ],
+   "values": 2300203
+  },
+  {
+   "buffs": [
+    2110201
+   ],
+   "bundle": 2200204,
+   "bundles": [
+    2200204,
+    2200214
+   ],
+   "chain": [
+    2200001,
+    2200204
+   ],
+   "key": 2100204,
+   "kind": "Skill",
+   "name": "Guard Field",
+   "note": "Area with an active window that shields allies",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300204
+   ],
+   "values": 2300204
+  },
+  {
+   "buffs": [],
+   "bundle": 2200205,
+   "bundles": [
+    2200205,
+    2200215,
+    2200216
+   ],
+   "chain": [
+    2200001,
+    2200205
+   ],
+   "key": 2100205,
+   "kind": "Skill",
+   "name": "Charge Beam",
+   "note": "Charge, then branch on pass or fail",
+   "stage": null,
+   "valueChain": [
+    2300001,
+    2300205
+   ],
+   "values": 2300205
+  },
+  {
+   "buffs": [],
+   "bundle": 2200111,
+   "bundles": [
+    2200111
+   ],
+   "chain": [
+    2200111
+   ],
+   "key": 2110101,
+   "kind": "Buff",
+   "name": "Battle Cry",
+   "note": "",
+   "stage": null,
+   "valueChain": [
+    2300111
+   ],
+   "values": 2300111
+  },
+  {
+   "buffs": [],
+   "bundle": 2200221,
+   "bundles": [
+    2200221
+   ],
+   "chain": [
+    2200221
+   ],
+   "key": 2110201,
+   "kind": "Buff",
+   "name": "Guarded",
+   "note": "",
+   "stage": null,
+   "valueChain": [
+    2300221
+   ],
+   "values": 2300221
+  }
+ ],
+ "pending": {
+  "aux": false,
+  "changes": 0
+ },
+ "resources": [
+  {
+   "clip": "Demo_Slash",
+   "desc": "Slash swing motion",
+   "effect": "",
+   "key": 2500101,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Swing sound",
+   "effect": "",
+   "key": 2500102,
+   "skin": 0,
+   "sound": "sfx_swing"
+  },
+  {
+   "clip": "Demo_Dash",
+   "desc": "Dash motion",
+   "effect": "",
+   "key": 2500103,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Spike visual",
+   "effect": "fx_spike",
+   "key": 2500104,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Shout",
+   "effect": "",
+   "key": 2500105,
+   "skin": 0,
+   "sound": "sfx_shout"
+  },
+  {
+   "clip": "",
+   "desc": "Attack aura",
+   "effect": "fx_aura_red",
+   "key": 2500106,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "Demo_Cast",
+   "desc": "Cast motion",
+   "effect": "",
+   "key": 2500201,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Fire sound",
+   "effect": "",
+   "key": 2500202,
+   "skin": 0,
+   "sound": "sfx_fire"
+  },
+  {
+   "clip": "",
+   "desc": "Fire hit",
+   "effect": "fx_fire_hit",
+   "key": 2500203,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Fire burst",
+   "effect": "fx_fire_burst",
+   "key": 2500204,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Guard ring",
+   "effect": "fx_guard_ring",
+   "key": 2500205,
+   "skin": 0,
+   "sound": ""
+  },
+  {
+   "clip": "",
+   "desc": "Beam sound",
+   "effect": "",
+   "key": 2500206,
+   "skin": 0,
+   "sound": "sfx_beam"
+  }
+ ],
+ "settings": {
+  "balanceKind": "balance",
+  "baseColumns": {},
+  "keyframeFunction": "SkillKeyframe",
+  "keys": {
+   "band": 3,
+   "owner": 2,
+   "serial": 2
+  },
+  "kinds": {
+   "buff": "Buff",
+   "effect": "Effect",
+   "skill": "Skill"
+  },
+  "layers": [
+   "Base",
+   "Owner skill",
+   "Tier"
+  ],
+  "modules": {
+   "spawn": {
+    "module": "SpawnEffect",
+    "slot": "BundleKey"
+   },
+   "status": {
+    "module": "ApplyStatus",
+    "slot": "BuffKey"
+   }
+  },
+  "practiceOwner": 98,
+  "time": {
+   "grid": 0.025,
+   "unit": "s"
+  }
+ },
+ "values": [
+  {
+   "chain": [
+    2300001
+   ],
+   "desc": "Shared cast values",
+   "entries": [
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": true,
+     "value": 0.5
+    }
+   ],
+   "key": 2300001,
+   "parent": null,
+   "usedBy": [
+    2100101,
+    2100102,
+    2100103,
+    2100104,
+    2100201,
+    2100202,
+    2100203,
+    2100204,
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300101
+   ],
+   "desc": "Slash",
+   "entries": [
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    },
+    {
+     "definedIn": 2300101,
+     "desc": "Slash damage",
+     "name": "Hit.Damage",
+     "own": true,
+     "value": 12
+    },
+    {
+     "definedIn": 2300101,
+     "desc": "Hit area lifetime",
+     "name": "Hit.Life",
+     "own": true,
+     "value": 0.1
+    },
+    {
+     "definedIn": 2300101,
+     "desc": "Slash reach",
+     "name": "Hit.Radius",
+     "own": true,
+     "value": 1.2
+    }
+   ],
+   "key": 2300101,
+   "parent": 2300001,
+   "usedBy": [
+    2100101
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300102
+   ],
+   "desc": "Ground Spike",
+   "entries": [
+    {
+     "definedIn": 2300102,
+     "desc": "Longer wind-up",
+     "name": "Cast.Duration",
+     "own": true,
+     "value": 0.7
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "",
+     "name": "Hit.Damage",
+     "own": true,
+     "value": 20
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "",
+     "name": "Hit.Life",
+     "own": true,
+     "value": 0.3
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "",
+     "name": "Spike.Height",
+     "own": true,
+     "value": 3
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "Distance in front",
+     "name": "Spike.Offset",
+     "own": true,
+     "value": 2.5
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "When the spike rises",
+     "name": "Spike.Time",
+     "own": true,
+     "value": 0.4
+    },
+    {
+     "definedIn": 2300102,
+     "desc": "",
+     "name": "Spike.Width",
+     "own": true,
+     "value": 1
+    }
+   ],
+   "key": 2300102,
+   "parent": 2300001,
+   "usedBy": [
+    2100102
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300103
+   ],
+   "desc": "War Cry",
+   "entries": [
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    },
+    {
+     "definedIn": 2300103,
+     "desc": "Buff duration",
+     "name": "Cry.Duration",
+     "own": true,
+     "value": 6
+    }
+   ],
+   "key": 2300103,
+   "parent": 2300001,
+   "usedBy": [
+    2100103
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300104
+   ],
+   "desc": "Dash",
+   "entries": [
+    {
+     "definedIn": 2300104,
+     "desc": "",
+     "name": "Cast.Duration",
+     "own": true,
+     "value": 0.3
+    },
+    {
+     "definedIn": 2300104,
+     "desc": "",
+     "name": "Dash.Distance",
+     "own": true,
+     "value": 4
+    },
+    {
+     "definedIn": 2300104,
+     "desc": "",
+     "name": "Dash.Duration",
+     "own": true,
+     "value": 0.2
+    }
+   ],
+   "key": 2300104,
+   "parent": 2300001,
+   "usedBy": [
+    2100104
+   ]
+  },
+  {
+   "chain": [
+    2300111
+   ],
+   "desc": "Battle Cry buff",
+   "entries": [
+    {
+     "definedIn": 2300111,
+     "desc": "+20% attack",
+     "name": "Cry.Attack",
+     "own": true,
+     "value": 0.2
+    }
+   ],
+   "key": 2300111,
+   "parent": null,
+   "usedBy": [
+    2110101
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300201
+   ],
+   "desc": "Fire Bolt",
+   "entries": [
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Damage",
+     "own": true,
+     "value": 25
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Life",
+     "own": true,
+     "value": 1.2
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Radius",
+     "own": true,
+     "value": 0.4
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "Release time",
+     "name": "Bolt.Release",
+     "own": true,
+     "value": 0.3
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Speed",
+     "own": true,
+     "value": 14
+    },
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    }
+   ],
+   "key": 2300201,
+   "parent": 2300001,
+   "usedBy": [
+    2100201,
+    2100202,
+    2100203
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300201,
+    2300202
+   ],
+   "desc": "Fire Bolt II",
+   "entries": [
+    {
+     "definedIn": 2300202,
+     "desc": "Tier 2 hits harder",
+     "name": "Bolt.Damage",
+     "own": true,
+     "value": 30
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Life",
+     "own": false,
+     "value": 1.2
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Radius",
+     "own": false,
+     "value": 0.4
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "Release time",
+     "name": "Bolt.Release",
+     "own": false,
+     "value": 0.3
+    },
+    {
+     "definedIn": 2300202,
+     "desc": "Second bolt",
+     "name": "Bolt.Release2",
+     "own": true,
+     "value": 0.45
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Speed",
+     "own": false,
+     "value": 14
+    },
+    {
+     "definedIn": 2300202,
+     "desc": "Tier 2 overrides a slot of an inherited node",
+     "name": "Bolt.Spread",
+     "own": true,
+     "value": 8
+    },
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    }
+   ],
+   "key": 2300202,
+   "parent": 2300201,
+   "usedBy": [
+    2100202
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300201,
+    2300203
+   ],
+   "desc": "Fire Bolt III",
+   "entries": [
+    {
+     "definedIn": 2300203,
+     "desc": "",
+     "name": "Bolt.Damage",
+     "own": true,
+     "value": 36
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Life",
+     "own": false,
+     "value": 1.2
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Radius",
+     "own": false,
+     "value": 0.4
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "Release time",
+     "name": "Bolt.Release",
+     "own": false,
+     "value": 0.3
+    },
+    {
+     "definedIn": 2300203,
+     "desc": "",
+     "name": "Bolt.Release2",
+     "own": true,
+     "value": 0.4
+    },
+    {
+     "definedIn": 2300201,
+     "desc": "",
+     "name": "Bolt.Speed",
+     "own": false,
+     "value": 14
+    },
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    }
+   ],
+   "key": 2300203,
+   "parent": 2300201,
+   "usedBy": [
+    2100203
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300204
+   ],
+   "desc": "Guard Field",
+   "entries": [
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    },
+    {
+     "definedIn": 2300204,
+     "desc": "Turns on after 0.5 s",
+     "name": "Field.ActiveFrom",
+     "own": true,
+     "value": 0.5
+    },
+    {
+     "definedIn": 2300204,
+     "desc": "",
+     "name": "Field.ActiveUntil",
+     "own": true,
+     "value": 3.5
+    },
+    {
+     "definedIn": 2300204,
+     "desc": "",
+     "name": "Field.Life",
+     "own": true,
+     "value": 4
+    },
+    {
+     "definedIn": 2300204,
+     "desc": "",
+     "name": "Field.Radius",
+     "own": true,
+     "value": 3
+    },
+    {
+     "definedIn": 2300204,
+     "desc": "",
+     "name": "Guard.Duration",
+     "own": true,
+     "value": 1
+    }
+   ],
+   "key": 2300204,
+   "parent": 2300001,
+   "usedBy": [
+    2100204
+   ]
+  },
+  {
+   "chain": [
+    2300001,
+    2300205
+   ],
+   "desc": "Charge Beam",
+   "entries": [
+    {
+     "definedIn": 2300205,
+     "desc": "Charged",
+     "name": "Beam.Damage",
+     "own": true,
+     "value": 60
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "",
+     "name": "Beam.Life",
+     "own": true,
+     "value": 0.5
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "",
+     "name": "Beam.MaxCharge",
+     "own": true,
+     "value": 2
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "",
+     "name": "Beam.MinCharge",
+     "own": true,
+     "value": 0.8
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "",
+     "name": "Beam.Radius",
+     "own": true,
+     "value": 0.6
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "",
+     "name": "Beam.Speed",
+     "own": true,
+     "value": 30
+    },
+    {
+     "definedIn": 2300205,
+     "desc": "Released early",
+     "name": "Beam.WeakDamage",
+     "own": true,
+     "value": 15
+    },
+    {
+     "definedIn": 2300001,
+     "desc": "Default cast time",
+     "name": "Cast.Duration",
+     "own": false,
+     "value": 0.5
+    }
+   ],
+   "key": 2300205,
+   "parent": 2300001,
+   "usedBy": [
+    2100205
+   ]
+  },
+  {
+   "chain": [
+    2300221
+   ],
+   "desc": "Guarded buff",
+   "entries": [
+    {
+     "definedIn": 2300221,
+     "desc": "Flat defense",
+     "name": "Guard.Defense",
+     "own": true,
+     "value": 10
+    }
+   ],
+   "key": 2300221,
+   "parent": null,
+   "usedBy": [
+    2110201
+   ]
+  }
+ ],
+ "workspace": {
+  "aux": "Data/Editor/skill_graph.json",
+  "base": {
+   "ModuleBundles": "7fcd25d90937a77f0badf84b365bf36405da86baf9578f01f66d603d67a43549",
+   "Presentation": "3d451f5a8d8f603129f703312c4d0f7569346e115984af027735d7026a537c49",
+   "Skills": "c1f3ca1b227a434081cdd520ca7765b8656c09fabde64a336d320fe66a1b3e6f"
+  },
+  "files": {
+   "ModuleBundles": "Data/ModuleBundles.xlsx",
+   "Presentation": "Data/PresentationResources.xlsx",
+   "Skills": "Data/Skills.xlsx"
+  },
+  "kind": "product",
+  "practiceExists": false
+ }
+}

@@ -72,6 +72,8 @@ DEFAULTS = {
     },
     # Presentation modules the host runtime can draw, per event (shown in the editor; empty = no hint).
     'presentationDrawn': {},
+    # Editor: columns a bundle kind always shows (default: the kind's first event).
+    'editor': {'baseColumns': {}},
     # Host extensions: "module:function" strings. paths are added to sys.path first.
     'plugins': {'paths': [], 'validate': [], 'export': None},
 }

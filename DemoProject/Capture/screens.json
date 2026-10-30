@@ -1,0 +1,12 @@
+{
+ "quit": true,
+ "shots": [
+  {"name": "overview", "out": "../../docs/images/01_overview_tiers.png", "owner": 2100202, "view": "Both", "panel": "values", "size": [1680, 960], "frame": "main", "zoom": 0.9, "panelWidth": 380},
+  {"name": "branch", "out": "../../docs/images/02_charge_branch.png", "owner": 2100205, "view": "Logic", "panel": "node", "size": [1600, 900], "frame": "main", "zoom": 1.0, "select": {"bundle": 2200205, "node": 10}, "panelWidth": 440},
+  {"name": "keyframe", "out": "../../docs/images/03_keyframe_column.png", "owner": 2100101, "view": "Both", "panel": "node", "size": [1600, 900], "frame": "main", "zoom": 1.0, "select": {"bundle": 2200101, "node": 10, "bottom": true}, "chips": ["2200101/10/Timing"], "panelWidth": 440},
+  {"name": "presentation", "out": "../../docs/images/04_presentation_edit.png", "owner": 2100203, "view": "PresentationEdit", "panel": "resources", "size": [1600, 900], "frame": "main", "zoom": 1.0, "select": {"bundle": 2200203, "node": 101, "bottom": true}},
+  {"name": "effects", "out": "../../docs/images/05_effect_and_buff_boxes.png", "owner": 2100204, "view": "Logic", "panel": "values", "size": [1700, 900], "frame": "main", "expand": [2200214], "zoom": 0.8},
+  {"name": "column", "out": "../../docs/images/06_column_keyframe_dialog.png", "owner": 2100101, "view": "Both", "panel": "values", "size": [1600, 900], "frame": "main", "zoom": 1.0, "open": {"window": "column", "bundle": 2200101, "column": "Moment:@10:Swing", "event": "Moment", "value": "@10:Swing+0.05"}},
+  {"name": "overview_ko", "out": "../../docs/images/07_overview_ko.png", "language": "ko", "owner": 2100202, "view": "Both", "panel": "values", "size": [1680, 960], "frame": "main", "zoom": 0.9, "panelWidth": 380}
+ ]
+}

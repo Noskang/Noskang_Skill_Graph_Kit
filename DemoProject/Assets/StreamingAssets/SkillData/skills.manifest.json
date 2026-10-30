@@ -1,0 +1,18 @@
+{
+ "dictionarySha256": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+ "logicFile": "skills.logic.ae306cc8d8e8c565d458cec405ff148b81b2c310430165eadde42cbd642e2b7e.json",
+ "logicSha256": "ae306cc8d8e8c565d458cec405ff148b81b2c310430165eadde42cbd642e2b7e",
+ "presentationFile": "skills.presentation.9161997a645cc36f4e61353f3230442a0fdb6dbbcd39142837e46afdecabb45a.json",
+ "presentationSha256": "9161997a645cc36f4e61353f3230442a0fdb6dbbcd39142837e46afdecabb45a",
+ "sourceFiles": [
+  "ModuleBundles.xlsx",
+  "PresentationResources.xlsx",
+  "Skills.xlsx"
+ ],
+ "sourceSha256": [
+  "7fcd25d90937a77f0badf84b365bf36405da86baf9578f01f66d603d67a43549",
+  "3d451f5a8d8f603129f703312c4d0f7569346e115984af027735d7026a537c49",
+  "c1f3ca1b227a434081cdd520ca7765b8656c09fabde64a336d320fe66a1b3e6f"
+ ],
+ "toolVersion": "0.1.0"
+}

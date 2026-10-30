@@ -473,9 +473,13 @@ def write_json(path, obj):
     path.write_bytes((json.dumps(obj, ensure_ascii=False, indent=1) + '\n').encode('utf-8'))
 
 
-def make(target, lang='en'):
+# A Unity project keeps the workbooks outside Assets and the clips inside Assets (so Unity imports them).
+PROJECT_SETTINGS = {'dataDir': 'SkillData', 'keyframes': {'animRoot': 'Assets/SkillGraphDemo/Animations'}}
+
+
+def make(target, lang='en', project=False):
     target = Path(target)
-    settings = dict(SETTINGS, language=lang)
+    settings = dict(SETTINGS, language=lang, **(PROJECT_SETTINGS if project else {}))
     write_json(target / 'skillgraph.json', settings)
     cfg = Config(settings, target)
     raw = (json.dumps(dictionary_json(), ensure_ascii=False, indent=1) + '\n').encode('utf-8')
@@ -496,8 +500,9 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--out', required=True)
     p.add_argument('--lang', default='en', choices=['en', 'ko'])
+    p.add_argument('--project', action='store_true', help='Unity project layout (SkillData/ and Assets/SkillGraphDemo/Animations)')
     a = p.parse_args(argv)
-    print(json.dumps(make(a.out, a.lang), ensure_ascii=False, indent=1))
+    print(json.dumps(make(a.out, a.lang, a.project), ensure_ascii=False, indent=1))
     return 0
 
 
