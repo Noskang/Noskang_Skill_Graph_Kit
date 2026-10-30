@@ -16,5 +16,13 @@
     "modules",
     "excel",
     "game-design"
+  ],
+  "documentationUrl": "https://github.com/Noskang/Noskang_Skill_Graph_Kit#readme",
+  "samples": [
+    {
+      "displayName": "Demo data",
+      "description": "Made-up skills, module dictionary, workbooks, animation clips and settings (skillgraph.json) used by the demo project.",
+      "path": "Samples~/Demo"
+    }
   ]
 }

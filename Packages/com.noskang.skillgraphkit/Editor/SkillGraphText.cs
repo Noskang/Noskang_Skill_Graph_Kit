@@ -202,8 +202,8 @@ namespace Noskang.SkillGraph.Editor
             {"columnDialog.negative",("Keyframe + offset is before zero (KeyframeOffsetNegative).","키프레임 + 오프셋이 0초보다 앞입니다(KeyframeOffsetNegative).")},
             {"columnDialog.noExits",("This bundle has no node with pass/fail exits.","이 묶음에 통과/실패 출구가 있는 노드가 없습니다.")},{"columnDialog.source",("Source node","발생 노드")},
             // backend
-            {"backend.noConfig",("Settings file not found: {0}. Set -skillgraphConfig, SKILLGRAPH_CONFIG or put skillgraph.json in the project folder.","설정 파일이 없습니다: {0}. -skillgraphConfig·SKILLGRAPH_CONFIG로 지정하거나 프로젝트 폴더에 skillgraph.json을 두세요.")},
-            {"backend.noPython",("Cannot start Python ({0}): {1}. Set -skillgraphPython or SKILLGRAPH_PYTHON (Python 3.10+ with openpyxl; nothing is installed automatically).","Python을 시작하지 못했습니다({0}): {1}. -skillgraphPython·SKILLGRAPH_PYTHON으로 지정하세요(Python 3.10+ · openpyxl, 자동 설치하지 않음).")},
+            {"backend.noConfig",("Settings file not found: {0}. Choose it in Edit › Preferences › SkillGraph Kit, or put skillgraph.json (\"{{}}\" is enough) in the project folder.","설정 파일이 없습니다: {0}. Edit › Preferences › SkillGraph Kit에서 고르거나 프로젝트 폴더에 skillgraph.json(내용 \"{{}}\"이면 충분)을 두세요.")},
+            {"backend.noPython",("Cannot start Python ({0}): {1}. Choose Python 3.10+ with openpyxl in Edit › Preferences › SkillGraph Kit (nothing is installed automatically).","Python을 시작하지 못했습니다({0}): {1}. Edit › Preferences › SkillGraph Kit에서 openpyxl이 있는 Python 3.10 이상을 고르세요(자동 설치하지 않음).")},
             {"backend.timeout",("The editor backend did not answer within {0} s.","편집기 백엔드가 {0}초 안에 답하지 않았습니다.")},
             {"backend.ended",("The editor backend exited.","편집기 백엔드가 끝났습니다.")},{"backend.order",("Editor backend replies are out of order.","편집기 백엔드 응답 순서가 맞지 않습니다.")},
         };

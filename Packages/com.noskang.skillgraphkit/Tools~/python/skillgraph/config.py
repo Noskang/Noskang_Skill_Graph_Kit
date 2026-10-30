@@ -18,7 +18,7 @@ DEFAULTS = {
     'documents': {'Skills': 'Skills.xlsx', 'ModuleBundles': 'ModuleBundles.xlsx', 'Presentation': 'PresentationResources.xlsx'},
     'optionalDocuments': [],
     'registry': [str(PACKAGE / 'tables.json')],
-    'folders': {'generated': 'Generated', 'editor': 'Editor', 'practice': 'Practice', 'backup': 'Library/SkillGraph/Backup'},
+    'folders': {'generated': 'Generated', 'editor': 'Editor', 'practice': 'Practice', 'backup': 'Library/SkillGraphKit/Backup'},
     'files': {'dictionary': 'module_dictionary.json', 'display': 'module_display.json', 'aux': 'skill_graph.json',
               'dictionaryView': 'ModuleDictionary.xlsx'},
     'formats': {
@@ -100,7 +100,8 @@ class Config:
         if path is None:
             return cls()
         path = Path(path).resolve()
-        return cls(json.loads(path.read_text(encoding='utf-8')), path.parent)
+        text = path.read_text(encoding='utf-8').strip()
+        return cls(json.loads(text) if text else {}, path.parent)
 
     def __getitem__(self, key):
         return self.data[key]
