@@ -1,0 +1,1016 @@
+{
+ "format": "SkillGraph Module Display 1",
+ "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+ "families": [
+  {
+   "name": "CastFlow",
+   "label": {
+    "en": "Cast & flow",
+    "ko": "시전·흐름"
+   },
+   "color": "#4E6C8E",
+   "icon": "◷"
+  },
+  {
+   "name": "SpawnLife",
+   "label": {
+    "en": "Spawn & life",
+    "ko": "생성·수명"
+   },
+   "color": "#A7862C",
+   "icon": "✦"
+  },
+  {
+   "name": "Move",
+   "label": {
+    "en": "Movement",
+    "ko": "이동"
+   },
+   "color": "#3E8A57",
+   "icon": "→"
+  },
+  {
+   "name": "HitDamage",
+   "label": {
+    "en": "Hit & damage",
+    "ko": "판정·피해"
+   },
+   "color": "#AE4646",
+   "icon": "✕"
+  },
+  {
+   "name": "StatusBuff",
+   "label": {
+    "en": "Status & buffs",
+    "ko": "상태·버프"
+   },
+   "color": "#7552A8",
+   "icon": "◆"
+  },
+  {
+   "name": "Presentation",
+   "label": {
+    "en": "Presentation",
+    "ko": "연출"
+   },
+   "color": "#C0742C",
+   "icon": "▶"
+  }
+ ],
+ "events": {
+  "CastStart": {
+   "en": "Cast start",
+   "ko": "시전 시작"
+  },
+  "Moment": {
+   "en": "At time",
+   "ko": "시각"
+  },
+  "Create": {
+   "en": "Created",
+   "ko": "생성"
+  },
+  "Step": {
+   "en": "Every tick",
+   "ko": "매 박자"
+  },
+  "Alarm": {
+   "en": "Alarm",
+   "ko": "알람"
+  },
+  "Hit": {
+   "en": "Hit",
+   "ko": "명중"
+  },
+  "LifeEnd": {
+   "en": "Life end",
+   "ko": "수명 끝"
+  },
+  "Destroy": {
+   "en": "Destroyed",
+   "ko": "소멸"
+  },
+  "Cancel": {
+   "en": "Cancelled",
+   "ko": "취소"
+  },
+  "CheckPass": {
+   "en": "Pass",
+   "ko": "통과"
+  },
+  "CheckFail": {
+   "en": "Fail",
+   "ko": "실패"
+  },
+  "StatusApply": {
+   "en": "Applied",
+   "ko": "적용"
+  },
+  "StatusExpire": {
+   "en": "Expired",
+   "ko": "만료"
+  },
+  "StatusRemove": {
+   "en": "Removed",
+   "ko": "제거"
+  },
+  "OnHurt": {
+   "en": "When hurt",
+   "ko": "맞을 때"
+  }
+ },
+ "enumLabels": {},
+ "modules": [
+  {
+   "name": "CastLock",
+   "label": {
+    "en": "Cast lock",
+    "ko": "시전 잠금"
+   },
+   "family": "CastFlow",
+   "note": {
+    "en": "Locks actions while casting",
+    "ko": "시전 동안 다른 행동을 막음"
+   },
+   "slots": [
+    [
+     "Duration",
+     {
+      "en": "Duration",
+      "ko": "길이"
+     },
+     {
+      "en": "How long the cast lasts",
+      "ko": "시전이 이어지는 시간"
+     }
+    ],
+    [
+     "MoveLockUntil",
+     {
+      "en": "Move lock",
+      "ko": "이동 잠금"
+     },
+     {
+      "en": "Movement is locked until this time",
+      "ko": "이 시각까지 걷지 못함"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Duration",
+      "MoveLockUntil"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "SpawnEffect",
+   "label": {
+    "en": "Spawn effect",
+    "ko": "효과 생성"
+   },
+   "family": "SpawnLife",
+   "note": {
+    "en": "Creates an effect object from another bundle",
+    "ko": "다른 묶음의 효과 객체를 만듦"
+   },
+   "slots": [
+    [
+     "BundleKey",
+     {
+      "en": "Effect",
+      "ko": "효과"
+     },
+     {
+      "en": "Effect bundle to create",
+      "ko": "만들 효과 묶음"
+     }
+    ],
+    [
+     "Count",
+     {
+      "en": "Count",
+      "ko": "개수"
+     },
+     {
+      "en": "How many to create",
+      "ko": "만드는 개수"
+     }
+    ],
+    [
+     "OffsetX",
+     {
+      "en": "Forward offset",
+      "ko": "앞 거리"
+     },
+     {
+      "en": "Distance in front of the caster",
+      "ko": "시전자 앞쪽 거리"
+     }
+    ],
+    [
+     "AngleStep",
+     {
+      "en": "Angle step",
+      "ko": "각도 간격"
+     },
+     {
+      "en": "Angle between copies",
+      "ko": "여러 개일 때 사이 각도"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "BundleKey",
+      "Count",
+      "OffsetX",
+      "AngleStep"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "SelfMove",
+   "label": {
+    "en": "Self move",
+    "ko": "자기 이동"
+   },
+   "family": "Move",
+   "note": {
+    "en": "Moves the caster",
+    "ko": "시전자를 움직임"
+   },
+   "slots": [
+    [
+     "Mode",
+     {
+      "en": "Mode",
+      "ko": "방식"
+     },
+     {
+      "en": "How to move",
+      "ko": "움직이는 방식"
+     }
+    ],
+    [
+     "Distance",
+     {
+      "en": "Distance",
+      "ko": "거리"
+     },
+     {
+      "en": "Distance",
+      "ko": "거리"
+     }
+    ],
+    [
+     "Duration",
+     {
+      "en": "Duration",
+      "ko": "시간"
+     },
+     {
+      "en": "Time to cover the distance",
+      "ko": "거리를 가는 시간"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Mode",
+      "Distance",
+      "Duration"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "Charge",
+   "label": {
+    "en": "Charge",
+    "ko": "충전"
+   },
+   "family": "CastFlow",
+   "note": {
+    "en": "Hold to charge; passes when held long enough",
+    "ko": "누르고 모음. 충분히 모으면 통과"
+   },
+   "slots": [
+    [
+     "MaxTime",
+     {
+      "en": "Max time",
+      "ko": "최대"
+     },
+     {
+      "en": "Charging stops here",
+      "ko": "이 시각에 충전이 끝남"
+     }
+    ],
+    [
+     "MinTime",
+     {
+      "en": "Min time",
+      "ko": "최소"
+     },
+     {
+      "en": "Shorter charges fail",
+      "ko": "이보다 짧으면 실패"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "MaxTime",
+      "MinTime"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "ApplyStatus",
+   "label": {
+    "en": "Apply buff",
+    "ko": "버프 걸기"
+   },
+   "family": "StatusBuff",
+   "note": {
+    "en": "Applies a buff",
+    "ko": "버프를 건다"
+   },
+   "slots": [
+    [
+     "BuffKey",
+     {
+      "en": "Buff",
+      "ko": "버프"
+     },
+     {
+      "en": "Buff to apply",
+      "ko": "걸 버프"
+     }
+    ],
+    [
+     "Target",
+     {
+      "en": "Target",
+      "ko": "대상"
+     },
+     {
+      "en": "Who gets it",
+      "ko": "받는 대상"
+     }
+    ],
+    [
+     "Duration",
+     {
+      "en": "Duration",
+      "ko": "지속"
+     },
+     {
+      "en": "Buff duration",
+      "ko": "버프 지속 시간"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "BuffKey",
+      "Target",
+      "Duration"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "StatModify",
+   "label": {
+    "en": "Stat modify",
+    "ko": "능력치 변경"
+   },
+   "family": "StatusBuff",
+   "note": {
+    "en": "Changes a stat while the buff lasts",
+    "ko": "버프 동안 능력치를 바꿈"
+   },
+   "slots": [
+    [
+     "Stat",
+     {
+      "en": "Stat",
+      "ko": "능력치"
+     },
+     {
+      "en": "Stat to change",
+      "ko": "바꿀 능력치"
+     }
+    ],
+    [
+     "Op",
+     {
+      "en": "Operation",
+      "ko": "연산"
+     },
+     {
+      "en": "Add or multiply",
+      "ko": "더하기 또는 곱하기"
+     }
+    ],
+    [
+     "Value",
+     {
+      "en": "Value",
+      "ko": "값"
+     },
+     {
+      "en": "Amount",
+      "ko": "양"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Stat",
+      "Op",
+      "Value"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "SetLifetime",
+   "label": {
+    "en": "Lifetime",
+    "ko": "수명"
+   },
+   "family": "SpawnLife",
+   "note": {
+    "en": "Effect disappears after this time",
+    "ko": "이 시간이 지나면 효과가 사라짐"
+   },
+   "slots": [
+    [
+     "Duration",
+     {
+      "en": "Duration",
+      "ko": "수명"
+     },
+     {
+      "en": "Lifetime",
+      "ko": "수명"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Duration"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "MoveProjectile",
+   "label": {
+    "en": "Projectile",
+    "ko": "투사체"
+   },
+   "family": "Move",
+   "note": {
+    "en": "Flies straight forward",
+    "ko": "앞으로 곧게 날아감"
+   },
+   "slots": [
+    [
+     "Speed",
+     {
+      "en": "Speed",
+      "ko": "속도"
+     },
+     {
+      "en": "Flight speed",
+      "ko": "나는 속도"
+     }
+    ],
+    [
+     "Range",
+     {
+      "en": "Range",
+      "ko": "사거리"
+     },
+     {
+      "en": "0 = until lifetime ends",
+      "ko": "0이면 수명까지"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Speed",
+      "Range"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "HitShape",
+   "label": {
+    "en": "Hit shape",
+    "ko": "판정 모양"
+   },
+   "family": "HitDamage",
+   "note": {
+    "en": "Area that can hit",
+    "ko": "맞히는 영역"
+   },
+   "slots": [
+    [
+     "Shape",
+     {
+      "en": "Shape",
+      "ko": "모양"
+     },
+     {
+      "en": "Circle or box",
+      "ko": "원 또는 상자"
+     }
+    ],
+    [
+     "Radius",
+     {
+      "en": "Radius",
+      "ko": "반지름"
+     },
+     {
+      "en": "Circle radius",
+      "ko": "원 반지름"
+     }
+    ],
+    [
+     "Width",
+     {
+      "en": "Width",
+      "ko": "너비"
+     },
+     {
+      "en": "Box width",
+      "ko": "상자 너비"
+     }
+    ],
+    [
+     "Height",
+     {
+      "en": "Height",
+      "ko": "높이"
+     },
+     {
+      "en": "Box height",
+      "ko": "상자 높이"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Shape",
+      "Radius"
+     ]
+    },
+    {
+     "name": "Box",
+     "advanced": true,
+     "slots": [
+      "Width",
+      "Height"
+     ]
+    }
+   ],
+   "kind": {
+    "slot": "Shape",
+    "rules": [
+     {
+      "values": [
+       "Circle"
+      ],
+      "events": [],
+      "slots": [
+       "Radius"
+      ],
+      "verified": true
+     },
+     {
+      "values": [
+       "Box"
+      ],
+      "events": [],
+      "slots": [
+       "Width",
+       "Height"
+      ],
+      "verified": true
+     }
+    ]
+   },
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "HitWindow",
+   "label": {
+    "en": "Active window",
+    "ko": "켜짐 구간"
+   },
+   "family": "HitDamage",
+   "note": {
+    "en": "The hit shape only works inside this window",
+    "ko": "이 구간에만 판정이 켜짐"
+   },
+   "slots": [
+    [
+     "From",
+     {
+      "en": "From",
+      "ko": "시작"
+     },
+     {
+      "en": "Window start",
+      "ko": "켜지는 시각"
+     }
+    ],
+    [
+     "Until",
+     {
+      "en": "Until",
+      "ko": "끝"
+     },
+     {
+      "en": "Window end",
+      "ko": "꺼지는 시각"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "From",
+      "Until"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "Damage",
+   "label": {
+    "en": "Damage",
+    "ko": "피해"
+   },
+   "family": "HitDamage",
+   "note": {
+    "en": "Deals damage on hit",
+    "ko": "맞히면 피해를 줌"
+   },
+   "slots": [
+    [
+     "Amount",
+     {
+      "en": "Amount",
+      "ko": "피해량"
+     },
+     {
+      "en": "Damage dealt",
+      "ko": "주는 피해"
+     }
+    ],
+    [
+     "Kind",
+     {
+      "en": "Kind",
+      "ko": "종류"
+     },
+     {
+      "en": "Damage kind",
+      "ko": "피해 종류"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Amount",
+      "Kind"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "Knockback",
+   "label": {
+    "en": "Knockback",
+    "ko": "밀치기"
+   },
+   "family": "HitDamage",
+   "note": {
+    "en": "Pushes the target (no runtime yet)",
+    "ko": "대상을 밀어냄(실행기 없음)"
+   },
+   "slots": [
+    [
+     "Force",
+     {
+      "en": "Force",
+      "ko": "힘"
+     },
+     {
+      "en": "Push distance",
+      "ko": "미는 거리"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Force"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "Destroy",
+   "label": {
+    "en": "Destroy",
+    "ko": "소멸"
+   },
+   "family": "SpawnLife",
+   "note": {
+    "en": "Removes the effect",
+    "ko": "효과를 없앰"
+   },
+   "slots": [],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": []
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "PlayMotion",
+   "label": {
+    "en": "Play motion",
+    "ko": "모션 재생"
+   },
+   "family": "Presentation",
+   "note": {
+    "en": "Plays a body animation",
+    "ko": "몸 애니메이션을 재생"
+   },
+   "slots": [
+    [
+     "PresentationKey",
+     {
+      "en": "Motion",
+      "ko": "모션"
+     },
+     {
+      "en": "Motion resource",
+      "ko": "모션 리소스"
+     }
+    ],
+    [
+     "Speed",
+     {
+      "en": "Speed",
+      "ko": "속도"
+     },
+     {
+      "en": "Playback speed",
+      "ko": "재생 속도"
+     }
+    ],
+    [
+     "While",
+     {
+      "en": "While",
+      "ko": "동안"
+     },
+     {
+      "en": "When it plays",
+      "ko": "재생하는 동안"
+     }
+    ],
+    [
+     "Until",
+     {
+      "en": "Until",
+      "ko": "끝"
+     },
+     {
+      "en": "0 = clip end",
+      "ko": "0이면 클립 끝"
+     }
+    ],
+    [
+     "LoopFrom",
+     {
+      "en": "Loop from",
+      "ko": "반복 시작"
+     },
+     {
+      "en": "Loop start",
+      "ko": "반복 시작 시각"
+     }
+    ],
+    [
+     "LoopPeriod",
+     {
+      "en": "Loop period",
+      "ko": "반복 주기"
+     },
+     {
+      "en": "0 = no loop",
+      "ko": "0이면 반복 없음"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "PresentationKey",
+      "Speed"
+     ]
+    },
+    {
+     "name": "Timing",
+     "advanced": true,
+     "slots": [
+      "While",
+      "Until",
+      "LoopFrom",
+      "LoopPeriod"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "PlaySound",
+   "label": {
+    "en": "Play sound",
+    "ko": "소리 재생"
+   },
+   "family": "Presentation",
+   "note": {
+    "en": "Plays a sound",
+    "ko": "소리를 냄"
+   },
+   "slots": [
+    [
+     "PresentationKey",
+     {
+      "en": "Sound",
+      "ko": "소리"
+     },
+     {
+      "en": "Sound resource",
+      "ko": "소리 리소스"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "PresentationKey"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "ShowVisual",
+   "label": {
+    "en": "Show visual",
+    "ko": "그림 표시"
+   },
+   "family": "Presentation",
+   "note": {
+    "en": "Shows a visual effect",
+    "ko": "효과 그림을 보여 줌"
+   },
+   "slots": [
+    [
+     "PresentationKey",
+     {
+      "en": "Visual",
+      "ko": "그림"
+     },
+     {
+      "en": "Visual resource",
+      "ko": "그림 리소스"
+     }
+    ],
+    [
+     "Attach",
+     {
+      "en": "Attach",
+      "ko": "붙는 곳"
+     },
+     {
+      "en": "Where it follows",
+      "ko": "따라가는 대상"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "PresentationKey",
+      "Attach"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  }
+ ]
+}

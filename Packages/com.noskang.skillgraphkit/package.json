@@ -1,0 +1,20 @@
+{
+  "name": "com.noskang.skillgraphkit",
+  "version": "0.1.0",
+  "displayName": "SkillGraph Kit",
+  "description": "Module-composed skills with an Excel value source and a node graph editor. Skills are built from event + module nodes in three inherited layers; numbers live in spreadsheets; a Python backend expands, validates and round-trips the workbooks.",
+  "unity": "6000.3",
+  "license": "MIT",
+  "author": {
+    "name": "Noskang",
+    "url": "https://github.com/Noskang"
+  },
+  "keywords": [
+    "skill",
+    "graph",
+    "editor",
+    "modules",
+    "excel",
+    "game-design"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+ "about": "Default table registry. A host may replace it (settings: registry). Types: string, loc, int, float, time, value, key:<band role or digits>, enum:<NAME>[:default], list:<type>. EVENT, MODULE and BUNDLE_KIND are filled from the module dictionary and settings.",
+ "enums": {
+  "BUFF_CATEGORY": ["Buff", "Debuff", "System"],
+  "MODIFIER_OP": ["Override", "Add", "Multiply"],
+  "LINE": ["Logic", "Presentation"],
+  "OVERRIDE": ["None", "+", "-"],
+  "SOURCE": ["Ref", "Fixed", "Default"]
+ },
+ "tables": [
+  {
+   "document": "Skills", "sheet": {"en": "Skill Meta", "ko": "기술 메타"}, "json": "SkillMetaData", "key": ["Key"],
+   "columns": [
+    {"name": "Key", "desc": {"en": "Skill key", "ko": "기술 Key"}, "type": "key:skill", "export": "both", "required": true, "default": null},
+    {"name": "NameRef", "desc": {"en": "Name (reference only)", "ko": "이름(참고용)"}, "type": "string", "export": "none", "required": true, "default": null},
+    {"name": "NameLoc", "desc": {"en": "Name (localization code)", "ko": "이름(로컬라이즈 코드)"}, "type": "loc", "export": "client", "required": true, "default": null},
+    {"name": "DescLoc", "desc": {"en": "Description (localization code)", "ko": "설명(로컬라이즈 코드)"}, "type": "loc", "export": "client", "required": false, "default": null},
+    {"name": "ModuleBundleKey", "desc": {"en": "Module bundle", "ko": "모듈 묶음"}, "type": "key:moduleBundle", "export": "both", "ref": "ModuleBundleData.Key", "required": true, "default": null},
+    {"name": "ValueBundleKey", "desc": {"en": "Value bundle", "ko": "수치 묶음"}, "type": "key:valueBundle", "export": "both", "ref": "ValueBundleData.Key", "required": true, "default": null},
+    {"name": "IconKey", "desc": {"en": "Icon (presentation key)", "ko": "아이콘(연출 키)"}, "type": "key:presentation", "export": "client", "ref": "PresentationResourceData.PresentationKey", "required": false, "default": null},
+    {"name": "TierGroup", "desc": {"en": "Tier family (same name = tiers of one skill)", "ko": "단계 묶음(같은 이름 = 한 기술의 단계)"}, "type": "string", "export": "none", "required": false, "default": null},
+    {"name": "Tier", "desc": {"en": "Tier number in the family", "ko": "단계 번호"}, "type": "int", "export": "none", "required": false, "default": null},
+    {"name": "Note", "desc": {"en": "Designer note", "ko": "메모"}, "type": "string", "export": "none", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "Skills", "sheet": {"en": "Buff Meta", "ko": "버프 메타"}, "json": "BuffMetaData", "key": ["Key"],
+   "columns": [
+    {"name": "Key", "desc": {"en": "Buff key", "ko": "버프 Key"}, "type": "key:buff", "export": "both", "required": true, "default": null},
+    {"name": "NameRef", "desc": {"en": "Name (reference only)", "ko": "이름(참고용)"}, "type": "string", "export": "none", "required": true, "default": null},
+    {"name": "NameLoc", "desc": {"en": "Name (localization code)", "ko": "이름(로컬라이즈 코드)"}, "type": "loc", "export": "client", "required": true, "default": null},
+    {"name": "DescLoc", "desc": {"en": "Description (localization code)", "ko": "설명(로컬라이즈 코드)"}, "type": "loc", "export": "client", "required": false, "default": null},
+    {"name": "ModuleBundleKey", "desc": {"en": "Module bundle", "ko": "모듈 묶음"}, "type": "key:moduleBundle", "export": "both", "ref": "ModuleBundleData.Key", "required": true, "default": null},
+    {"name": "ValueBundleKey", "desc": {"en": "Value bundle", "ko": "수치 묶음"}, "type": "key:valueBundle", "export": "both", "ref": "ValueBundleData.Key", "required": true, "default": null},
+    {"name": "Category", "desc": {"en": "Category", "ko": "분류"}, "type": "enum:BUFF_CATEGORY:Buff", "export": "both", "required": false, "default": "Buff"},
+    {"name": "Note", "desc": {"en": "Designer note", "ko": "메모"}, "type": "string", "export": "none", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "Skills", "sheet": {"en": "Value Bundles", "ko": "수치 묶음 목록"}, "json": "ValueBundleData", "key": ["Key"],
+   "columns": [
+    {"name": "Key", "desc": {"en": "Value bundle key", "ko": "수치 묶음 Key"}, "type": "key:valueBundle", "export": "both", "required": true, "default": null},
+    {"name": "ParentKey", "desc": {"en": "Parent (blank = root)", "ko": "부모 묶음(빈 칸 = 최상위)"}, "type": "key:valueBundle", "export": "both", "ref": "ValueBundleData.Key", "required": false, "default": null},
+    {"name": "Desc", "desc": {"en": "Group description", "ko": "그룹 설명"}, "type": "string", "export": "none", "required": true, "default": null}
+   ]
+  },
+  {
+   "document": "Skills", "sheet": {"en": "Values", "ko": "수치"}, "json": "ValueData", "key": ["BundleKey", "Name"],
+   "columns": [
+    {"name": "BundleKey", "desc": {"en": "Value bundle", "ko": "수치 묶음"}, "type": "key:valueBundle", "export": "both", "ref": "ValueBundleData.Key", "required": true, "default": null},
+    {"name": "Name", "desc": {"en": "Value name (Object.Name)", "ko": "수치 이름(객체.이름)"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Value", "desc": {"en": "Value (type comes from the slots that read it)", "ko": "값(자료형은 읽는 칸이 정함)"}, "type": "value", "export": "both", "required": true, "default": null},
+    {"name": "Desc", "desc": {"en": "Description", "ko": "설명"}, "type": "string", "export": "none", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "Skills", "sheet": {"en": "Modifiers", "ko": "수정자"}, "json": "ModifierData", "key": ["Key"],
+   "columns": [
+    {"name": "Key", "desc": {"en": "Modifier key", "ko": "수정자 Key"}, "type": "key:modifier", "export": "both", "required": true, "default": null},
+    {"name": "TargetSkillKeys", "desc": {"en": "Target skills", "ko": "대상 기술 Key 목록"}, "type": "list:key:skill", "export": "both", "ref": "SkillMetaData.Key", "required": true, "default": null},
+    {"name": "ValueName", "desc": {"en": "Value name", "ko": "수치 이름"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Op", "desc": {"en": "Operation", "ko": "연산"}, "type": "enum:MODIFIER_OP:Override", "export": "both", "required": true, "default": null},
+    {"name": "Value", "desc": {"en": "Value (Multiply 0.1 = +10%)", "ko": "값(Multiply 0.1 = +10%)"}, "type": "float", "export": "both", "required": true, "default": null},
+    {"name": "Priority", "desc": {"en": "Priority (larger wins among overrides)", "ko": "우선순위(Override끼리 큰 것)"}, "type": "int", "export": "both", "required": false, "default": 0},
+    {"name": "Desc", "desc": {"en": "Description", "ko": "설명"}, "type": "string", "export": "none", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "ModuleBundles", "sheet": {"en": "Module Bundles", "ko": "모듈 묶음 목록"}, "json": "ModuleBundleData", "key": ["Key"],
+   "columns": [
+    {"name": "Key", "desc": {"en": "Module bundle key", "ko": "모듈 묶음 Key"}, "type": "key:moduleBundle", "export": "both", "required": true, "default": null},
+    {"name": "Kind", "desc": {"en": "Kind", "ko": "종류"}, "type": "enum:BUNDLE_KIND", "export": "both", "required": true, "default": null},
+    {"name": "ParentKey", "desc": {"en": "Parent (blank = root)", "ko": "부모 묶음(빈 칸 = 최상위)"}, "type": "key:moduleBundle", "export": "both", "ref": "ModuleBundleData.Key", "required": false, "default": null},
+    {"name": "Desc", "desc": {"en": "Group description", "ko": "그룹 설명"}, "type": "string", "export": "none", "required": true, "default": null}
+   ]
+  },
+  {
+   "document": "ModuleBundles", "sheet": {"en": "Nodes", "ko": "노드"}, "json": "ModuleNodeData", "key": ["BundleKey", "NodeId"],
+   "columns": [
+    {"name": "BundleKey", "desc": {"en": "Module bundle", "ko": "모듈 묶음"}, "type": "key:moduleBundle", "export": "both", "ref": "ModuleBundleData.Key", "required": true, "default": null},
+    {"name": "NodeId", "desc": {"en": "Node id (unique in the bundle family)", "ko": "노드 ID(묶음 가족 안에서 유일)"}, "type": "int", "export": "both", "range": "1~9999", "required": true, "default": null},
+    {"name": "Line", "desc": {"en": "Line (logic / presentation)", "ko": "줄(판정/연출)"}, "type": "enum:LINE:Logic", "export": "both", "required": false, "default": "Logic"},
+    {"name": "Event", "desc": {"en": "Event", "ko": "이벤트"}, "type": "enum:EVENT", "export": "both", "required": false, "default": null},
+    {"name": "EventValue", "desc": {"en": "Event value (time: value name, number or @node:keyframe)", "ko": "이벤트 값(시각: 수치 이름·숫자·@노드:키프레임)"}, "type": "value", "export": "both", "required": false, "default": null},
+    {"name": "FromNode", "desc": {"en": "Source node (exit events)", "ko": "발생 노드(검사 출구)"}, "type": "int", "export": "both", "required": false, "default": null},
+    {"name": "Order", "desc": {"en": "Order inside the event", "ko": "같은 이벤트 안 순서"}, "type": "int", "export": "both", "required": false, "default": null},
+    {"name": "Priority", "desc": {"en": "Priority (blank = 0, smaller first)", "ko": "우선순위(빈 칸 = 0, 작은 수 먼저)"}, "type": "int", "export": "both", "required": false, "default": 0},
+    {"name": "Module", "desc": {"en": "Module", "ko": "모듈"}, "type": "enum:MODULE", "export": "both", "required": false, "default": null},
+    {"name": "Override", "desc": {"en": "Override mark (child bundles)", "ko": "오버라이드 표시(자식 묶음)"}, "type": "enum:OVERRIDE:None", "export": "none", "required": false, "default": "None"},
+    {"name": "Note", "desc": {"en": "Designer note", "ko": "메모"}, "type": "string", "export": "none", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "ModuleBundles", "sheet": {"en": "Value Links", "ko": "값 연결"}, "json": "ValueLinkData", "key": ["BundleKey", "NodeId", "Slot"],
+   "columns": [
+    {"name": "BundleKey", "desc": {"en": "Module bundle", "ko": "모듈 묶음"}, "type": "key:moduleBundle", "export": "both", "ref": "ModuleBundleData.Key", "required": true, "default": null},
+    {"name": "NodeId", "desc": {"en": "Node id", "ko": "노드 ID"}, "type": "int", "export": "both", "ref": "ModuleNodeData.NodeId", "required": true, "default": null},
+    {"name": "Slot", "desc": {"en": "Module slot", "ko": "모듈 칸 이름"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Source", "desc": {"en": "Source", "ko": "출처"}, "type": "enum:SOURCE:Ref", "export": "both", "required": true, "default": null},
+    {"name": "Value", "desc": {"en": "Value name (Ref) or value (Fixed)", "ko": "수치 이름(Ref) 또는 값(Fixed)"}, "type": "value", "export": "both", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "Presentation", "sheet": {"en": "Presentation Resources", "ko": "연출 리소스 표"}, "json": "PresentationResourceData", "key": ["PresentationKey", "Skin"],
+   "columns": [
+    {"name": "PresentationKey", "desc": {"en": "Presentation key", "ko": "연출 키"}, "type": "key:presentation", "export": "client", "required": true, "default": null},
+    {"name": "Skin", "desc": {"en": "Skin (blank = default)", "ko": "스킨(빈 칸 = 기본)"}, "type": "int", "export": "client", "required": false, "default": 0},
+    {"name": "Clip", "desc": {"en": "Motion clip", "ko": "모션 클립"}, "type": "string", "export": "client", "required": false, "default": null},
+    {"name": "Effect", "desc": {"en": "Effect resource", "ko": "효과 리소스"}, "type": "string", "export": "client", "required": false, "default": null},
+    {"name": "Sound", "desc": {"en": "Sound resource", "ko": "소리 리소스"}, "type": "string", "export": "client", "required": false, "default": null},
+    {"name": "Desc", "desc": {"en": "Description", "ko": "설명"}, "type": "string", "export": "none", "required": true, "default": null}
+   ]
+  }
+ ]
+}

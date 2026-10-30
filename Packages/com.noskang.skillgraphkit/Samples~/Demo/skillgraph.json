@@ -1,0 +1,17 @@
+{
+ "language": "en",
+ "dataDir": "Data",
+ "keyframes": {
+  "animRoot": "Animations"
+ },
+ "rules": {
+  "companions": [
+   {
+    "kind": "effect",
+    "event": "Hit",
+    "requires": "HitShape",
+    "spawnedOnly": true
+   }
+  ]
+ }
+}
