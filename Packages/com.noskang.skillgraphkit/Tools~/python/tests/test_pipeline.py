@@ -131,6 +131,12 @@ class SampleTests(unittest.TestCase):
             self.assertIn('CompanionMissing', error_codes(r))
         with Temp(settings={'rules': {'companions': []}}, rows=lambda rows: find(rows, 'ModuleNodeData', BundleKey=2200214, NodeId=2).update(Module='HitWindow')) as t:
             self.assertNotIn('CompanionMissing', error_codes(check(t)), 'the rule comes from settings')
+        rule = dict(kind='effect', event='Hit', requires='HitShape', spawnedOnly=True, code='HitAreaMissing')
+        with Temp(settings={'rules': {'companions': [rule]}}, rows=lambda rows: find(rows, 'ModuleNodeData', BundleKey=2200214, NodeId=2).update(Module='HitWindow')) as t:
+            r = check(t)
+            self.assertIn('HitAreaMissing', error_codes(r), 'a rule may name its own code')
+            self.assertNotIn('CompanionMissing', error_codes(r))
+            self.assertIn('HitShape', next(x for x in r['errors'] if x.code == 'HitAreaMissing').message, 'the message stays the companion message')
 
     def test_product_only_rules(self):
         def edit(rows):

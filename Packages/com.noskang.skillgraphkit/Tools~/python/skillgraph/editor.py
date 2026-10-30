@@ -573,8 +573,9 @@ def op_duplicate_skill(e, o):
         e.insert('ValueData', dict(BundleKey=vkey, Name=r['Name'], Value=r['Value'], Desc=r['Desc']), 'BundleKey')
     fields = {c: src.get(c) for c in e.cols[t['table']]}
     fields.update(Key=key, NameRef=name, ModuleBundleKey=bkey, ValueBundleKey=vkey, NameLoc=_loc(t, key))
-    if 'DescLoc' in fields:
-        fields['DescLoc'] = None
+    for col in t.get('duplicateClear', ['DescLoc']):
+        if col in fields:
+            fields[col] = None
     e.insert(t['table'], fields)
     o.update(key=key, bundle=bkey, values=vkey, effects={str(k): v for k, v in mapping.items() if k != src['ModuleBundleKey']})
 
@@ -830,17 +831,22 @@ def _keyframes(b, data, d, cfg):
 
 
 def _stages(data, cfg):
-    """Tier families: owners that share a tier group, ordered by tier."""
+    """Tier families: owners that share a tier group (split by the familyBy columns), ordered by tier."""
     t = cfg['tiers']
-    groups = {}
+    owner_col = t.get('owner') or 'Key'
+    family_by = t.get('familyBy') or [t['group']]
+    exclude = t.get('exclude') or {}
+    families = {}
     for r in data.get(t['table'], []):
-        g, level = r.get(t['group']), r.get(t['level'])
-        if g and level is not None:
-            groups.setdefault(g, []).append((level, r['Key']))
+        g, level, key = r.get(t['group']), r.get(t['level']), r.get(owner_col)
+        if not g or level is None or key is None or any(r.get(c) in values for c, values in exclude.items()):
+            continue
+        families.setdefault(tuple(r.get(c) for c in family_by), []).append((level, key, g))
     out = {}
-    for g, rows in groups.items():
-        family = [k for _, k in sorted(rows)]
-        for level, k in sorted(rows):
+    for rows in families.values():
+        rows.sort(key=lambda x: (x[0], x[1]))
+        family = [k for _, k, _ in rows]
+        for level, k, g in rows:
             out[k] = dict(group=g, level=level, family=family)
     return out
 
@@ -895,7 +901,7 @@ def build_model(e, r, done=()):
         model['owners'].append(dict(key=key, kind=t['kindName'], name=m['NameRef'], bundle=m['ModuleBundleKey'], values=m['ValueBundleKey'],
                                     bundles=list(bundles), buffs=buffs,
                                     chain=mods[m['ModuleBundleKey']]['chain'] if m['ModuleBundleKey'] in mods else [m['ModuleBundleKey']],
-                                    valueChain=e.value_chain(m['ValueBundleKey']), stage=stage_of.get(key), note=m.get('Note') or ''))
+                                    valueChain=e.value_chain(m['ValueBundleKey']), stage=stage_of.get(key), note=m.get(cfg['columns']['ownerNote'] or cfg['columns']['nodeNote']) or ''))
     own_nodes = collections.defaultdict(dict)
     for row in data['ModuleNodeData']:
         own_nodes[row['BundleKey']][row['NodeId']] = row

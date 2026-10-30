@@ -2,6 +2,22 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-10-30
+
+Settings for hosts whose tier families, copy rules and note columns differ from the defaults. Every new setting defaults to
+the 0.1.0 behaviour, so existing settings files keep working unchanged.
+
+### Added
+- `tiers.owner`, `tiers.familyBy`, `tiers.exclude`: read tier families from any table (for example a class roster), split a
+  family by several columns and skip rows such as passive slots.
+- `rules.companions[].code`: a companion rule may report its own issue code (default `CompanionMissing`).
+- `owners[].duplicateClear`: columns a duplicated owner starts empty (default `["DescLoc"]`).
+- `columns.ownerNote`: the owner note column (default: the same name as `columns.nodeNote`).
+- Tests for each setting (50 Python tests).
+
+### Fixed
+- The edit model read owner notes from a fixed `Note` column instead of the settings.
+
 ## [0.1.0] - 2026-10-30
 
 First public version.

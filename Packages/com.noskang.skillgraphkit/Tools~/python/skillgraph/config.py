@@ -43,12 +43,18 @@ DEFAULTS = {
     'header': {'rows': 7, 'exportTokens': {'both': 'both', 'server': 'server', 'client': 'client', 'none': 'none'}},
     'bundleKinds': {'skill': 'Skill', 'effect': 'Effect', 'buff': 'Buff'},
     # Owner tables: rows that give a module bundle + value bundle a name (skills, buffs).
+    # duplicateClear: columns a duplicated owner starts empty (ids that must stay unique, texts that describe the original).
     'owners': [
-        {'table': 'SkillMetaData', 'kind': 'skill', 'band': 'skill', 'loc': 'SKILL.K{key}.NAME', 'export': 'skills', 'exportColumns': []},
-        {'table': 'BuffMetaData', 'kind': 'buff', 'band': 'buff', 'loc': 'BUFF.K{key}.NAME', 'export': 'buffs', 'exportColumns': ['Category']},
+        {'table': 'SkillMetaData', 'kind': 'skill', 'band': 'skill', 'loc': 'SKILL.K{key}.NAME', 'export': 'skills', 'exportColumns': [],
+         'duplicateClear': ['DescLoc']},
+        {'table': 'BuffMetaData', 'kind': 'buff', 'band': 'buff', 'loc': 'BUFF.K{key}.NAME', 'export': 'buffs', 'exportColumns': ['Category'],
+         'duplicateClear': ['DescLoc']},
     ],
-    'tiers': {'table': 'SkillMetaData', 'group': 'TierGroup', 'level': 'Tier'},
-    'columns': {'nodeNote': 'Note'},
+    # Tier families: rows of <table> name an owner (<owner> column), its family (<group>) and its tier (<level>).
+    # familyBy: columns that split a family further (default: [group]); exclude: {column: [values]} rows to skip.
+    'tiers': {'table': 'SkillMetaData', 'owner': 'Key', 'group': 'TierGroup', 'level': 'Tier', 'familyBy': None, 'exclude': {}},
+    # Note columns. ownerNote None = same column name as nodeNote.
+    'columns': {'nodeNote': 'Note', 'ownerNote': None},
     'events': {
         'start': 'CastStart',              # time zero of a cast; also the default event of a new column
         'timed': ['Moment', 'Alarm'],      # events whose value is a time (seconds, a value name or a keyframe)

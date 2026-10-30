@@ -9,7 +9,7 @@
 > and round-trips the workbooks without touching cells you did not edit, and a GraphView editor in Unity draws the logic
 > graph and the presentation graph on the same time columns. Animation keyframes can drive hit timing (`@node:Swing`).
 > Event names, bundle kinds, key layout, layer names and the time grid all come from settings, so the core is not tied to
-> one genre (a turn-based preset is part of the test suite). Includes a demo project, 66 automated tests and a capture
+> one genre (a turn-based preset is part of the test suite). Includes a demo project, 69 automated tests and a capture
 > command that produced the screenshots below. Unity 6000.3, Python 3.10+ with openpyxl, MIT.
 
 개인 게임 프로젝트에서 기술 데이터를 옮기며 만든 도구를, 다른 프로젝트에서도 쓸 수 있게 장르에 묶이지 않는 형태로 다시 정리한 저장소입니다.
@@ -100,7 +100,7 @@ python -m pip install "openpyxl>=3.1,<4"
 **시험**
 ```bash
 cd Packages/com.noskang.skillgraphkit/Tools~/python
-python -X utf8 -m unittest discover -s tests -t tests        # Python 47개
+python -X utf8 -m unittest discover -s tests -t tests        # Python 50개
 ```
 Unity: **Window › General › Test Runner › EditMode › Run All** (19개). batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`.
 

@@ -116,7 +116,7 @@ def validate_bundles(mods, rep, d, cfg, product):
             if b['kind'] != kind or (rule.get('spawnedOnly') and kind == effect and k not in spawned):
                 continue
             if any(n['Event'] == rule['event'] for n in logic) and not any(n['Module'] == rule['requires'] for n in logic):
-                rep.e('CompanionMissing', dict(bundle=k), kind=kind, event=rule['event'], module=rule['requires'])
+                rep.e(rule.get('code') or 'CompanionMissing', dict(bundle=k), 'CompanionMissing', kind=kind, event=rule['event'], module=rule['requires'])
 
 
 def names_in(bundle, d):

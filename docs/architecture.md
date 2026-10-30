@@ -117,9 +117,10 @@ Excel이 원본이고 편집기는 Excel을 고쳐 씁니다.
 | 층 | 이름·깊이, 층마다 노드 ID 시작값 |
 | 이벤트 의미 | 시작·시각·출구 이벤트 |
 | 시간 축 | 단위(`s`, `turn`)·격자(0.025, 1, 없음) |
-| 묶음 종류·주인 표 | `Skill`/`Effect`/`Buff` 대신 `Action`/`Summon`/`Status` |
+| 묶음 종류·주인 표 | `Skill`/`Effect`/`Buff` 대신 `Action`/`Summon`/`Status`, 복사할 때 비울 열 |
+| 단계 묶음 | 기술 메타의 열 대신 별도 표(예: 직업 해금 표)에서 주인·묶음·단계를 읽고, 여러 열로 나누거나 일부 행을 뺌 |
 | 표 등록부 | 열 추가·시트 이름·문서 이름 |
-| 규칙 | "Hit 노드가 있는 Effect는 HitShape가 필요" 같은 동반 모듈 규칙 |
+| 규칙 | "Hit 노드가 있는 Effect는 HitShape가 필요" 같은 동반 모듈 규칙(검사 코드 이름도 정할 수 있음) |
 | 플러그인 | `plugins.validate`(검사 추가), `plugins.export`(내보낸 JSON 보강) |
 
 턴제 시험(`tests/test_turn_based.py`)은 이벤트·종류·Key 자릿수(3+1+3)·두 층·1턴 격자를 모두 바꾼 설정으로 같은 코어를 돌립니다.

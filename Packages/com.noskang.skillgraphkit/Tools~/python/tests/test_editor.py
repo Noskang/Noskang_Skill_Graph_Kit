@@ -5,8 +5,10 @@ import unittest
 
 import openpyxl
 
-from helpers import PYTHON, Temp, sha
+from helpers import PYTHON, Temp, find, sha
+from skillgraph import demo
 from skillgraph import editor as se
+from skillgraph.config import Config
 from skillgraph.pipeline import build
 
 
@@ -116,6 +118,30 @@ class EditorTests(unittest.TestCase):
             self.assertTrue(all(int(v) in dup['bundles'] for v in k2['effects'].values()), 'spawn nodes point at the copies')
             self.assertEqual(errors(m), [])
             self.assertEqual(k1['seeded'], ['Cast.Duration'], 'a value bundle without parent gets the names its bundle reads')
+
+    def test_duplicate_clears_settings_columns(self):
+        def edit(rows):
+            find(rows, 'SkillMetaData', Key=2100205).update(DescLoc='SKILL.K2100205.DESC')
+        op = [dict(op='duplicateSkill', owner=2100205, withEffects=False, name='Charge Beam copy')]
+        with Temp(rows=edit) as t:
+            e, done = se.apply_ops(se.Loaded(se.Workspace(t.cfg)), op)
+            row = e.find('SkillMetaData', Key=done[0]['key'])
+            self.assertEqual((row['DescLoc'], row['Note']), (None, 'Charge, then branch on pass or fail'), 'default: the description code starts empty')
+        owners = [dict(o, duplicateClear=['Note']) for o in Config(demo.SETTINGS).data['owners']]
+        with Temp(rows=edit, settings={'owners': owners}) as t:
+            e, done = se.apply_ops(se.Loaded(se.Workspace(t.cfg)), op)
+            row = e.find('SkillMetaData', Key=done[0]['key'])
+            self.assertEqual((row['DescLoc'], row['Note']), ('SKILL.K2100205.DESC', None), 'the cleared columns come from settings')
+
+    def test_owner_note_column(self):
+        with Temp() as t:
+            m = se.Backend(t.cfg).handle(dict(cmd='model'))['model']
+            self.assertEqual(next(o for o in m['owners'] if o['key'] == 2100204)['note'], 'Area with an active window that shields allies',
+                             'by default owners use the node note column name')
+        with Temp(settings={'columns': {'nodeNote': 'Note', 'ownerNote': 'NameRef'}}) as t:
+            m = se.Backend(t.cfg).handle(dict(cmd='model'))['model']
+            self.assertEqual(next(o for o in m['owners'] if o['key'] == 2100204)['note'], 'Guard Field')
+            self.assertTrue(any(n['note'] for b in m['bundles'] for n in b['nodes']), 'node notes keep their own column')
 
     def test_new_tier_skill_seeds_values_but_not_keyframes(self):
         with Temp() as t:

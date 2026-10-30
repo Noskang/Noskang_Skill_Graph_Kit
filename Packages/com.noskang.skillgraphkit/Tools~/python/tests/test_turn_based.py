@@ -131,6 +131,21 @@ class TurnBasedTests(unittest.TestCase):
             self.assertIn('EventForKind', [x.code for x in r['errors']])
             self.assertIn('Status', next(x for x in r['errors'] if x.code == 'EventForKind').message)
 
+    def test_tier_families_from_a_roster_table(self):
+        # A class roster unlocks actions by rank per slot; the passive slot is not a tier family.
+        roster = [dict(ClassKey=7, Slot='Main', Rank=2, ActionKey=5101002), dict(ClassKey=7, Slot='Main', Rank=1, ActionKey=5101001),
+                  dict(ClassKey=7, Slot='Side', Rank=1, ActionKey=5101003), dict(ClassKey=7, Slot='Passive', Rank=1, ActionKey=5111001),
+                  dict(ClassKey=8, Slot='Main', Rank=1, ActionKey=5101004)]
+        tiers = dict(table='ClassRoster', owner='ActionKey', group='ClassKey', level='Rank', familyBy=['ClassKey', 'Slot'], exclude={'Slot': ['Passive']})
+        cfg = Config(dict(SETTINGS, tiers=tiers))
+        stages = se._stages({'ClassRoster': roster}, cfg)
+        self.assertEqual(stages[5101001], dict(group=7, level=1, family=[5101001, 5101002]), 'owner column, ordered by rank')
+        self.assertEqual(stages[5101003]['family'], [5101003], 'another slot of the same class is its own family')
+        self.assertEqual(stages[5101004]['family'], [5101004])
+        self.assertNotIn(5111001, stages, 'excluded rows make no family')
+        plain = se._stages({'ClassRoster': roster}, Config(dict(SETTINGS, tiers=dict(table='ClassRoster', owner='ActionKey', group='ClassKey', level='Rank'))))
+        self.assertEqual(plain[5101001]['family'], [5101001, 5101003, 5111001, 5101002], 'without familyBy the group column alone makes the family')
+
     def test_editor_uses_key_layout(self):
         with TurnBased() as t:
             m = se.Backend(t.cfg).handle(dict(cmd='model', ops=[dict(op='newSkill', kind='Action', ownerNumber=1, name='Guard', moduleParent=5201001),

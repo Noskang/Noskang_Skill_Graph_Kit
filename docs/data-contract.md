@@ -27,14 +27,15 @@
 | `header.rows` | `7` | 머리말 줄 수 |
 | `header.exportTokens` | `both`·`server`·`client`·`none` | 5행 내보내기 토큰 |
 | `bundleKinds` | `skill: Skill`, `effect: Effect`, `buff: Buff` | 역할 → 묶음 종류 이름 |
-| `owners` | 기술·버프 표 | 주인 표(표·종류·대역·로컬라이즈 코드 틀·내보낼 이름·함께 내보낼 열) |
-| `tiers` | `SkillMetaData`의 `TierGroup`·`Tier` | 단계 묶음 열 |
+| `owners` | 기술·버프 표 | 주인 표(표·종류·대역·로컬라이즈 코드 틀·내보낼 이름·함께 내보낼 열·`duplicateClear` 복사할 때 비울 열, 기본 `[DescLoc]`) |
+| `tiers` | `SkillMetaData`의 `Key`·`TierGroup`·`Tier` | 단계 묶음: `table`·`owner`(주인 Key 열)·`group`·`level`, `familyBy`(묶음을 더 나눌 열 목록, 기본 `[group]`), `exclude`(`{열: [값]}` 뺄 행) |
 | `columns.nodeNote` | `Note` | 노드 메모 열 이름 |
+| `columns.ownerNote` | `null` | 주인 메모 열 이름(`null` = `nodeNote`와 같은 이름) |
 | `events` | `start: CastStart`, `timed: [Moment, Alarm]`, `exits: [CheckPass, CheckFail]` | 사전에 없을 때 쓰는 이벤트 의미 |
 | `time` | `unit: s`, `grid: 0.025` | 시간 단위·격자(`null` = 격자 없음) |
 | `modules.spawn` / `modules.status` | `SpawnEffect.BundleKey` / `ApplyStatus.BuffKey` | 다른 묶음을 가리키는 모듈·칸 |
 | `dictionary.balanceKind` | `balance` | 사전의 밸런스 칸 역할 이름 |
-| `rules.companions` | `[]` | `{kind, event, requires, spawnedOnly}` 동반 모듈 규칙 |
+| `rules.companions` | `[]` | `{kind, event, requires, spawnedOnly, code}` 동반 모듈 규칙(`code` 기본 `CompanionMissing`) |
 | `keyframes` | `function: SkillKeyframe`, `animRoot: Animations`, `resourceTable: PresentationResourceData`, `motion`(모션 모듈·칸 이름) | 키프레임 읽기 |
 | `presentationDrawn` | `{}` | 실행기가 그리는 연출 이벤트(편집기 표시용) |
 | `editor.baseColumns` | `{}` | 종류마다 늘 보이는 열(기본: 그 종류의 첫 이벤트) |

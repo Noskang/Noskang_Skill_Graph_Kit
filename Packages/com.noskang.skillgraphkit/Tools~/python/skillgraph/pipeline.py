@@ -8,7 +8,7 @@ from .messages import text
 from .validate import names_in, owners, validate_bundles, validate_owners
 from .workbook import load
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 
 def run(files, cfg, product=True, practice=False, dictionary_path=None):
