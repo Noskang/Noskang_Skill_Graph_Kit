@@ -12,6 +12,15 @@ namespace Noskang.SkillGraph.Tests
     // No Python is needed: the fixture is kept in sync by the Python test suite.
     public sealed class SkillGraphEditorTests
     {
+        // The tests switch the editor language. It is an editor preference shared by every project on the machine, so the
+        // user's choice is put back afterwards (an open editor of another project keeps it too).
+        private bool hadLanguage;private string language;
+        [OneTimeSetUp]public void RememberLanguage(){hadLanguage=UnityEditor.EditorPrefs.HasKey(SkillGraphText.LanguagePref);language=UnityEditor.EditorPrefs.GetString(SkillGraphText.LanguagePref,"en");}
+        [OneTimeTearDown]public void RestoreLanguage()
+        {
+            if(hadLanguage)UnityEditor.EditorPrefs.SetString(SkillGraphText.LanguagePref,language);else UnityEditor.EditorPrefs.DeleteKey(SkillGraphText.LanguagePref);
+            SkillGraphText.ResetLanguage();
+        }
         private static SkillGraphModel model;
         private static SkillGraphModel Model()
         {

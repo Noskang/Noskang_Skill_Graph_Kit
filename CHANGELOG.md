@@ -2,6 +2,12 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.2] - 2026-11-02
+
+### Fixed
+- The package EditMode tests put the editor language preference back when they finish. It is shared by every project on the
+  machine, so a test run used to leave it at English for an editor of another project.
+
 ## [0.3.1] - 2026-11-02
 
 More wording settings for hosts that keep their own editor text. The defaults give the 0.3.0 text.
