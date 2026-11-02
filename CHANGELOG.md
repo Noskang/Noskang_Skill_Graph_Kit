@@ -2,6 +2,18 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-11-02
+
+More wording settings for hosts that keep their own editor text. The defaults give the 0.3.0 text.
+
+### Added
+- `editor.changeKeySeparator`: joins the Key columns of a row in the save window's change list (default `" / "`).
+- `editor.boxCountNameMax` and text keys `box.count`, `box.countSeparator`, `box.countCut`: the count line of a folded box or
+  a folded presentation column (module name length, line format, separator, cut mark).
+- Text keys `columnDialog.keyframeFrame`, `columnDialog.keyframeStart`, `columnDialog.keyframeNode`: the parts of a row in the
+  column window's keyframe list. They no longer follow `column.keyframe` / `column.motionStart`; the default text is the same.
+- Tests for each (55 Python, 22 package EditMode).
+
 ## [0.3.0] - 2026-11-02
 
 Settings for hosts that keep their own editor wording, data pipeline and player builds. Every new setting defaults to the

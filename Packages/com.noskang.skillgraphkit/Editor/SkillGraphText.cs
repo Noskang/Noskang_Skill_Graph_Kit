@@ -88,6 +88,7 @@ namespace Noskang.SkillGraph.Editor
             {"status.removed",("Removed {0} nodes (Ctrl+Z to undo)","노드 {0}개를 뺐습니다(Ctrl+Z로 되돌리기)")},
             // boxes, columns, cards
             {"box.inherits",("inherits {0} {1}","{0} {1} 이어받음")},{"box.inheritsShort",("inherits {0}","{0} 이어받음")},{"box.nodes",("nodes {0}","노드 {0}")},
+            {"box.count",("{0} {1} ×{2}","{0} {1} ×{2}")},{"box.countSeparator",("  ","  ")},{"box.countCut",("…","…")},
             {"box.expandTip",("Click to expand","눌러서 펼치기")},{"box.presentationTitle",("Presentation · {0}","연출 · {0}")},
             {"box.addColumn",("+ column","＋ 열")},{"box.addColumnTip",("Add a column (event condition). Right-click a column head to change or remove it","이 묶음에 열(이벤트 조건) 더하기 — 열 머리 오른쪽 단추로 바꾸기·지우기")},
             {"box.fold",("Fold","접기")},
@@ -216,7 +217,8 @@ namespace Noskang.SkillGraph.Editor
             {"columnDialog.changeText",("Changes column '{1}' of bundle {0}. Every logic and presentation node in it changes too (inherited nodes: time only).","묶음 {0}의 열 '{1}'을 바꿉니다. 그 열의 판정·연출 노드가 모두 함께 바뀝니다(물려받은 노드는 시각만).")},
             {"columnDialog.event",("Event","이벤트")},{"columnDialog.time",("Time ({0} or value name)","시각({0} 또는 수치 이름)")},{"columnDialog.subject",("Subject","주체")},
             {"columnDialog.subjectPick",("Pick subject","주체 고르기")},{"columnDialog.valueName",("Value name","수치 이름")},{"columnDialog.pickValue",("(pick a value)","(수치 고르기)")},
-            {"columnDialog.keyframe",("Keyframe","키프레임")},{"columnDialog.pickKeyframe",("(pick a keyframe)","(키프레임 고르기)")},{"columnDialog.offset",("Offset ({0}, ±)","오프셋({0}, ±)")},
+            {"columnDialog.keyframe",("Keyframe","키프레임")},{"columnDialog.pickKeyframe",("(pick a keyframe)","(키프레임 고르기)")},
+            {"columnDialog.keyframeFrame",("keyframe · {0} frame {1}","키프레임 · {0} {1}프레임")},{"columnDialog.keyframeStart",(", (motion starts {0})",", (모션 {0} 시작)")},{"columnDialog.keyframeNode",(" (#{0})"," (#{0})")},{"columnDialog.offset",("Offset ({0}, ±)","오프셋({0}, ±)")},
             {"columnDialog.noMotion",("This bundle has no motion node to pick keyframes from.","이 묶음에는 키프레임을 고를 모션 재생 노드가 없습니다.")},
             {"columnDialog.motionNote",("Motion #{0}: {1}","모션 #{0}: {1}")},{"columnDialog.math",("{0} frame {1} ÷ {2} fps","{0} {1}프레임 ÷ {2}프레임/초")},
             {"columnDialog.negative",("Keyframe + offset is before zero (KeyframeOffsetNegative).","키프레임 + 오프셋이 0초보다 앞입니다(KeyframeOffsetNegative).")},

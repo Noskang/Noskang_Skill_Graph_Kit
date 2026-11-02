@@ -968,24 +968,25 @@ def cell_value(c, v):
     return v
 
 
-def _key(t, r):
-    return ' / '.join(f"{k} {r.get(k)}" for k in t['table']['key'])
+def _key(t, r, sep):
+    return sep.join(f"{k} {r.get(k)}" for k in t['table']['key'])
 
 
 def changes(loaded, e):
     """Differences between the first read and the edit: changed cells, inserted rows (under which original row), deleted rows."""
     out = []
+    sep = e.cfg['editor']['changeKeySeparator']
     for name, t in e.tables.items():
         cols = t['table']['columns']
         before = {r['_id']: r for r in loaded.tables[name]['rows']}
         after_ids = {r['_id'] for r in t['rows']}
         for r in loaded.tables[name]['rows']:
             if r['_id'] not in after_ids:
-                out.append(dict(kind='delete', table=name, doc=t['doc'], sheet=t['sheet'], row=r['_row'], key=_key(t, r)))
+                out.append(dict(kind='delete', table=name, doc=t['doc'], sheet=t['sheet'], row=r['_row'], key=_key(t, r, sep)))
         prev_original = None
         for r in t['rows']:
             if r.get('_new'):
-                out.append(dict(kind='insert', table=name, doc=t['doc'], sheet=t['sheet'], after=prev_original, key=_key(t, r),
+                out.append(dict(kind='insert', table=name, doc=t['doc'], sheet=t['sheet'], after=prev_original, key=_key(t, r, sep),
                                 values={c['name']: cell_value(c, r.get(c['name'])) for c in cols}, id=r['_id']))
                 continue
             prev_original = r['_row']
@@ -993,7 +994,7 @@ def changes(loaded, e):
             for c in cols:
                 if old.get(c['name']) != r.get(c['name']):
                     out.append(dict(kind='change', table=name, doc=t['doc'], sheet=t['sheet'], row=r['_row'], column=c['name'], col=cols.index(c) + 1,
-                                    old=cell_value(c, old.get(c['name'])), new=cell_value(c, r.get(c['name'])), key=_key(t, r)))
+                                    old=cell_value(c, old.get(c['name'])), new=cell_value(c, r.get(c['name'])), key=_key(t, r, sep)))
     aux_changed = json.dumps(e.aux, sort_keys=True, ensure_ascii=False) != json.dumps(loaded.aux, sort_keys=True, ensure_ascii=False)
     return out, aux_changed
 

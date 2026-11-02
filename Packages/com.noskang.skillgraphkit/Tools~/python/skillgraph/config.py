@@ -88,10 +88,10 @@ DEFAULTS = {
     #   (None = the selected owner's first layer); boxMinColumns — narrowest box in columns; valueUnits — units written after
     #   numbers (None = any unit up to four characters); boxSummary — [{module, slot, label?}] a folded box line shows (None = the
     #   balance values the bundle sets); compactCard — {range: [from slot, until slot], plain: [slot, …]} for one-line presentation cards
-    #   (None = up to two set slots with their names).
+    #   (None = up to two set slots with their names); changeKeySeparator — joins the Key columns of a row in the save window's change list.
     # The Unity editor reads text, export and the display keys from this file directly.
     'editor': {'baseColumns': {}, 'text': {}, 'export': None, 'newSkillModuleParent': None, 'boxMinColumns': 2, 'valueUnits': None,
-               'boxSummary': None, 'compactCard': None},
+               'boxSummary': None, 'compactCard': None, 'changeKeySeparator': ' / '},
     # Host extensions: "module:function" strings. paths are added to sys.path first.
     'plugins': {'paths': [], 'validate': [], 'export': None},
 }

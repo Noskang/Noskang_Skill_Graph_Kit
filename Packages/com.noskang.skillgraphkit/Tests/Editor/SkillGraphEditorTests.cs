@@ -271,6 +271,35 @@ namespace Noskang.SkillGraph.Tests
             SkillGraphText.SetLanguage("en",false);
         }
 
+        [Test]public void CountLineAndKeyframeListSettings()
+        {
+            // Bundle 2200101 (Slash) with its PlaySound node moved from the keyframe Moment column to CastStart, next to PlayMotion.
+            var path=Path.Combine(SkillGraphPaths.PackageRoot,"Tests","Editor","Fixtures","demo_model.json");
+            string text=File.ReadAllText(path);const string moment="\"event\": \"Moment\"",swing="\"eventValue\": \"@10:Swing\"";
+            int ev=text.LastIndexOf(moment,text.IndexOf("\"module\": \"PlaySound\"",StringComparison.Ordinal),StringComparison.Ordinal),vv=text.IndexOf(swing,ev,StringComparison.Ordinal);
+            text=text.Substring(0,ev)+"\"event\": \"CastStart\""+text.Substring(ev+moment.Length,vv-ev-moment.Length)+"\"eventValue\": null"+text.Substring(vv+swing.Length);
+            var m=SkillGraphModel.Parse(JsonNode.Parse(System.Text.Encoding.UTF8.GetBytes(text)));
+            string Counts()=>new SkillGraphLayout(m,new SkillGraphLayout.Options{Owner=2100101,Layer=m.OwnerOf(2100101).Bundle}).Boxes.Single(b=>b.Bundle==2200101).BottomCounts.Single().Text;
+            string Part(string module,string format,int max,string cut)=>string.Format(format,m.FamilyOf(module).Icon,SkillGraphLayout.Short(m.ModuleLabel(module),max,cut),1);
+            WithSettings("{}",()=>
+            {
+                SkillGraphText.SetLanguage("en",false);
+                Assert.That(Counts(),Is.EqualTo(Part("PlayMotion","{0} {1} ×{2}",12,"…")+"  "+Part("PlaySound","{0} {1} ×{2}",12,"…")));
+                Assert.That(ColumnDialog.KeyframeItem("Swing",6,null,10),Is.EqualTo("keyframe · Swing frame 6 (#10)"));
+                Assert.That(ColumnDialog.KeyframeItem("Swing",6,"0.2s",10),Is.EqualTo("keyframe · Swing frame 6, (motion starts 0.2s) (#10)"));
+            });
+            WithSettings("{\"editor\":{\"boxCountNameMax\":4,\"text\":{\"en\":{\"box.count\":\"{0}{1}{2}\",\"box.countSeparator\":\" \",\"box.countCut\":\"\","
+                +"\"columnDialog.keyframeFrame\":\"{0} {1}f\",\"columnDialog.keyframeStart\":\", motion {0}\",\"columnDialog.keyframeNode\":\" (motion #{0})\"}}}}",()=>
+            {
+                SkillGraphText.SetLanguage("en",false);
+                Assert.That(Counts(),Is.EqualTo(Part("PlayMotion","{0}{1}{2}",4,"")+" "+Part("PlaySound","{0}{1}{2}",4,"")));
+                Assert.That(Counts(),Does.Not.Contain("…"));
+                Assert.That(ColumnDialog.KeyframeItem("Swing",6,null,10),Is.EqualTo("Swing 6f (motion #10)"));
+                Assert.That(ColumnDialog.KeyframeItem("Swing",6,"0.2s",10),Is.EqualTo("Swing 6f, motion 0.2s (motion #10)"));
+            });
+            SkillGraphText.SetLanguage("en",false);
+        }
+
         [Test]public void ExportCommandsFromSettings()
         {
             WithSettings("{}",()=>Assert.That(SkillGraphSettings.ExportCommands(),Is.Null,"default: the package exporter"));

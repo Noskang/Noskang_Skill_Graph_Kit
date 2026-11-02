@@ -80,6 +80,8 @@ namespace Noskang.SkillGraph.Editor
         public static int BoxMinColumns=>Editor("boxMinColumns") is JsonNode n&&n.Kind==JsonKind.Number?Math.Max(1,n.AsInt()):2;
         // editor.valueUnits: units written after numbers (null = any unit up to four characters).
         public static HashSet<string> ValueUnits=>Editor("valueUnits") is JsonNode n&&n.Kind==JsonKind.Array?new HashSet<string>(n.AsArray().Select(u=>u.AsText())):null;
+        // editor.boxCountNameMax: longest module name in a folded box or column count line (default 12, then box.countCut).
+        public static int BoxCountNameMax=>Editor("boxCountNameMax") is JsonNode n&&n.Kind==JsonKind.Number?Math.Max(1,n.AsInt()):12;
         // editor.boxSummary: [{module, slot, label?}] values a folded box line shows, from each module's first node (null = the balance values the bundle sets).
         public static List<(string Module,string Slot,string Label)> BoxSummary=>Editor("boxSummary") is JsonNode n&&n.Kind==JsonKind.Array
             ?n.AsArray().Where(e=>e.Kind==JsonKind.Object).Select(e=>(e.Get("module")?.TextOr("")??"",e.Get("slot")?.TextOr("")??"",e.Get("label")?.TextOr(null))).ToList():null;

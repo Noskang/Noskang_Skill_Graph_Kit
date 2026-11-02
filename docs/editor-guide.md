@@ -102,7 +102,7 @@
 Unity -projectPath DemoProject -executeMethod Noskang.SkillGraph.Editor.SkillGraphCapture.Run -skillgraphCapture <절대 경로>/screens.json
 ```
 
-명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 동작이 실패하면 오류 창 없이 그 장에서 멈추고 이유를 로그에 남깁니다. 캡처 창은 편집기 세션(`Library/SkillGraphKit/session-product.json`)을 읽거나 쓰지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
+명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 동작이 실패하면 오류 창 없이 그 장에서 멈추고 이유를 로그에 남깁니다. 캡처 창은 편집기 세션(`Library/SkillGraphKit/session-product.json`)을 읽거나 쓰지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 누를 곳의 `field`는 입력 창이면 칸 이름, 열 창이면 칸 id(`event`·`time`·`value`·`valueName`·`keyframe`·`offset`·`source`), `button`은 `ok`·`cancel`·`save`입니다. 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
 
 ## Python 명령줄
 

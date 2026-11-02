@@ -54,7 +54,7 @@ namespace Noskang.SkillGraph.Editor
         public Rect TopBounds,BottomBounds;
 
         // Display settings, read once per layout (SkillGraphSettings).
-        private readonly int minColumns=SkillGraphSettings.BoxMinColumns;private readonly HashSet<string> units=SkillGraphSettings.ValueUnits;
+        private readonly int minColumns=SkillGraphSettings.BoxMinColumns,countNameMax=SkillGraphSettings.BoxCountNameMax;private readonly HashSet<string> units=SkillGraphSettings.ValueUnits;
         private readonly List<(string Module,string Slot,string Label)> boxSummary=SkillGraphSettings.BoxSummary;
         private readonly (string From,string Until,string[] Plain)? compact=SkillGraphSettings.CompactCard;
 
@@ -151,7 +151,9 @@ namespace Noskang.SkillGraph.Editor
                 }
             return box;
         }
-        private string Counts(IEnumerable<SkillGraphModel.Node> nodes)=>string.Join("  ",nodes.GroupBy(n=>n.Module).Select(g=>Model.FamilyOf(g.Key).Icon+" "+ShortModule(g.Key)+" ×"+g.Count()));
+        // Count line: box.count {0} icon {1} module name (editor.boxCountNameMax, then box.countCut) {2} count, joined by box.countSeparator.
+        private string Counts(IEnumerable<SkillGraphModel.Node> nodes)=>string.Join(T("box.countSeparator"),nodes.GroupBy(n=>n.Module)
+            .Select(g=>F("box.count",Model.FamilyOf(g.Key).Icon,Short(Model.ModuleLabel(g.Key),countNameMax,T("box.countCut")),g.Count())));
 
         // Stack nodes per column by priority and order. The first node of an exit column lines up with its check node.
         private float Place(Box box,SkillGraphModel.Bundle b,List<SkillGraphModel.Node> nodes,float top,Options o,bool presentation)
@@ -460,14 +462,13 @@ namespace Noskang.SkillGraph.Editor
             return bad;
         }
 
-        public static string Short(string text,int max=10)
+        public static string Short(string text,int max=10,string mark="…")
         {
             if(string.IsNullOrEmpty(text))return "";
             int cut=text.IndexOf('(');
             string s=cut>0?text.Substring(0,cut).TrimEnd():text;
-            return s.Length>max?s.Substring(0,max)+"…":s;
+            return s.Length>max?s.Substring(0,max)+mark:s;
         }
-        private string ShortModule(string module)=>Short(Model.ModuleLabel(module),12);
         public static string Fmt(double v)=>v.ToString("0.###",CultureInfo.InvariantCulture);
         private static Rect Union(IEnumerable<Rect> rects)
         {

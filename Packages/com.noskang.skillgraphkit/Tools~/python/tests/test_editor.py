@@ -152,6 +152,15 @@ class EditorTests(unittest.TestCase):
             self.assertIn('Cast.Duration', seeded)
             self.assertFalse([n for n in seeded if n.startswith('@')], 'keyframe references are not value names')
 
+    def test_change_list_key_separator(self):
+        with Temp() as t:
+            op = [dict(op='setValue', values=2300201, name='Bolt.Damage', value=26)]
+            key = se.Backend(t.cfg).handle(dict(cmd='changes', ops=op))['changes'][0]['key']
+            self.assertIn(' / ', key, 'default editor.changeKeySeparator')
+            t.cfg.data['editor']['changeKeySeparator'] = ' · '
+            again = se.Backend(t.cfg).handle(dict(cmd='changes', ops=op))['changes'][0]['key']
+            self.assertEqual(again, key.replace(' / ', ' · '))
+
     def test_inserted_and_deleted_rows_keep_bundle_order(self):
         with Temp() as t:
             bk = se.Backend(t.cfg)

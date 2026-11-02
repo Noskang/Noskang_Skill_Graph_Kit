@@ -6,7 +6,7 @@
 
 ## 설정 `skillgraph.json`
 
-모든 키는 선택입니다(파일 내용이 `{}`이거나 빈 파일이어도 됨). `editor.text`·`editor.export`·표시 키(`newSkillModuleParent`·`boxMinColumns`·`valueUnits`·`boxSummary`·`compactCard`)와 편집기 처음 언어는 Unity 편집기가 이 파일에서 바로 읽습니다. 없는 키는 기본값을 쓰고, 상대 경로는 설정 파일이 있는 폴더 기준입니다. 객체 값은 기본값과 합쳐지고(`documents`·`bands`는 통째로 바뀜), 목록·글자는 바뀝니다.
+모든 키는 선택입니다(파일 내용이 `{}`이거나 빈 파일이어도 됨). `editor.text`·`editor.export`·표시 키(`newSkillModuleParent`·`boxMinColumns`·`boxCountNameMax`·`valueUnits`·`boxSummary`·`compactCard`)와 편집기 처음 언어는 Unity 편집기가 이 파일에서 바로 읽습니다. 없는 키는 기본값을 쓰고, 상대 경로는 설정 파일이 있는 폴더 기준입니다. 객체 값은 기본값과 합쳐지고(`documents`·`bands`는 통째로 바뀜), 목록·글자는 바뀝니다.
 
 | 키 | 기본값 | 뜻 |
 |---|---|---|
@@ -43,6 +43,8 @@
 | `editor.export` | `null` | 더 보기 '스킬 데이터 만들기' 대신 돌릴 명령: `commands`(편집기 Python으로 프로젝트 폴더에서 돌릴 인자 목록들, `{project}`·`{config}`·`{out}` 자리 표시, `{out}`을 쓰면 폴더를 고름)·`confirm`(먼저 확인 창) |
 | `editor.newSkillModuleParent` | `null` | 새 기술 창 '부모 모듈 묶음' 칸의 처음 값(기본: 고른 주인의 첫 층) |
 | `editor.boxMinColumns` | `2` | 상자의 가장 좁은 너비(열 수). 2면 제목 줄이 늘 들어감 |
+| `editor.boxCountNameMax` | `12` | 접힌 상자 · 접힌 연출 열의 개수 줄에서 모듈 이름의 최대 글자 수(넘으면 `box.countCut`을 붙임). 줄 형식은 글자 키 `box.count`(`{0}` 아이콘 `{1}` 이름 `{2}` 개수) · `box.countSeparator` |
+| `editor.changeKeySeparator` | `" / "` | 저장 창 변경 목록에서 한 행의 Key 칸들을 잇는 글자(Python 백엔드가 씀) |
 | `editor.valueUnits` | `null` | 숫자 뒤에 붙일 단위 목록(기본: 4자 이하 단위 모두) |
 | `editor.boxSummary` | `null` | 접힌 상자 한 줄에 보일 칸 `[{module, slot, label}]`(모듈마다 첫 노드, `label`이 없으면 칸 이름). 기본: 그 묶음이 정한 밸런스 값(이어받음 표시와 합쳐 셋까지) |
 | `editor.compactCard` | `null` | 한 줄 연출 카드: `range`(시작 칸, 끝 칸)를 시간 구간으로, `plain` 칸은 이름 없이 값만. 기본: 정한 칸 두 개를 이름과 함께 |

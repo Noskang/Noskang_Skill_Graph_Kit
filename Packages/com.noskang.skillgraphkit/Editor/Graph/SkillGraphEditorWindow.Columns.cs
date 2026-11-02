@@ -130,9 +130,13 @@ namespace Noskang.SkillGraph.Editor
             if(m.Bundles.TryGetValue(bundle,out var b))
                 foreach(var mk in b.Keyframes.Where(k=>k.Error==null))
                     foreach(var k in mk.Keys)
-                        list.Add(("@"+mk.Node+":"+k.Name,m.KeyframeLabel(k.Name,k.Seconds)+"   — "+F("column.keyframe",mk.Clip,k.Frame).TrimStart('←',' ')+(mk.Start>0?", "+F("column.motionStart",m.Seconds(mk.Start)):"")+" (#"+mk.Node+")"));
+                        list.Add(("@"+mk.Node+":"+k.Name,m.KeyframeLabel(k.Name,k.Seconds)+"   — "+KeyframeItem(mk.Clip,k.Frame,mk.Start>0?m.Seconds(mk.Start):null,mk.Node)));
             return list.ToArray();
         }
+        // Keyframe list row after the label: columnDialog.keyframeFrame {0} clip {1} frame, columnDialog.keyframeStart {0} motion start
+        // (only when the motion starts later), columnDialog.keyframeNode {0} motion node.
+        public static string KeyframeItem(string clip,int frame,string start,int node)
+            =>F("columnDialog.keyframeFrame",clip,frame)+(start!=null?F("columnDialog.keyframeStart",start):"")+F("columnDialog.keyframeNode",node);
         private void OnGUI()
         {
             if(owner==null||owner.Model==null){Close();return;}
