@@ -16,7 +16,7 @@
 
 | 자리 | 내용 |
 |---|---|
-| 도구 막대 | 기술·버프 고르기 · **Edit layer(편집 층)** · 보기 *Logic only / Both / Presentation edit / Fold presentation*(기능만 / 둘 다 / 연출 편집 / 연출 접기) · *Link pan(가로 연동)* · 오류·경고 수 · *Frame·All(맞추기·전체)* · *Panel* · *Undo·Redo·Save(되돌리기·다시하기·저장)* · *More(더 보기)* · `한`/`EN` |
+| 도구 막대 | 기술·버프 고르기(누르면 id 오름차순 목록 + 검색 칸, id나 이름 일부를 치면 걸러짐 · ↑↓ · Enter · Esc) · **Edit layer(편집 층)** · 보기 *Logic only / Both / Presentation edit / Fold presentation*(기능만 / 둘 다 / 연출 편집 / 연출 접기) · *Link pan(가로 연동)* · 오류·경고 수 · *Frame·All(맞추기·전체)* · *Panel* · *Undo·Redo·Save(되돌리기·다시하기·저장)* · *More(더 보기)* · `한`/`EN` |
 | 위 그래프 | 판정 줄. 주 묶음 상자, 오른쪽에 생성되는 효과·걸리는 버프 상자(접힘) |
 | 아래 그래프 | 연출 줄. 위와 같은 열 위치. "둘 다" 보기에서는 한 줄 카드 |
 | 오른쪽 패널 | **Values(수치)** 단계별 표 · **Node(노드)** 메모·칸 편집·값 연결 후보 · **Resources(연출 리소스)** 스킨별 클립·효과·소리 |

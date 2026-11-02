@@ -2,6 +2,18 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-11-03
+
+The toolbar skill picker can be searched, for projects with many skills.
+
+### Added
+- The skill / buff picker on the toolbar opens a drop-down list instead of the stock popup menu. It lists every skill and
+  buff in ascending key order under a search box: typing keeps the entries whose "key name" text contains it (any case,
+  outer spaces ignored), so part of a key or part of a name is enough. Up / Down move, Enter picks, Esc closes, a click
+  picks; the current one is marked. The closed field looks the same as before.
+- Text keys `picker.search`, `picker.count`, `picker.empty` for the drop-down.
+- Tests for each (55 Python, 25 package EditMode).
+
 ## [0.3.2] - 2026-11-02
 
 ### Fixed

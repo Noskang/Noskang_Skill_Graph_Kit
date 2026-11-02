@@ -52,6 +52,7 @@ namespace Noskang.SkillGraph.Editor
             // toolbar
             {"toolbar.practice",("Practice","연습 공간")},{"toolbar.practiceTip",("You are editing a practice copy. Nothing here reaches the product data","연습용 사본을 고치는 중입니다. 여기서 고친 것은 제품 데이터에 들어가지 않습니다")},
             {"toolbar.ownerTip",("Choose a skill or buff","기술·버프 고르기")},
+            {"picker.search",("Key or name","id 또는 이름")},{"picker.count",("{0} / {1}","{0} / {1}")},{"picker.empty",("No skill or buff matches","맞는 기술·버프 없음")},
             {"view.logic",("Logic only","기능만")},{"view.logicTip",("Top (logic) graph only","위(기능) 창만")},
             {"view.both",("Both","둘 다")},{"view.bothTip",("Top 70 : bottom 30","위 70 : 아래 30")},
             {"view.presentation",("Presentation edit","연출 편집")},{"view.presentationTip",("Top 30 : bottom 70, logic dimmed","위 30 : 아래 70, 기능 흐리게")},

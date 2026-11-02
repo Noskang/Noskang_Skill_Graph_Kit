@@ -170,6 +170,17 @@
 .sg-issue--error { color: #FF8C8C; }
 .sg-issue--warning { color: #F3C969; }
 
+/* ---- skill picker (toolbar drop-down) */
+.sg-picker { border-width: 1px; border-color: #41454D; background-color: #202226; padding: 4px; }
+.sg-picker__head { flex-direction: row; align-items: center; margin-bottom: 4px; }
+.sg-picker__search { flex-grow: 1; margin: 0 6px 0 0; }
+.sg-picker__count { color: #8C919A; font-size: 10px; min-width: 56px; -unity-text-align: middle-right; }
+.sg-picker__item { height: 20px; padding: 0 8px; border-radius: 3px; color: #D8DBE0; font-size: 11px; -unity-text-align: middle-left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-picker__item:hover { background-color: rgba(255,255,255,0.05); }
+.sg-picker__item--current { color: #6FB0FF; -unity-font-style: bold; }
+.sg-picker__item--cursor { background-color: #2E4F78; color: #FFFFFF; }
+.sg-picker__empty { color: #8C919A; font-size: 11px; padding: 10px 8px; }
+
 /* ---- capture callouts */
 .sg-callout { position: absolute; border-width: 2px; border-color: #F2C94C; border-radius: 8px; }
 .sg-callout__num { position: absolute; width: 22px; height: 22px; border-radius: 11px; background-color: #F2C94C; color: #1B1D21; -unity-font-style: bold; font-size: 12px; -unity-text-align: middle-center; }

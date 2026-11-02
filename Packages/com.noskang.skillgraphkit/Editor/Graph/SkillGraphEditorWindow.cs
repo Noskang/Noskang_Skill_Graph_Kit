@@ -100,9 +100,11 @@ namespace Noskang.SkillGraph.Editor
             if(model!=null&&model.Practice){var practice=Cls(new Label(T("toolbar.practice")),"sg-toolbar__practice");practice.tooltip=T("toolbar.practiceTip");toolbar.Add(practice);}
             if(model!=null&&model.Owners.Count>0)
             {
-                var choices=model.Owners.Select(OwnerLabel).ToList();var current=model.OwnerOf(s.owner)??model.Owners[0];
-                var popup=new PopupField<string>(choices,choices.IndexOf(OwnerLabel(current))){style={minWidth=230}};popup.tooltip=T("toolbar.ownerTip");
-                popup.RegisterValueChangedCallback(e=>{var o=model.Owners[choices.IndexOf(e.newValue)];SelectOwner(o.Key);});toolbar.Add(popup);
+                // Looks like a popup field; opens a searchable list of every owner in key order (SkillGraphOwnerPicker).
+                var current=model.OwnerOf(s.owner)??model.Owners[0];
+                var picker=new SkillGraphOwnerField(OwnerLabel(current)){style={minWidth=230}};picker.tooltip=T("toolbar.ownerTip");
+                picker.Opened+=()=>SkillGraphOwnerPicker.Show(new Rect(position.position+picker.worldBound.position,picker.worldBound.size),model.Owners.Select(o=>(o.Key,o.Name)),current.Key,SelectOwner);
+                toolbar.Add(picker);
             }
             layerBar=new VisualElement();layerBar.AddToClassList("sg-layer");toolbar.Add(layerBar);BuildLayerBar();
             toolbar.Add(new VisualElement{style={flexGrow=1}});
@@ -175,7 +177,7 @@ namespace Noskang.SkillGraph.Editor
             var b=new Label(text);b.AddToClassList("sg-tool");if(on)b.AddToClassList("sg-tool--on");if(disabled)b.AddToClassList("sg-tool--disabled");if(primary&&!disabled)b.AddToClassList("sg-tool--primary");
             b.tooltip=tip;if(!disabled)b.RegisterCallback<MouseDownEvent>(e=>{if(e.button==0)click();});return b;
         }
-        private string OwnerLabel(SkillGraphModel.Owner o)=>o.Key+" "+o.Name;
+        private static string OwnerLabel(SkillGraphModel.Owner o)=>SkillGraphOwnerPicker.Label((o.Key,o.Name));
 
         // ---------------------------------------------------------------- model and layout
         public void Refresh()

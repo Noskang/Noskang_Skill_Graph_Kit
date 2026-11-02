@@ -345,6 +345,42 @@ namespace Noskang.SkillGraph.Tests
             }
             finally{if(had)File.WriteAllText(p,before);else File.Delete(p);}
         }
+        private static readonly List<(int Key,string Name)> PickerOwners=new List<(int Key,string Name)>{(2100102,"Fireball"),(2100101,"Slash"),(2110101,"Burn"),(2100201,"Slash Tier 2")};
+        [Test]public void OwnerPickerFiltersByKeyOrName()
+        {
+            int[] Keys(string q)=>SkillGraphOwnerPicker.Filter(PickerOwners,q).Select(o=>o.Key).ToArray();
+            Assert.That(Keys(""),Is.EqualTo(new[]{2100101,2100102,2100201,2110101}),"an empty search lists every owner in key order");
+            Assert.That(Keys("  sLASH "),Is.EqualTo(new[]{2100101,2100201}),"part of a name, any case, outer spaces ignored");
+            Assert.That(Keys("0102"),Is.EqualTo(new[]{2100102}),"part of a key");
+            Assert.That(Keys("zzz"),Is.Empty);
+            var all=Model().Owners.Select(o=>(o.Key,o.Name)).ToList();
+            Assert.That(SkillGraphOwnerPicker.Filter(all,null).Select(o=>o.Key),Is.EqualTo(all.Select(o=>o.Key).OrderBy(k=>k)),"the demo model: every owner, key order");
+        }
+        [Test]public void OwnerPickerCursorAndChoice()
+        {
+            int picked=0;var p=SkillGraphOwnerPicker.Create(PickerOwners,2100201,k=>picked=k);
+            try
+            {
+                Assert.That(p.ShownKeys,Is.EqualTo(new[]{2100101,2100102,2100201,2110101}));Assert.That(p.CursorKey,Is.EqualTo(2100201),"the cursor starts on the current owner");
+                p.SetSearch("slash");Assert.That(p.ShownKeys,Is.EqualTo(new[]{2100101,2100201}));Assert.That(p.CursorKey,Is.EqualTo(2100201));
+                p.Move(-1);Assert.That(p.CursorKey,Is.EqualTo(2100101));p.Move(-5);Assert.That(p.CursorKey,Is.EqualTo(2100101),"the cursor stops at the first row");
+                p.SetSearch("fire");Assert.That(p.CursorKey,Is.EqualTo(2100102),"the first row when the current owner is filtered out");
+                p.SetSearch("zzz");Assert.That(p.EmptyShown,Is.True);p.Choose();Assert.That(picked,Is.EqualTo(0),"nothing to pick");
+                p.SetSearch("BURN");Assert.That(p.EmptyShown,Is.False);p.Choose();Assert.That(picked,Is.EqualTo(2110101));
+                Assert.That(p==null,Is.True,"choosing closes the picker");
+            }
+            finally{if(p!=null)UnityEngine.Object.DestroyImmediate(p);}
+        }
+        [Test]public void OwnerFieldLooksLikeAPopupField()
+        {
+            // Same theme classes on the root, input, text and arrow as a stock popup field, so it draws the same.
+            var probe=new UnityEngine.UIElements.PopupField<string>(new List<string>{"x"},0);var f=new SkillGraphOwnerField("2100101 Slash");
+            string text=UnityEngine.UIElements.BasePopupField<string,string>.textUssClassName,arrow=UnityEngine.UIElements.BasePopupField<string,string>.arrowUssClassName,input=UnityEngine.UIElements.BasePopupField<string,string>.inputUssClassName;
+            Assert.That(f.GetClasses(),Is.EquivalentTo(probe.GetClasses()));
+            foreach(var c in new[]{input,text,arrow})
+                Assert.That(UnityEngine.UIElements.UQueryExtensions.Q(f,className:c).GetClasses(),Is.EquivalentTo(UnityEngine.UIElements.UQueryExtensions.Q(probe,className:c).GetClasses()),c);
+            Assert.That(f.Text,Is.EqualTo("2100101 Slash"));
+        }
         [Test]public void RuntimeAssemblyIsInPlayerBuildsByDefault()
         {
             // The runtime assembly drops out of player builds only when a project defines SKILLGRAPH_EDITOR_ONLY.

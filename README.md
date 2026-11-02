@@ -102,7 +102,7 @@ python -m pip install "openpyxl>=3.1,<4"
 cd Packages/com.noskang.skillgraphkit/Tools~/python
 python -X utf8 -m unittest discover -s tests -t tests        # Python 55개
 ```
-Unity: **Window › General › Test Runner › EditMode › Run All** (27개). batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`.
+Unity: **Window › General › Test Runner › EditMode › Run All** (30개). batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`.
 
 ## 내 프로젝트에 붙이기
 
