@@ -6,11 +6,11 @@
 
 ## 설정 `skillgraph.json`
 
-모든 키는 선택입니다(파일 내용이 `{}`이거나 빈 파일이어도 됨). 없는 키는 기본값을 쓰고, 상대 경로는 설정 파일이 있는 폴더 기준입니다. 객체 값은 기본값과 합쳐지고(`documents`·`bands`는 통째로 바뀜), 목록·글자는 바뀝니다.
+모든 키는 선택입니다(파일 내용이 `{}`이거나 빈 파일이어도 됨). `editor.text`·`editor.export`·표시 키(`newSkillModuleParent`·`boxMinColumns`·`valueUnits`·`boxSummary`·`compactCard`)와 편집기 처음 언어는 Unity 편집기가 이 파일에서 바로 읽습니다. 없는 키는 기본값을 쓰고, 상대 경로는 설정 파일이 있는 폴더 기준입니다. 객체 값은 기본값과 합쳐지고(`documents`·`bands`는 통째로 바뀜), 목록·글자는 바뀝니다.
 
 | 키 | 기본값 | 뜻 |
 |---|---|---|
-| `language` | `en` | 검증 메시지·시트 이름 언어(`en`/`ko`) |
+| `language` | `en` | 검증 메시지·시트 이름 언어(`en`/`ko`), 사용자가 편집기 언어를 고르기 전의 편집기 처음 언어 |
 | `dataDir` | `Data` | 통합 문서 폴더 |
 | `documents` | `Skills` → `Skills.xlsx`, `ModuleBundles` → `ModuleBundles.xlsx`, `Presentation` → `PresentationResources.xlsx` | 등록부 문서 ID → 파일 이름 |
 | `optionalDocuments` | `[]` | 없어도 되는 문서 |
@@ -39,7 +39,14 @@
 | `keyframes` | `function: SkillKeyframe`, `animRoot: Animations`, `resourceTable: PresentationResourceData`, `motion`(모션 모듈·칸 이름) | 키프레임 읽기 |
 | `presentationDrawn` | `{}` | 실행기가 그리는 연출 이벤트(편집기 표시용) |
 | `editor.baseColumns` | `{}` | 종류마다 늘 보이는 열(기본: 그 종류의 첫 이벤트) |
-| `plugins` | `paths: []`, `validate: []`, `export: null` | `"모듈:함수"` 확장 |
+| `editor.text` | `{}` | 편집기 글자 덮어쓰기 `{언어: {글자 키: 글}}`. 표에 없는 `exit.<모듈>.<출구 이벤트>` 키는 그 모듈의 출구 이름, `column.time.<이벤트>`는 시각 열의 시간 아래 줄(빈 글자 가능, 기본: 이벤트 이름) |
+| `editor.export` | `null` | 더 보기 '스킬 데이터 만들기' 대신 돌릴 명령: `commands`(편집기 Python으로 프로젝트 폴더에서 돌릴 인자 목록들, `{project}`·`{config}`·`{out}` 자리 표시, `{out}`을 쓰면 폴더를 고름)·`confirm`(먼저 확인 창) |
+| `editor.newSkillModuleParent` | `null` | 새 기술 창 '부모 모듈 묶음' 칸의 처음 값(기본: 고른 주인의 첫 층) |
+| `editor.boxMinColumns` | `2` | 상자의 가장 좁은 너비(열 수). 2면 제목 줄이 늘 들어감 |
+| `editor.valueUnits` | `null` | 숫자 뒤에 붙일 단위 목록(기본: 4자 이하 단위 모두) |
+| `editor.boxSummary` | `null` | 접힌 상자 한 줄에 보일 칸 `[{module, slot, label}]`(모듈마다 첫 노드, `label`이 없으면 칸 이름). 기본: 그 묶음이 정한 밸런스 값(이어받음 표시와 합쳐 셋까지) |
+| `editor.compactCard` | `null` | 한 줄 연출 카드: `range`(시작 칸, 끝 칸)를 시간 구간으로, `plain` 칸은 이름 없이 값만. 기본: 정한 칸 두 개를 이름과 함께 |
+| `plugins` | `paths: []`, `validate: []`, `export: null` | `"모듈:함수"` 확장. 미사용 수치(`UnusedValue`)는 플러그인 검사 뒤에 보고 |
 
 ## 표 등록부와 머리말
 

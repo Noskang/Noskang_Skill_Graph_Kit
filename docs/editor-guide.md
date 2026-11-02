@@ -72,13 +72,13 @@
 
 ## 연습 공간
 
-**More › Open practice workspace(더 보기 › 연습 공간 열기)** 는 제품 통합 문서를 `<dataDir>/Practice/`에 복사해 그쪽을 엽니다. 제목 옆에 *연습 공간* 표시가 붙고, 새로 만드는 기술은 연습 주인 번호(기본 98)를 받습니다. 제품 데이터 만들기는 그 번호를 오류로 막습니다. *연습 공간 초기화*는 다시 복사합니다.
+**More › Open practice workspace(더 보기 › 연습 공간 열기)** 는 제품 통합 문서를 `<dataDir>/Practice/`에 복사해 그쪽을 엽니다. 제목 옆에 *연습 공간* 표시가 붙고, 새로 만드는 기술은 연습 주인 번호(기본 98)를 받습니다. 제품 데이터 만들기는 그 번호를 오류로 막습니다. *연습 공간 초기화*는 다시 복사합니다. 데이터 폴더 밖 문서(예 `../Shared/Roster.xlsx`)도 파일 이름으로 연습 폴더에 복사하고 그 사본을 읽습니다.
 
 ## More(더 보기) 메뉴
 
 | 항목 | 하는 일 |
 |---|---|
-| Build skill data(스킬 데이터 만들기) | 고른 폴더에 판정·연출 JSON과 manifest(`python -m skillgraph export`). 저장 전 편집이 없고 제품 작업 공간일 때만 |
+| Build skill data(스킬 데이터 만들기) | 고른 폴더에 판정·연출 JSON과 manifest(`python -m skillgraph export`). 저장 전 편집이 없고 제품 작업 공간일 때만. 설정 `editor.export.commands`가 있으면 그 명령들을 차례로 돌림(프로젝트 자체 데이터 파이프라인), `confirm`이면 먼저 확인 창 |
 | 새 기술 / 새 효과 객체 묶음 / 새 버프 | 메타·모듈 묶음·수치 묶음을 같은 뒤 번호로 만듦 |
 | 이 기술 복제 | 새 Key로 복사, 효과 묶음도 함께 복사할 수 있음(생성 노드가 복사본을 가리킴) |
 | 이 묶음을 부모로 새 묶음 · 묶음 설명 · 구간 이름 띠 | 편집 층 묶음에 대해 |
@@ -102,7 +102,7 @@
 Unity -projectPath DemoProject -executeMethod Noskang.SkillGraph.Editor.SkillGraphCapture.Run -skillgraphCapture <절대 경로>/screens.json
 ```
 
-명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
+명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 동작이 실패하면 오류 창 없이 그 장에서 멈추고 이유를 로그에 남깁니다. 캡처 창은 편집기 세션(`Library/SkillGraphKit/session-product.json`)을 읽거나 쓰지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
 
 ## Python 명령줄
 
@@ -113,5 +113,6 @@ python -X utf8 -m skillgraph validate --config <skillgraph.json>     # 형식만
 python -X utf8 -m skillgraph export --config <…> --out <폴더>        # 판정·연출 JSON
 python -X utf8 -m skillgraph dictionary-view --config <…>            # [생성] 모듈 사전 Excel
 python -X utf8 -m skillgraph expand-view --config <…>                # 펼친 결과를 원본 Skills.xlsx 안 '!' 시트로 씀(원본 파일이 바뀜, 직전 사본은 백업 폴더)
+python -X utf8 -m skillgraph codes --config <…>                      # 검증 코드 목록(수준·메시지 틀, 설정 규칙·플러그인 코드 포함)
 python -X utf8 -m skillgraph.demo --out <폴더> [--project] [--lang ko]   # 데모 데이터 만들기
 ```

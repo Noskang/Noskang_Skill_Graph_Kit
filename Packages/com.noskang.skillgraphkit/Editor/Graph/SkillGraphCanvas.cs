@@ -254,8 +254,8 @@ namespace Noskang.SkillGraph.Editor
             if(c.Exits.Length>0&&model.ExitEvents.Length==2)
             {
                 var ports=new VisualElement();ports.AddToClassList("sg-ports");
-                var pass=Text(model.EventLabel(model.ExitEvents[0])+" ●","sg-port");pass.AddToClassList("sg-port--pass");
-                var fail=Text(model.EventLabel(model.ExitEvents[1])+" ○","sg-port");fail.AddToClassList("sg-port--fail");
+                var pass=Text(model.ExitLabel(c.Module,model.ExitEvents[0])+" ●","sg-port");pass.AddToClassList("sg-port--pass");
+                var fail=Text(model.ExitLabel(c.Module,model.ExitEvents[1])+" ○","sg-port");fail.AddToClassList("sg-port--fail");
                 ports.Add(pass);ports.Add(fail);Add(ports);
             }
         }

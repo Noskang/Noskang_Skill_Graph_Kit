@@ -9,6 +9,7 @@
   python -X utf8 -m skillgraph serve                                         editor backend: one JSON request/response per line
   python -X utf8 -m skillgraph model|changes|save [--workspace practice] [--ops OPS.json] [--base BASE.json] [--out FILE]
   python -X utf8 -m skillgraph practice create|reset
+  python -X utf8 -m skillgraph codes                                         list issue codes (level, message) incl. settings rules and plugins
 
 The settings file is --config, else $SKILLGRAPH_CONFIG, else ./skillgraph.json when present, else built-in defaults.
 """
@@ -18,6 +19,7 @@ import os
 import sys
 from pathlib import Path
 
+from .codes import codes
 from .config import Config
 from .core import SkillDataError
 from .editor import Backend, OpError, serve
@@ -35,7 +37,7 @@ def find_config(arg):
 def main(argv=None):
     p = argparse.ArgumentParser(prog='skillgraph', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('action', choices=['check', 'validate', 'export', 'dictionary-view', 'expand-view', 'graph-view',
-                                      'serve', 'model', 'changes', 'save', 'practice'])
+                                      'serve', 'model', 'changes', 'save', 'practice', 'codes'])
     p.add_argument('sub', nargs='?', help='practice: create|reset')
     p.add_argument('--config')
     p.add_argument('--dir', help='data folder (default: dataDir from the settings)')
@@ -67,6 +69,8 @@ def main(argv=None):
             (target / out['manifest']['presentationFile']).write_bytes(out['presentation'])
             write_json(target / 'skills.manifest.json', out['manifest'])
             result = dict(manifest=out['manifest'], warnings=[str(w) for w in out['warnings']])
+        elif a.action == 'codes':
+            result = codes(cfg)
         elif a.action == 'dictionary-view':
             result = dictionary_view(cfg)
         elif a.action == 'expand-view':
@@ -87,7 +91,7 @@ def main(argv=None):
                               errors=sum(1 for i in m['issues'] if i['level'] == 'error'),
                               warnings=sum(1 for i in m['issues'] if i['level'] == 'warning'))
         print(json.dumps(result, ensure_ascii=False, indent=1, default=str))
-        return 0 if result.get('ok', True) else 1
+        return 0 if not isinstance(result, dict) or result.get('ok', True) else 1
     except (SkillDataError, OpError, OSError, ValueError, KeyError) as error:
         print('skillgraph: ' + str(error), file=sys.stderr)
         return 2

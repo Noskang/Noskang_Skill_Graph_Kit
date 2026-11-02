@@ -8,7 +8,7 @@ from .messages import text
 from .validate import names_in, owners, validate_bundles, validate_owners
 from .workbook import load
 
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 
 def run(files, cfg, product=True, practice=False, dictionary_path=None):
@@ -41,11 +41,13 @@ def run_data(data, rep, d, reg, cfg, product=True, practice=False):
     mods = expand_modules(data, rep, cfg)
     validate_bundles(mods, rep, d, cfg, product)
     validate_keyframes(data, mods, rep, d, cfg)
-    reach, types = validate_owners(data, mods, vals, rep, d, cfg)
+    unused = Report(rep.lang)
+    reach, types = validate_owners(data, mods, vals, rep, d, cfg, unused)
     ctx = dict(data=data, mods=mods, vals=vals, reach=reach, types=types, dictionary=d, registry=reg, config=cfg,
                report=rep, product=product, practice=practice)
     for check in cfg.plugins()['validate']:
         check(ctx)
+    rep.extend(unused)  # unused values last: the final pass over every value, after the host checks
     result = dict(errors=rep.errors, warnings=rep.warnings, report=rep, data=data, mods=mods, vals=vals, reach=reach,
                   types=types, dictionary=d, registry=reg)
     if not rep.errors:

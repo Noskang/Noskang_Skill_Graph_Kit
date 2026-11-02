@@ -25,7 +25,7 @@ namespace Noskang.SkillGraph.Editor
         private Dictionary<string,string> baseFiles;private readonly HashSet<int> expanded=new HashSet<int>();private readonly HashSet<string> chips=new HashSet<string>();
         private Dictionary<(int Bundle,int Node),int> runs;private SkillGraphLayout.Card selected;private string selectedSlot;private string markedValue;
         private SkillGraphCanvas top,bottom;private TwoPaneSplitView split,outer;private VisualElement toolbar,layerBar,panel,panelBody,issueList,bottomPane,topPane;private Label statusBar,issueTitle;
-        private bool syncing;private string lastError;
+        private bool syncing;private string lastError;private bool capturing;private string captureFailure;
         public SkillGraphModel Model=>model;public SkillGraphLayout Layout=>layout;public SkillGraphCanvas TopCanvas=>top;public SkillGraphCanvas BottomCanvas=>bottom;
         public string Tab=>s.tab;public View CurrentView=>s.view;public int Owner=>s.owner;public int Layer=>s.layer;public IReadOnlyList<Dictionary<string,object>> Ops=>ops;
 
@@ -35,8 +35,8 @@ namespace Noskang.SkillGraph.Editor
 
         private void OnEnable()
         {
-            var p=SessionPath("product");
-            try{if(File.Exists(p))s=JsonUtility.FromJson<Session>(File.ReadAllText(p,Encoding.UTF8))??new Session();}catch(Exception){s=new Session();}
+            var p=SessionPath("product");captureWindow=creatingCaptureWindow;
+            if(!captureWindow)try{if(File.Exists(p))s=JsonUtility.FromJson<Session>(File.ReadAllText(p,Encoding.UTF8))??new Session();}catch(Exception){s=new Session();}
             LoadSession();
             LanguageChanged+=Rebuild;
         }
@@ -51,6 +51,7 @@ namespace Noskang.SkillGraph.Editor
         }
         private void SaveSession()
         {
+            if(captureWindow)return;
             s.ops=SkillGraphJson.Write(ops);s.redo=SkillGraphJson.Write(redo);s.baseJson=baseFiles==null?"":SkillGraphJson.Write(baseFiles.ToDictionary(k=>k.Key,k=>(object)k.Value));
             s.expanded=string.Join(",",expanded);s.chips=string.Join("|",chips);
             try{Directory.CreateDirectory(Path.GetDirectoryName(SessionPath("product")));File.WriteAllText(SessionPath("product"),JsonUtility.ToJson(s),new UTF8Encoding(false));}catch(Exception){}
@@ -203,6 +204,8 @@ namespace Noskang.SkillGraph.Editor
         private void HandleOpFailure(JsonNode res)
         {
             string msg=res.Get("error")?.TextOr(null)??T("status.opFailed");
+            // A capture runs unattended: the modal dialog below would stop it, so the shot fails instead (ApplyCapture throws).
+            if(capturing){captureFailure=msg;return;}
             if(ops.Count>0){ops.RemoveAt(ops.Count-1);SaveSession();}
             lastError=msg;SetStatus(F("status.opReverted",msg),true);
             EditorUtility.DisplayDialog(T("window.title"),msg,T("ok"));
@@ -440,22 +443,60 @@ namespace Noskang.SkillGraph.Editor
             SetStatus(F("save.done",string.Join(", ",res["written"].AsArray().Select(x=>x.AsText()))),false);
             Refresh();return true;
         }
-        // Writes the logic / presentation JSON with the Python exporter (product rules).
+        // Writes the logic / presentation JSON with the Python exporter (product rules), or runs the settings' editor.export
+        // commands instead (a project's own data pipeline, e.g. exporter + compatibility check).
         private void ExportData()
         {
-            string folder=EditorUtility.SaveFolderPanel(T("export.pick"),Path.GetFullPath("Assets"),"SkillData");
-            if(string.IsNullOrEmpty(folder))return;
-            try{string result=RunPython("export --out \""+folder+"\"");AssetDatabase.Refresh();SetStatus(F("export.done",folder),false);Debug.Log("[SkillGraph] "+result);}
-            catch(Exception x){EditorUtility.DisplayDialog(T("menu.export"),x.Message,T("ok"));}
+            var commands=SkillGraphSettings.ExportCommands();
+            if(commands==null)
+            {
+                string pick=EditorUtility.SaveFolderPanel(T("export.pick"),Path.GetFullPath("Assets"),"SkillData");
+                if(string.IsNullOrEmpty(pick))return;
+                try{string result=RunPython("export --out \""+pick+"\"");AssetDatabase.Refresh();SetStatus(F("export.done",pick),false);Debug.Log("[SkillGraph] "+result);}
+                catch(Exception x){EditorUtility.DisplayDialog(T("export.title"),x.Message,T("ok"));}
+                return;
+            }
+            if(SkillGraphSettings.ExportConfirm&&!EditorUtility.DisplayDialog(T("export.confirmTitle"),T("export.confirmText"),T("export.confirmOk"),T("cancel")))return;
+            string folder=null;
+            if(SkillGraphSettings.NeedsFolder(commands))
+            {
+                folder=EditorUtility.SaveFolderPanel(T("export.pick"),Path.GetFullPath("Assets"),"SkillData");
+                if(string.IsNullOrEmpty(folder))return;
+            }
+            try
+            {
+                string last="";
+                foreach(var c in commands)last=RunPythonCommand(SkillGraphSettings.Expand(c,folder));
+                AssetDatabase.Refresh();
+                SetStatus(F("export.doneCommand",last.Trim().Split('\n').LastOrDefault()?.Trim()??""),false);Debug.Log("[SkillGraph] "+last);
+            }
+            catch(Exception x){EditorUtility.DisplayDialog(T("export.title"),x.Message,T("ok"));}
         }
-        public static string RunPython(string args)
+        public static string RunPython(string args)=>Run("-X utf8 -B -m skillgraph "+args+" --config \""+SkillGraphPaths.ConfigPath+"\"","skillgraph "+args);
+        // One settings command: arguments after the Python executable, run in the project folder with the package on PYTHONPATH.
+        public static string RunPythonCommand(IReadOnlyList<string> args)=>Run(string.Join(" ",args.Select(QuoteArg)),string.Join(" ",args));
+        // Windows command-line quoting: backslashes are doubled only before a quote (and before the closing quote).
+        public static string QuoteArg(string a)
         {
-            var info=new System.Diagnostics.ProcessStartInfo(SkillGraphPaths.PythonPath,"-X utf8 -B -m skillgraph "+args+" --config \""+SkillGraphPaths.ConfigPath+"\"")
+            if(a.Length>0&&a.IndexOfAny(new[]{' ','\t','"'})<0)return a;
+            var sb=new StringBuilder("\"");int slashes=0;
+            foreach(char ch in a)
+            {
+                if(ch=='\\'){slashes++;continue;}
+                if(ch=='"'){sb.Append('\\',slashes*2+1);sb.Append('"');}
+                else{sb.Append('\\',slashes);sb.Append(ch);}
+                slashes=0;
+            }
+            sb.Append('\\',slashes*2);sb.Append('"');return sb.ToString();
+        }
+        private static string Run(string arguments,string what)
+        {
+            var info=new System.Diagnostics.ProcessStartInfo(SkillGraphPaths.PythonPath,arguments)
             {UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true,StandardOutputEncoding=Encoding.UTF8,StandardErrorEncoding=Encoding.UTF8,WorkingDirectory=Path.GetFullPath(".")};
             info.EnvironmentVariables["PYTHONPATH"]=SkillGraphPaths.PythonFolder;info.EnvironmentVariables["PYTHONDONTWRITEBYTECODE"]="1";info.EnvironmentVariables["PYTHONIOENCODING"]="utf-8";
             var p=new System.Diagnostics.Process{StartInfo=info};
-            p.Start();var o=p.StandardOutput.ReadToEndAsync();var e=p.StandardError.ReadToEndAsync();if(!p.WaitForExit(300000))throw new InvalidOperationException("skillgraph "+args+": timeout");
-            if(p.ExitCode!=0)throw new InvalidOperationException("skillgraph "+args+":\n"+e.Result+o.Result);return o.Result;
+            p.Start();var o=p.StandardOutput.ReadToEndAsync();var e=p.StandardError.ReadToEndAsync();if(!p.WaitForExit(300000))throw new InvalidOperationException(what+": timeout");
+            if(p.ExitCode!=0)throw new InvalidOperationException(what+":\n"+e.Result+o.Result);return o.Result;
         }
         private void SwitchWorkspace(string ws)
         {
@@ -469,7 +510,7 @@ namespace Noskang.SkillGraph.Editor
         }
         private void ResetPractice()
         {
-            if(!EditorUtility.DisplayDialog(T("menu.resetPractice"),T("workspace.resetText"),T("workspace.reset"),T("cancel")))return;
+            if(!EditorUtility.DisplayDialog(T("workspace.resetTitle"),T("workspace.resetText"),T("workspace.reset"),T("cancel")))return;
             var res=SkillGraphBackend.Shared.Request(new Dictionary<string,object>{{"cmd","practice"},{"action","reset"}});
             if(!res["ok"].Bool){EditorUtility.DisplayDialog(T("toolbar.practice"),res["error"].AsText(),T("ok"));return;}
             if(s.workspace=="practice"){ops.Clear();redo.Clear();baseFiles=null;SaveSession();}Refresh();

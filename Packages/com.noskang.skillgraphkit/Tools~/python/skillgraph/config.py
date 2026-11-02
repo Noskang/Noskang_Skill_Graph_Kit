@@ -79,7 +79,19 @@ DEFAULTS = {
     # Presentation modules the host runtime can draw, per event (shown in the editor; empty = no hint).
     'presentationDrawn': {},
     # Editor: columns a bundle kind always shows (default: the kind's first event).
-    'editor': {'baseColumns': {}},
+    # text: {language: {text key: text}} overrides editor strings (e.g. 'exit.<Module>.CheckPass' names one module's exit,
+    #   'column.time.<event>' is the line under a timed column's time, empty allowed).
+    # export: the More menu 'build skill data' command — None = 'python -m skillgraph export' into a picked folder, or
+    #   {commands: [[arg, …], …] run with the editor's Python in the project folder, confirm: true to ask first};
+    #   arguments may use {project}, {config} and {out} (a picked folder; asked only when an argument uses it).
+    # Display (None / 2 = the package's own behaviour): newSkillModuleParent — module bundle Key the New Skill window starts with
+    #   (None = the selected owner's first layer); boxMinColumns — narrowest box in columns; valueUnits — units written after
+    #   numbers (None = any unit up to four characters); boxSummary — [{module, slot, label?}] a folded box line shows (None = the
+    #   balance values the bundle sets); compactCard — {range: [from slot, until slot], plain: [slot, …]} for one-line presentation cards
+    #   (None = up to two set slots with their names).
+    # The Unity editor reads text, export and the display keys from this file directly.
+    'editor': {'baseColumns': {}, 'text': {}, 'export': None, 'newSkillModuleParent': None, 'boxMinColumns': 2, 'valueUnits': None,
+               'boxSummary': None, 'compactCard': None},
     # Host extensions: "module:function" strings. paths are added to sys.path first.
     'plugins': {'paths': [], 'validate': [], 'export': None},
 }
@@ -142,11 +154,13 @@ class Config:
     def aux_path(self, base):
         return Path(base) / self['folders']['editor'] / self['files']['aux']
 
-    def documents(self, base=None):
+    def documents(self, base=None, flat=False):
+        """Document id -> path. flat: file names only, as the practice workspace keeps its copies side by side in one folder
+        (a document may live outside the data folder, e.g. '../Shared/Roster.xlsx')."""
         base = Path(base or self.data_dir)
         out = {}
         for doc, name in self['documents'].items():
-            p = base / name
+            p = base / (Path(name).name if flat else name)
             out[doc] = str(p) if p.is_file() or doc not in self['optionalDocuments'] else None
         return out
 

@@ -208,6 +208,24 @@ class EditorTests(unittest.TestCase):
             r = run(se.Workspace(t.cfg, 'practice').files, t.cfg, True)
             self.assertIn('PracticeKey', [x.code for x in r['errors']], 'practice keys are errors in product mode')
 
+    def test_practice_reads_documents_outside_the_data_folder(self):
+        # A document may live outside the data folder ('../Shared/…'); the practice workspace keeps flat copies by file name.
+        with Temp() as t:
+            shared = t.dir / 'Shared'
+            shared.mkdir()
+            (t.cfg.data_dir / 'PresentationResources.xlsx').rename(shared / 'PresentationResources.xlsx')
+            t.cfg.data['documents'] = dict(t.cfg['documents'], Presentation='../Shared/PresentationResources.xlsx')
+            bk = se.Backend(t.cfg)
+            product = bk.handle(dict(cmd='model', ops=[]))['model']
+            self.assertEqual(errors(product), [])
+            self.assertTrue(bk.handle(dict(cmd='practice', action='create'))['created'])
+            self.assertTrue((t.cfg.practice_dir / 'PresentationResources.xlsx').is_file(), 'copied by file name')
+            m = bk.handle(dict(cmd='model', workspace='practice', ops=[]))['model']
+            self.assertEqual(errors(m), [], 'the practice copy is read, not a missing relative path')
+            self.assertTrue(m['workspace']['files']['Presentation'].endswith('Practice/PresentationResources.xlsx'))
+            self.assertEqual(len(m['resources']), len(product['resources']))
+            self.assertEqual(sorted(o['key'] for o in m['owners']), sorted(o['key'] for o in product['owners']))
+
     def test_aux_memo_combo_bands(self):
         with Temp() as t:
             bk = se.Backend(t.cfg)

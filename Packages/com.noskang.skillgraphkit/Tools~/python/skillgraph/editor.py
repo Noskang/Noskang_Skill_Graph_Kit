@@ -42,7 +42,7 @@ class Workspace:
         self.cfg, self.kind = cfg, kind
         self.folder = cfg.data_dir if kind == 'product' else cfg.practice_dir
         self.dictionary = cfg.dictionary_path
-        self.files = cfg.documents(self.folder)
+        self.files = cfg.documents(self.folder, flat=kind == 'practice')  # practice() copies by file name
         self.aux = cfg.aux_path(self.folder)
 
     @property

@@ -96,6 +96,10 @@ namespace Noskang.SkillGraph.Editor
             return e!=null&&EnumLabels.TryGetValue(e,out var l)&&value!=null&&l.TryGetValue(value,out var k)?k.Get(SkillGraphText.Language):value;
         }
         public string EventLabel(string e)=>EventLabels.TryGetValue(e??"",out var l)?l.Get(SkillGraphText.Language):e;
+        // An exit of one module may have its own name (settings editor.text 'exit.<Module>.<exit event>'), else the event's.
+        // Line under a timed column's time: the editor.text key column.time.<event> when set (it may be empty), otherwise the event name.
+        public string TimedColumnLine(string timedEvent){string key="column.time."+timedEvent;return SkillGraphText.Has(key)?SkillGraphText.T(key):EventLabel(timedEvent);}
+        public string ExitLabel(string module,string exit){string key="exit."+module+"."+exit;return module!=null&&SkillGraphText.Has(key)?SkillGraphText.T(key):EventLabel(exit);}
         public string ModuleLabel(string module){var m=Module(module);var t=m?.Label.Get(SkillGraphText.Language);return string.IsNullOrEmpty(t)?module:t;}
         public string Seconds(double v)=>v.ToString("0.###",CultureInfo.InvariantCulture)+TimeUnit;
 

@@ -26,12 +26,22 @@ namespace Noskang.SkillGraph.Editor
 
         // ---- values: rows = value names, columns = tiers. Inherited values grey, values a tier sets itself bold.
         // The owner's values first, then each buff it applies (with its own values).
+        // The digits of last after the leading digits it shares with first (2300201, 2300204 -> "4").
+        public static string KeyTail(int first,int last)
+        {
+            string a=first.ToString(CultureInfo.InvariantCulture),b=last.ToString(CultureInfo.InvariantCulture);int i=0;
+            while(i<a.Length&&i<b.Length&&a[i]==b[i])i++;
+            return i<b.Length?b.Substring(i):b;
+        }
         private void BuildValues()
         {
             var owner=model.OwnerOf(s.owner);if(owner==null)return;
             var columns=owner.Stage!=null&&owner.Stage.Family.Length>1?owner.Stage.Family.Select(k=>model.OwnerOf(k)).Where(o=>o!=null).ToList():new List<SkillGraphModel.Owner>{owner};
             var pass=PassedNames(owner);
-            panelBody.Add(Cls(new Label(F("values.title",owner.Values,model.KeyName(owner.Values))),"sg-panel__title"));
+            // Several tiers: values.titleTiers, which also gets the first and last tier's values keys and the last key's digits after the part shared with the first.
+            string title=columns.Count>1?F("values.titleTiers",owner.Values,model.KeyName(owner.Values),columns[0].Values,columns.Last().Values,KeyTail(columns[0].Values,columns.Last().Values))
+                :F("values.title",owner.Values,model.KeyName(owner.Values));
+            panelBody.Add(Cls(new Label(title),"sg-panel__title"));
             panelBody.Add(ValueTable(columns,owner,pass));
             foreach(int buffKey in owner.Buffs)
             {
@@ -107,7 +117,7 @@ namespace Noskang.SkillGraph.Editor
             }
             else add(T("values.notOwn"),null,false);
             if(own&&vb?.Parent==null)add(T("values.delete"),()=>Apply(SkillGraphJson.Op("setValue",("values",owner.Values),("name",name),("value",null))),true);
-            add(T("values.editDesc"),()=>Prompt.Show(T("values.descTitle"),name,new[]{(T("values.desc"),e?.Desc??"")},x=>Apply(SkillGraphJson.Op("setValue",("values",e!=null?e.DefinedIn:owner.Values),("name",name),("value",e?.Value),("desc",x[0])))),true);
+            add(T("values.editDesc"),()=>Prompt.Show(T("values.descTitle"),name,new[]{(T("values.descField"),e?.Desc??"")},x=>Apply(SkillGraphJson.Op("setValue",("values",e!=null?e.DefinedIn:owner.Values),("name",name),("value",e?.Value),("desc",x[0])))),true);
         }
 
         // ---- node tab
@@ -119,7 +129,7 @@ namespace Noskang.SkillGraph.Editor
         }
         private void AddValuePrompt(SkillGraphModel.Owner owner)
         {
-            Prompt.Show(T("values.add"),T("values.addText"),new[]{(T("values.name"),""),(T("values.value"),"0"),(T("values.desc"),"")},v=>
+            Prompt.Show(T("values.addTitle"),T("values.addText"),new[]{(T("values.name"),""),(T("values.value"),"0"),(T("values.desc"),"")},v=>
             {
                 object value=double.TryParse(v[1],NumberStyles.Float,CultureInfo.InvariantCulture,out double d)?(object)d:v[1];
                 var op=SkillGraphJson.Op("setValue",("values",owner.Values),("name",v[0]),("value",value));if(v[2].Length>0)op["desc"]=v[2];Apply(op);
@@ -298,7 +308,11 @@ namespace Noskang.SkillGraph.Editor
 
         // ---- creating owners and bundles
         private string OwnerNumberText(){var owner=model.OwnerOf(s.owner);return model.Practice?model.PracticeOwner.ToString(CultureInfo.InvariantCulture):owner!=null?model.OwnerNumber(owner.Key).ToString(CultureInfo.InvariantCulture):"1";}
-        private string RootBundleText(){var owner=model.OwnerOf(s.owner);return owner!=null&&owner.Chain.Length>0?owner.Chain[0].ToString(CultureInfo.InvariantCulture):"";}
+        private string RootBundleText()
+        {
+            if(SkillGraphSettings.NewSkillModuleParent is int parent)return parent.ToString(CultureInfo.InvariantCulture);
+            var owner=model.OwnerOf(s.owner);return owner!=null&&owner.Chain.Length>0?owner.Chain[0].ToString(CultureInfo.InvariantCulture):"";
+        }
         private void NewSkill(bool duplicate)
         {
             var owner=model.OwnerOf(s.owner);
@@ -353,13 +367,13 @@ namespace Noskang.SkillGraph.Editor
         private void EditBundleDesc()
         {
             var b=model.Bundles.TryGetValue(s.layer,out var lb)?lb:null;if(b==null)return;
-            Prompt.Show(T("menu.bundleDesc").TrimEnd('…'),T("new.descText"),new[]{(T("new.desc"),b.Desc)},v=>Apply(SkillGraphJson.Op("setBundle",("bundle",b.Key),("desc",v[0]))));
+            Prompt.Show(T("bundleDesc.title"),T("new.descText"),new[]{(T("bundleDesc.field"),b.Desc)},v=>Apply(SkillGraphJson.Op("setBundle",("bundle",b.Key),("desc",v[0]))));
         }
         private void EditBands()
         {
             var box=layout?.Boxes.FirstOrDefault(x=>x.Main);if(box==null)return;
             var cur=model.Bands.TryGetValue(box.Bundle,out var list)?string.Join("\n",list.Select(x=>x.Name+"="+x.From+".."+x.To)):"";
-            Prompt.Show(T("menu.bands").TrimEnd('…'),F("bands.text",string.Join(", ",box.Columns.Select(c=>c.Key))),new[]{(T("bands.field"),cur)},v=>
+            Prompt.Show(T("bands.title"),F("bands.text",string.Join(", ",box.Columns.Select(c=>c.Key))),new[]{(T("bands.field"),cur)},v=>
             {
                 var bands=new List<object>();
                 foreach(var line in v[0].Split('\n').Select(x=>x.Trim()).Where(x=>x.Contains("=")))
@@ -375,7 +389,7 @@ namespace Noskang.SkillGraph.Editor
         private void SaveCombo(SkillGraphLayout.Card c)
         {
             var nodes=top.selection.Concat(bottom.selection).OfType<CardElement>().Where(x=>x.Card.Bundle==c.Bundle&&!x.Card.Removed).Select(x=>x.Card.Node).Distinct().ToList();if(nodes.Count==0)nodes.Add(c.Node);
-            Prompt.Show(T("combo.title"),F("combo.text",nodes.Count),new[]{(T("combo.name"),""),(T("new.desc"),"")},v=>Apply(SkillGraphJson.Op("saveCombo",("name",v[0]),("desc",v[1]),("bundle",c.Bundle),("nodes",nodes.Cast<object>().ToList()))));
+            Prompt.Show(T("combo.title"),F("combo.text",nodes.Count),new[]{(T("combo.name"),""),(T("combo.desc"),"")},v=>Apply(SkillGraphJson.Op("saveCombo",("name",v[0]),("desc",v[1]),("bundle",c.Bundle),("nodes",nodes.Cast<object>().ToList()))));
         }
     }
 

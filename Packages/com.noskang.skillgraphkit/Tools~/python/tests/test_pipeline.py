@@ -230,6 +230,55 @@ class SampleTests(unittest.TestCase):
             self.assertEqual([x.code for x in r['warnings']], ['BigDamage'])
             self.assertEqual(r['logic']['host'], 'demo')
 
+    def test_unused_values_come_after_plugin_checks(self):
+        plugin = (
+            'def note(ctx):\n'
+            '    ctx["report"].w("HostNote", dict(text="host"), "UnusedValue", name="host")\n'
+        )
+        with Temp(rows=lambda rows: rows['ValueData'].append(dict(BundleKey=2300101, Name='Hit.Spare', Value=1))) as t:
+            (t.dir / 'host_note.py').write_text(plugin, encoding='utf-8')
+            t.cfg.data['plugins'] = {'paths': ['.'], 'validate': ['host_note:note'], 'export': None}
+            r = check(t)
+            self.assertEqual([x.code for x in r['warnings']], ['HostNote', 'UnusedValue'], 'the final pass over values reports last')
+
+    def test_issue_codes(self):
+        import re
+        from helpers import PYTHON
+        from skillgraph.codes import LEVELS, codes as issue_codes
+        # The code table matches every rep.e / rep.w / KeyframeError call in the package (and its level).
+        found = {'CompanionMissing': {'error'}}
+        for p in (PYTHON / 'skillgraph').glob('*.py'):
+            s = p.read_text(encoding='utf-8')
+            for m in re.finditer(r"rep\.(e|w)\(\s*'(\w+)'", s):
+                found.setdefault(m.group(2), set()).add('error' if m.group(1) == 'e' else 'warning')
+            for m in re.finditer(r"KeyframeError\(\s*'(\w+)'", s):
+                found.setdefault(m.group(1), set()).add('error')
+        self.assertEqual(found, {k: {v} for k, v in LEVELS.items()})
+        plugin = ('CODES = {"BigDamage": ("warning", "Damage is big: {name}", "피해가 큽니다: {name}"),\n'
+                  '         "OrderTie": ("error", "Host order rule", "호스트 순서 규칙")}\n'
+                  'def check(ctx):\n    pass\n')
+        with Temp() as t:
+            (t.dir / 'host_codes.py').write_text(plugin, encoding='utf-8')
+            t.cfg.data['plugins'] = {'paths': ['.'], 'validate': ['host_codes:check'], 'export': None}
+            t.cfg.data['rules'] = {'companions': [dict(kind='effect', event='Hit', requires='HitShape', code='ShapeMissing')]}
+            listed = {c['code']: c for c in issue_codes(t.cfg)}
+            self.assertEqual((listed['BigDamage']['level'], listed['BigDamage']['source']), ('warning', 'plugin:host_codes'))
+            self.assertEqual((listed['ShapeMissing']['level'], listed['ShapeMissing']['source']), ('error', 'rules'))
+            tie = listed['OrderTie']
+            self.assertEqual((tie['level'], tie['source']), ('error', 'core plugin:host_codes'), 'a plugin text joins the core code')
+            self.assertEqual([x['key'] for x in tie['messages']], ['OrderTie', 'OrderTie'])
+            self.assertNotIn('CompanionMissing', listed, 'every companion rule names its own code')
+            self.assertEqual(sum(1 for c in listed.values() if c['source'].startswith('core')), len(LEVELS) - 1)
+        self.assertEqual(len(issue_codes()), len(LEVELS), 'without settings: core codes only')
+        with Temp() as t:
+            self.assertIn('CompanionMissing', {c['code'] for c in issue_codes(t.cfg)}, 'the demo rule uses the default code')
+
+    def test_public_api(self):
+        import skillgraph
+        for name in skillgraph.__all__:
+            self.assertTrue(hasattr(skillgraph, name), name)
+        self.assertEqual(skillgraph.load_workbook.__module__, 'skillgraph.workbook')
+
     def test_generated_views(self):
         with Temp() as t:
             res = dictionary_view(t.cfg)

@@ -177,7 +177,8 @@ def owners(data, cfg):
     return out
 
 
-def validate_owners(data, mods, vals, rep, d, cfg):
+def validate_owners(data, mods, vals, rep, d, cfg, unused=None):
+    """unused: a Report that takes the UnusedValue warnings instead of rep (run_data adds them after the plugin checks)."""
     used = {k: set() for k in vals}
     types = value_types(mods, d)
     reach = {}
@@ -227,9 +228,10 @@ def validate_owners(data, mods, vals, rep, d, cfg):
             else:
                 used[meta['ValueBundleKey']].add(m['ValueName'])
     owned = {r['ValueBundleKey'] for _, r in owners(data, cfg)}
+    unused_rep = rep if unused is None else unused
     for vb, names in vals.items():
         if vb not in owned:
             continue
         for name in sorted(set(names) - used[vb]):
-            rep.w('UnusedValue', dict(values=vb), name=name)
+            unused_rep.w('UnusedValue', dict(values=vb), name=name)
     return reach, types

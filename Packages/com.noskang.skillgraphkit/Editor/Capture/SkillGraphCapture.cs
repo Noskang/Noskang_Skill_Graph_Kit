@@ -72,7 +72,7 @@ namespace Noskang.SkillGraph.Editor
                 {
                     var size=x.Get("size") is JsonNode sz?new Vector2((float)sz[0].Number,(float)sz[1].Number):new Vector2(1600,1000);
                     // A floating window of our own, so its size can be set (docked windows cannot be resized).
-                    if(window==null){window=ScriptableObject.CreateInstance<SkillGraphEditorWindow>();window.titleContent=new GUIContent(T("window.title"));window.Show();}
+                    if(window==null){window=SkillGraphEditorWindow.CreateCaptureWindow();window.titleContent=new GUIContent(T("window.title"));window.Show();}
                     window.position=new Rect(40,40,size.x,size.y);window.Focus();
                     window.ApplyCapture(x);phase=1;next=EditorApplication.timeSinceStartup+2.5;return;
                 }
@@ -292,6 +292,9 @@ namespace Noskang.SkillGraph.Editor
     public sealed partial class SkillGraphEditorWindow
     {
         private VisualElement callouts;private ToolbarMenu moreMenu;private DropdownMenu captureMenu;private Vector2 captureMenuAt;private VisualElement captureMenuView;
+        // A capture window starts from an empty session and never writes it, so the user's editor session (Library/SkillGraphKit) stays as it was.
+        private static bool creatingCaptureWindow;private bool captureWindow;
+        public static SkillGraphEditorWindow CreateCaptureWindow(){creatingCaptureWindow=true;try{return CreateInstance<SkillGraphEditorWindow>();}finally{creatingCaptureWindow=false;}}
         // Applies a capture shot's state to the window (never saved). Operations only change what is on screen.
         public void ApplyCapture(JsonNode x)
         {
@@ -312,7 +315,8 @@ namespace Noskang.SkillGraph.Editor
             if(issueList?.parent!=null)issueList.parent.style.display=x.Get("issues") is JsonNode iv&&!iv.Bool?DisplayStyle.None:DisplayStyle.Flex;
             // "panelWidth": side panel width in points (default 330), e.g. to show every tier column.
             if(outer?.fixedPane!=null)outer.fixedPane.style.width=(float)(x.Get("panelWidth")?.Number??330);
-            Refresh();
+            capturing=true;captureFailure=null;try{Refresh();}finally{capturing=false;}
+            if(captureFailure!=null)throw new InvalidOperationException(captureFailure);
             var owner=model?.OwnerOf(s.owner);if(owner!=null&&s.layer==0)s.layer=owner.Bundle;
             if(x.Get("select") is JsonNode sel&&!sel.IsNull)
             {

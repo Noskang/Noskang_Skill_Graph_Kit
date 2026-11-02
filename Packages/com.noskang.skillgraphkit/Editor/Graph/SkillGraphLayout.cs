@@ -53,6 +53,11 @@ namespace Noskang.SkillGraph.Editor
         public List<Edge> Edges { get; } = new List<Edge>();
         public Rect TopBounds,BottomBounds;
 
+        // Display settings, read once per layout (SkillGraphSettings).
+        private readonly int minColumns=SkillGraphSettings.BoxMinColumns;private readonly HashSet<string> units=SkillGraphSettings.ValueUnits;
+        private readonly List<(string Module,string Slot,string Label)> boxSummary=SkillGraphSettings.BoxSummary;
+        private readonly (string From,string Until,string[] Plain)? compact=SkillGraphSettings.CompactCard;
+
         public SkillGraphLayout(SkillGraphModel model,Options options)
         {
             Model=model;Owner=model.OwnerOf(options.Owner)??model.Owners.FirstOrDefault();
@@ -124,8 +129,8 @@ namespace Noskang.SkillGraph.Editor
             float bands=Model.Bands.TryGetValue(key,out var bl)&&bl.Count>0?BandHeight:0;
             float colTop=topY+TitleHeight+bands+HeaderHeight;
             for(int i=0;i<box.Columns.Count;i++){box.Columns[i].X=x+BoxPad+i*(NodeWidth+ColumnGap);box.Columns[i].Index=i;}
-            // At least two columns wide, so the title, key and inherit label never run past the box.
-            int span=Math.Max(2,box.Columns.Count);
+            // At least editor.boxMinColumns columns wide (default 2, so the title, key and inherit label never run past the box).
+            int span=Math.Max(minColumns,box.Columns.Count);
             float width=BoxPad*2+span*NodeWidth+(span-1)*ColumnGap;
             float logicBottom=Place(box,b,logic.Concat(ghosts.Where(g=>!g.Presentation)).ToList(),colTop,o,false);
             box.Top=new Rect(x,topY,width,Math.Max(logicBottom-topY,TitleHeight+bands+HeaderHeight+40)+BoxPad);
@@ -189,11 +194,11 @@ namespace Noskang.SkillGraph.Editor
                     }
                     else{c.Time=0;c.Label=value.Text.Substring(value.Text.IndexOf(':')+1)+" : ?";c.Sub=F("column.keyframeMissing",value.Text);}
                 }
-                else if(Model.IsTimed(e)){c.Time=ResolveTime(value);c.Label=Model.Seconds(c.Time);c.Sub=value!=null&&value.Kind==JsonKind.String?"← "+value.Text:Model.EventLabel(e);}
+                else if(Model.IsTimed(e)){c.Time=ResolveTime(value);c.Label=Model.Seconds(c.Time);c.Sub=value!=null&&value.Kind==JsonKind.String?"← "+value.Text:Model.TimedColumnLine(e);}
                 else if(Model.IsExit(e)&&from is int f)
                 {
                     var src=b.Node(f);string what=src==null?"#"+f:Model.ModuleLabel(src.Module)+"#"+f;
-                    c.Label=what+" "+Model.EventLabel(e);c.Sub=e+" ← #"+f;
+                    c.Label=what+" "+Model.ExitLabel(src?.Module,e);c.Sub=e+" ← #"+f;
                 }
                 else if(Model.IsSubscription(e))c.Sub=e+" · "+SkillGraphModel.Text(value);
                 else c.Sub=e;
@@ -297,6 +302,13 @@ namespace Noskang.SkillGraph.Editor
 
         private static string Label(SkillGraphModel.SlotInfo s)=>s.Label.Get(Language) is {Length:>0} l?l:s.Name;
 
+        // A set slot's value as plain text (a value reference resolved), null when the slot is not set.
+        private string RawValue(SkillGraphModel.Node n,string slot)
+        {
+            var v=slot==null?null:n.Slot(slot);if(v==null||v.Source=="default")return null;
+            if(v.Source!="ref")return SkillGraphModel.Text(v.Value);
+            var e=Model.ResolveValue(ValuesFor(n.Bundle),SkillGraphModel.Text(v.Value));return SkillGraphModel.Text(e==null?v.Value:e.Value);
+        }
         // One-line card summary: the first key slot with its name, up to two other set slots, and the count of set slots.
         private string CompactSummary(SkillGraphModel.ModuleInfo m,SkillGraphModel.Node n)
         {
@@ -304,7 +316,17 @@ namespace Noskang.SkillGraph.Editor
             var set=n.Slots.Where(s=>s.Source!="default").ToList();
             var key=set.FirstOrDefault(s=>m.Slot(s.Name)?.Type.StartsWith("key:",StringComparison.Ordinal)==true&&s.Value.Kind==JsonKind.Number);
             if(key!=null){int k=(int)key.Value.Number;parts.Add(k+" "+Short(Model.KeyName(k),12));}
-            foreach(var s in set.Where(s=>s!=key&&s.Name!=m.KindSlot).Take(2))
+            if(compact.HasValue)
+            {
+                var (fromSlot,untilSlot,plain)=compact.Value;
+                // editor.compactCard: the time span of the range slots, then the plain slots' values; the first set slot when nothing else shows.
+                string a=RawValue(n,fromSlot),z=RawValue(n,untilSlot);
+                if(a!=null||z!=null)parts.Add(F("card.range",a??"0",z==null||z=="0"?T("card.rangeEnd"):z,Model.TimeUnit));
+                foreach(var p in plain){var v=n.Slot(p);var info=m.Slot(p);if(v!=null&&v.Source!="default"&&info!=null)parts.Add(ValueText(info,v.Value));}
+                var first=set.FirstOrDefault();var firstInfo=first==null?null:m.Slot(first.Name);
+                if(parts.Count==0&&firstInfo!=null)parts.Add(Label(firstInfo)+" "+SkillGraphModel.Text(first.Value));
+            }
+            else foreach(var s in set.Where(s=>s!=key&&s.Name!=m.KindSlot).Take(2))
             {
                 var info=m.Slot(s.Name);if(info==null)continue;
                 var value=s.Source=="ref"?Model.ResolveValue(ValuesFor(n.Bundle),SkillGraphModel.Text(s.Value))?.Value:s.Value;
@@ -361,6 +383,7 @@ namespace Noskang.SkillGraph.Editor
             string text=SkillGraphModel.Text(value);
             if(value.Kind!=JsonKind.Number)return text;
             if(info.Type=="time")return Model.Seconds(value.Number);
+            if(units!=null)return units.Contains(info.Unit)?text+info.Unit:text;
             return info.Unit.Length>0&&info.Unit.Length<=4?text+info.Unit:text;
         }
 
@@ -368,8 +391,16 @@ namespace Noskang.SkillGraph.Editor
         {
             var parts=new List<string>();
             if(b.Parent is int p)parts.Add(F("box.inheritsShort",Short(Model.KeyName(p),10)));
-            // Up to two balance values the effect sets (what a designer usually looks for: damage, lifetime, ...).
-            foreach(var n in logic)
+            // editor.boxSummary: the listed slots of each module's first node.
+            if(boxSummary!=null)foreach(var (module,slot,label) in boxSummary)
+            {
+                var node=logic.FirstOrDefault(x=>x.Module==module);var s=node?.Slot(slot);var info=Model.Module(module)?.Slot(slot);
+                if(s==null||s.Source=="default"||info==null)continue;
+                var value=s.Source=="ref"?Model.ResolveValue(ValuesFor(b.Key),SkillGraphModel.Text(s.Value))?.Value:s.Value;
+                parts.Add((label??Label(info))+" "+ValueText(info,value));
+            }
+            // Otherwise the balance values the effect sets, three parts at most with the inherit label (damage, lifetime, ...).
+            else foreach(var n in logic)
             {
                 var m=Model.Module(n.Module);if(m==null)continue;
                 foreach(var s in n.Slots.Where(s=>s.Source!="default"))

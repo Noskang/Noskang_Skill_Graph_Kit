@@ -122,6 +122,10 @@ Excel이 원본이고 편집기는 Excel을 고쳐 씁니다.
 | 표 등록부 | 열 추가·시트 이름·문서 이름 |
 | 규칙 | "Hit 노드가 있는 Effect는 HitShape가 필요" 같은 동반 모듈 규칙(검사 코드 이름도 정할 수 있음) |
 | 플러그인 | `plugins.validate`(검사 추가), `plugins.export`(내보낸 JSON 보강) |
+| 편집기 글자·메뉴 동작 | `editor.text`(언어별 글자 덮어쓰기, 모듈별 출구 이름 `exit.<모듈>.<출구 이벤트>`), `editor.export`(더 보기 데이터 만들기를 프로젝트 명령으로), 처음 언어 = `language` |
+| Player 빌드 | 정의 기호 `SKILLGRAPH_EDITOR_ONLY`를 둔 프로젝트는 런타임 어셈블리(`Noskang.SkillGraph`)를 Player 빌드에서 뺌(편집기만 쓰는 호스트) |
+
+검증 코드 목록은 `skillgraph.codes(cfg)`(명령줄 `codes`)가 코어 코드·설정 규칙 코드·플러그인 모듈의 `CODES` 표를 합쳐 수준·메시지 틀과 함께 돌려줍니다. 호스트 도구가 쓰는 Python 이름은 `skillgraph.__all__`(설정·실행·통합 문서 읽기·편집 백엔드·연습 공간·코드 목록)입니다.
 
 턴제 시험(`tests/test_turn_based.py`)은 이벤트·종류·Key 자릿수(3+1+3)·두 층·1턴 격자를 모두 바꾼 설정으로 같은 코어를 돌립니다.
 

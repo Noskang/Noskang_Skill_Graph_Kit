@@ -5,12 +5,17 @@ using UnityEditor;
 
 namespace Noskang.SkillGraph.Editor
 {
-    // Editor UI strings in English and Korean. The language toggles from the toolbar and is kept per user (EditorPrefs).
+    // Editor UI strings in English and Korean. The language toggles from the toolbar and is kept per user (EditorPrefs);
+    // until the user picks one, the settings file's "language" is used. Settings editor.text: {language: {key: text}} replaces
+    // table strings and may add module-specific keys (exit.<Module>.<exit event> names one module's exits).
     public static class SkillGraphText
     {
         public const string LanguagePref="Noskang.SkillGraph.Language";
         private static string language;
-        public static string Language=>language??=EditorPrefs.GetString(LanguagePref,"en")=="ko"?"ko":"en";
+        public static string Language=>language??=EditorPrefs.HasKey(LanguagePref)?(EditorPrefs.GetString(LanguagePref,"en")=="ko"?"ko":"en"):SettingsLanguage();
+        private static string SettingsLanguage(){try{return SkillGraphSettings.Root?.Get("language")?.TextOr("en")=="ko"?"ko":"en";}catch(Exception){return "en";}}
+        // Forget the cached language (tests, or after the settings file changed before the user picked one).
+        public static void ResetLanguage(){language=null;}
         public static event Action LanguageChanged;
         public static void SetLanguage(string value,bool notify=true)
         {
@@ -22,11 +27,19 @@ namespace Noskang.SkillGraph.Editor
 
         public static string T(string key)
         {
+            if(Override(key,out var text))return text;
             if(!Table.TryGetValue(key,out var pair))return key;
             return Language=="ko"?pair.Ko:pair.En;
         }
         public static string F(string key,params object[] args)=>string.Format(CultureInfo.InvariantCulture,T(key),args);
-        public static bool Has(string key)=>Table.ContainsKey(key);
+        public static bool Has(string key)=>Table.ContainsKey(key)||Override(key,out _);
+        private static bool Override(string key,out string text)
+        {
+            text=null;JsonNode v;
+            try{v=SkillGraphSettings.Editor("text")?.Get(Language)?.Get(key);}catch(Exception){return false;}
+            if(v==null||v.Kind!=JsonKind.String)return false;
+            text=v.Text;return true;
+        }
 
         private static readonly Dictionary<string,(string En,string Ko)> Table=new Dictionary<string,(string,string)>
         {
@@ -97,7 +110,7 @@ namespace Noskang.SkillGraph.Editor
             {"card.removedTip",("Node removed by this bundle ('-'). Right-click › restore","이 묶음이 뺀 노드(−). 되돌리기로 다시 넣습니다")},
             {"card.compactTip",("One-line card of the Both view. See its slots in the node tab or the Presentation edit view","'둘 다' 보기의 한 줄 카드. 칸은 오른쪽 노드 탭이나 '연출 편집' 보기에서 봅니다")},
             {"card.unimplementedTip",("Module without a runtime: product data cannot use it","미구현 모듈: 제품 데이터에 쓸 수 없습니다")},
-            {"card.defaults",("▸ {0} defaults","▸ 기본값 {0}개")},{"card.runs",("ran {0}×","실행 {0}회")},{"card.setSlots",("{0} slots set","칸 {0}")},
+            {"card.defaults",("▸ {0} defaults","▸ 기본값 {0}개")},{"card.runs",("ran {0}×","실행 {0}회")},{"card.setSlots",("{0} slots set","칸 {0}")},{"card.range",("{0}–{1}{2}","{0}~{1}{2}")},{"card.rangeEnd",("end","끝")},
             {"chip.unusedTip",("Unused stage: click to show its slots","안 쓴 단계: 눌러서 칸 보기")},{"chip.close",("Close","접기")},
             {"chip.foldedTip",("{0} set slots folded (cards show at most {1} rows)","정한 칸 {0}개가 접혀 있음(카드는 {1}줄까지)")},
             {"row.required",("required","필요")},{"row.default",("(default)","(기본값)")},{"row.toDefault",("(set to default)","(기본값으로)")},{"row.missing",("(missing)","(없음)")},
@@ -124,6 +137,13 @@ namespace Noskang.SkillGraph.Editor
             {"save.header",("{0} changes to write (changed cells only, new rows under their bundle, deleted rows pull rows up)","Excel에 쓰는 변경 {0}건(바뀐 칸만, 새 행은 묶음 마지막 행 아래, 지운 행은 아래 행을 올림)")},
             {"save.help",("Locks (Excel open) and outside changes are checked again before writing; one previous copy is kept in the backup folder and the file is read back to compare.","저장 전 잠금(Excel 열림)·외부 변경을 다시 검사하고, 직전 사본 1개를 백업 폴더에 둡니다. 저장 뒤 다시 읽어 편집과 같은지 확인합니다.")},
             {"export.pick",("Folder for skill data","스킬 데이터 폴더")},{"export.done",("Skill data written to {0}","스킬 데이터를 만들었습니다: {0}")},
+            // dialog titles that used to share the menu text (separate keys so a project can name them apart)
+            {"export.title",("Build skill data (logic / presentation JSON)…","스킬 데이터 만들기(판정·연출 JSON)…")},
+            {"export.confirmTitle",("Build skill data","스킬 데이터 만들기")},{"export.confirmText",("Runs the data commands of the settings file.","설정 파일의 데이터 만들기 명령을 돌립니다.")},
+            {"export.confirmOk",("Build","만들기")},{"export.doneCommand",("Skill data built: {0}","스킬 데이터를 만들었습니다: {0}")},
+            {"workspace.resetTitle",("Reset practice workspace","연습 공간 초기화")},{"bundleDesc.title",("Edit bundle description","묶음 설명 고치기")},{"bundleDesc.field",("Description","설명(기획 문장)")},
+            {"column.addHere",("Add node to this column…","이 열에 노드 더하기…")},
+            {"values.addTitle",("+ Add value","＋ 수치 더하기")},{"bands.title",("Edit named bands","구간 이름 띠 고치기")},
             {"workspace.title",("Switch workspace","작업 공간 바꾸기")},{"workspace.discard",("Discards {0} unsaved edits.","저장하지 않은 편집 {0}개를 버립니다.")},{"workspace.switch",("Discard and switch","버리고 바꾸기")},
             {"workspace.resetText",("Rebuilds the practice workspace from the current product workbooks (what you made there is lost).","연습 공간을 지금 제품 통합 문서 사본으로 다시 만듭니다(연습에서 만든 것은 사라짐).")},{"workspace.reset",("Reset","초기화")},
             {"workspace.reloadText",("Discards {0} unsaved edits and reads Excel again.","저장하지 않은 편집 {0}개를 버리고 Excel을 다시 읽습니다.")},{"workspace.reload",("Reload","다시 읽기")},
@@ -133,7 +153,7 @@ namespace Noskang.SkillGraph.Editor
             // side panel
             {"tab.values",("Values","수치")},{"tab.valuesTip",("Value table","수치 패널")},{"tab.node",("Node","노드")},{"tab.nodeTip",("Note, slots and memo of the selected node","고른 노드의 메모·칸")},
             {"tab.resources",("Resources","연출 리소스")},{"tab.resourcesTip",("Presentation resources per skin","스킨별 연출 리소스")},
-            {"values.title",("Values {0} · {1}","수치 {0} · {1}")},{"values.buffTitle",("Buff values {0} · {1} (its own)","버프 수치 {0} · {1} (자체 값)")},
+            {"values.title",("Values {0} · {1}","수치 {0} · {1}")},{"values.titleTiers",("Values {0} · {1}","수치 {0} · {1}")},{"values.buffTitle",("Buff values {0} · {1} (its own)","버프 수치 {0} · {1} (자체 값)")},
             {"values.add",("+ Add value","＋ 수치 더하기")},{"values.addTip",("New value in the chosen skill's value bundle (Object.Name)","고른 기술의 수치 묶음에 새 수치(이름은 객체.이름)")},
             {"values.addText",("Value name (Object.Name, e.g. Bolt.Damage) and value.","수치 이름(객체.이름, 예 Bolt.Damage)과 값을 적으세요.")},
             {"values.help",("Bold white = set by that tier's value bundle, grey = inherited. Click a column head to switch tier. Click a value to edit, right-click to revert or apply to parent. Picking a slot in a node marks its row.","흰 굵은 값 = 그 단계 수치 묶음이 정한 값, 회색 = 물려받은 값. 열 머리를 누르면 그래프도 그 단계로 바뀝니다. 값을 눌러 고치고, 오른쪽 단추로 되돌리기·부모에 적용. 노드에서 칸을 고르면 그 행이 강조됩니다.")},
@@ -143,7 +163,7 @@ namespace Noskang.SkillGraph.Editor
             {"values.cellTip",("Set in bundle {0} · click to edit, right-click to revert or apply to parent","정한 묶음 {0} · 누르면 고침, 오른쪽 단추로 되돌리기·부모에 적용")},
             {"values.revertTo",("Revert — to parent {0}","되돌리기 — 부모 {0} 값으로")},{"values.applyToParent",("Apply to parent {0} (affects: {1})","부모 {0}에 적용(영향: {1})")},
             {"values.notOwn",("Revert — this tier does not set it","되돌리기 — 이 단계가 정한 값이 아님")},{"values.delete",("Delete this value","이 수치 지우기")},
-            {"values.editDesc",("Edit description…","설명(쓰는 곳) 고치기…")},{"values.descTitle",("Value description","수치 설명")},
+            {"values.editDesc",("Edit description…","설명(쓰는 곳) 고치기…")},{"values.descTitle",("Value description","수치 설명")},{"values.descField",("Description","설명(쓰는 곳)")},
             {"values.editTitle",("Edit value","수치 고치기")},{"values.editText",("{0} · {1}\n(written to value bundle {2})","{0} · {1}\n(이 단계 수치 묶음 {2}에 씁니다)")},
             {"node.pick",("Pick a node. Clicking a slot marks its row in the values tab; here you edit the slot's source and value.","노드를 고르세요. 노드의 칸을 누르면 수치 패널에서 그 행이 강조되고, 여기서 칸의 출처·값을 고칩니다.")},
             {"node.id",("node {0}","노드 {0}")},{"node.removedText",("This bundle removed the node ('-'). Right-click the node › restore.","이 묶음이 뺀 노드(−)입니다. 노드에서 오른쪽 단추 › 되돌리기로 다시 넣습니다.")},
@@ -182,7 +202,7 @@ namespace Noskang.SkillGraph.Editor
             {"dup.withEffects",("Copy effects too","효과 묶음도 복사")},{"dup.only",("Skill only","기술만 복사")},{"dup.nameText",("New name (reference only)","새 이름(참고용)")},{"dup.defaultName",("{0} copy","{0} 복사")},
             {"bands.text",("One per line: name=first column..last column (columns: {0})","한 줄에 하나: 이름=시작 열..끝 열 (열 키: {0})")},{"bands.field",("Bands","띠")},
             {"memo.title",("Node memo","노드 메모")},{"memo.text",("Bundle {0} node {1} — saved in the aux file","묶음 {0} 노드 {1} — 보조 파일에 저장")},{"memo.field",("Memo","메모")},
-            {"combo.title",("Save as combo","조합으로 저장")},{"combo.text",("Keeps the {0} selected nodes in the combo list (aux file)","고른 노드 {0}개를 '조합 넣기' 목록에 남깁니다(보조 파일)")},{"combo.name",("Combo name","조합 이름")},
+            {"combo.title",("Save as combo","조합으로 저장")},{"combo.text",("Keeps the {0} selected nodes in the combo list (aux file)","고른 노드 {0}개를 '조합 넣기' 목록에 남깁니다(보조 파일)")},{"combo.name",("Combo name","조합 이름")},{"combo.desc",("Description","설명(기획 문장)")},
             // search
             {"search.title",("Add node · {0}","노드 더하기 · {0}")},{"search.titlePresentation",("Add presentation · {0}","연출 더하기 · {0}")},
             {"search.combos",("Insert combo","조합 넣기")},{"search.combo",("{0} (nodes {1})","{0} (노드 {1})")},

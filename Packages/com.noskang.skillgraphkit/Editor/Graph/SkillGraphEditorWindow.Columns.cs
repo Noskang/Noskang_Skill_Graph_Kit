@@ -29,7 +29,7 @@ namespace Noskang.SkillGraph.Editor
             menu.AppendAction(baseCol?T("column.clear"):T("column.remove"),_=>RemoveColumn(box,col,target),baseCol&&nodes.Count==0?DropdownMenuAction.Status.Disabled:DropdownMenuAction.Status.Normal);
             menu.AppendSeparator();
             menu.AppendAction(T("column.add"),_=>ColumnDialog.Show(this,box,null,target));
-            menu.AppendAction(T("node.addHere"),_=>OnAdd(box,col,Vector2.zero));
+            menu.AppendAction(T("column.addHere"),_=>OnAdd(box,col,Vector2.zero));
         }
         private void OnAddColumn(SkillGraphLayout.Box box)=>ColumnDialog.Show(this,box,null,ColumnTarget(box));
 
