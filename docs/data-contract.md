@@ -1,7 +1,7 @@
 # 데이터 계약
 
 > **Summary** — File formats between Excel, the Python backend, the Unity editor and a runtime: settings, table registry,
-> header rows, cell types, module dictionary and display JSON, exported logic / presentation JSON, the edit model,
+> header rows, cell types, board keys, module dictionary and display JSON, exported logic / presentation JSON, the edit model,
 > edit operations, the aux file and the serve protocol.
 
 ## 설정 `skillgraph.json`
@@ -36,6 +36,8 @@
 | `modules.spawn` / `modules.status` | `SpawnEffect.BundleKey` / `ApplyStatus.BuffKey` | 다른 묶음을 가리키는 모듈·칸 |
 | `dictionary.balanceKind` | `balance` | 사전의 밸런스 칸 역할 이름 |
 | `rules.companions` | `[]` | `{kind, event, requires, spawnedOnly, code}` 동반 모듈 규칙(`code` 기본 `CompanionMissing`) |
+| `board.table` | `BoardKeyData` | 보드 키 표의 등록부 JSON 이름. `null`이거나 등록부에 그 표가 없으면 보드를 쓰지 않음(검사·편집기 탭 없음) |
+| `board.scopes` | `Cast`·`Actor`(`label: null`, `kinds: null`) | 범위마다 `label`(편집기 표시 이름, `{언어: 글}` 또는 글, `null` = 범위 이름)·`kinds`(그 범위 키를 쓸 수 있는 묶음 종류 역할 또는 이름, `null` = 모두) |
 | `keyframes` | `function: SkillKeyframe`, `animRoot: Animations`, `resourceTable: PresentationResourceData`, `motion`(모션 모듈·칸 이름) | 키프레임 읽기 |
 | `presentationDrawn` | `{}` | 실행기가 그리는 연출 이벤트(편집기 표시용) |
 | `editor.baseColumns` | `{}` | 종류마다 늘 보이는 열(기본: 그 종류의 첫 이벤트) |
@@ -76,8 +78,25 @@
 | `enum:<이름>[:기본]` | 열거 **이름**(숫자는 오류) |
 | `list:<형식>` | 쉼표 목록 |
 | `value` | 숫자 또는 글자(수치 값, 이벤트 값, 값 연결 값) |
+| `any` | 숫자 · 글자 · TRUE/FALSE(보드 키 기본값) |
 
-**표**: `SkillMetaData` `BuffMetaData` `ValueBundleData` `ValueData` `ModifierData`(Skills 문서), `ModuleBundleData` `ModuleNodeData` `ValueLinkData`(ModuleBundles 문서), `PresentationResourceData`(Presentation 문서). 열 목록은 `Tools~/python/skillgraph/tables.json`.
+**표**: `SkillMetaData` `BuffMetaData` `ValueBundleData` `ValueData` `ModifierData`(Skills 문서), `ModuleBundleData` `ModuleNodeData` `ValueLinkData` `BoardKeyData`(ModuleBundles 문서), `PresentationResourceData`(Presentation 문서). 열 목록은 `Tools~/python/skillgraph/tables.json`.
+
+**선택 표**: 등록부 항목에 `"optional": true`가 있으면 그 시트가 없어도 오류가 아니고 빈 표로 읽습니다. `BoardKeyData`가 그렇습니다. 데모 생성기는 행이 있을 때만 시트를 쓰고, 편집기는 첫 행을 저장할 때 머리말과 함께 시트를 만듭니다.
+
+**값 연결 출처**(`ValueLinkData.Source`): `Ref`(수치 이름) · `Fixed`(그래프 고정) · `Default`(자식 층에서 부모 값을 지우고 모듈 기본값으로) · `Board`(보드 키 이름).
+
+**보드 키** `BoardKeyData`(시트 `Board Keys` / `보드 키`, 키 `Name`)
+
+| 열 | 형식 | 뜻 |
+|---|---|---|
+| `Name` | string | `객체.이름`(예 `Combo.Count`) |
+| `Type` | string | `int` · `float` · `bool` · `text` · `key:<역할>` |
+| `Scope` | string | `Cast`(시전 한 번 + 거기서 만든 효과) · `Actor`(캐릭터 한 명, 게임이 보관) · 설정 `board.scopes`에 더한 범위 |
+| `Default` | any | 범위가 생길 때의 값(빈 칸 = 0 · false · 빈 글자) |
+| `Desc` | string | 설명(내보내지 않음) |
+
+보드 검사 코드: `UnknownBoardKey`(표에 없는 키) · `BoardTypeMismatch`(칸 형식과 키 형식이 안 맞음) · `BoardScopeMismatch`(없는 범위, 또는 `kinds`가 막은 묶음 종류) · `BoardWriteTarget`(`board` 칸에 키 대신 고정 값·수치 이름) · `BoardKeyName` · `BoardKeyType`(이름 형식, 모르는 형식, 기본값이 형식에 안 맞음) 오류, `UnusedBoardKey`(아무 칸도 쓰지 않는 키) 경고. 읽는 칸이 받는 키: `int`·`bool` 칸 ← 같은 형식, `float`·`time` 칸 ← `int`·`float`, `string` 칸 ← `text`, `key:<역할>` 칸 ← 같은 대역(열거·목록 칸은 받지 않음).
 
 **수치 이름**: `객체.이름`, 단마다 대문자 시작(`Bolt.Damage`, `Field.ActiveFrom`). 대소문자만 다른 이름은 오류입니다.
 
@@ -105,6 +124,7 @@ C# `ModuleSet.ExportJson()`이 쓰고(정본), Python `json.dumps(indent=1, ensu
 ```
 
 칸 줄: `[이름, 자료형, 단위, 역할(balance|structure), 기본값(null = 필수), 계산 시점, 지원 값(null = 모두)]`.
+보드 칸 자료형: `board`(노드가 쓰는 키, 아무 형식), `board:<형식>,<형식>`(그 형식의 키만, 예 `board:int,float`), `board:read[,<형식>…]`(키를 이름으로 받아 읽는 칸, 예 검사). 보드 칸은 출처 `Board`만 받습니다. 기본값 `""`이면 선택 칸(비우면 쓰지 않음), `null`이면 필수입니다.
 `events` 순서가 내보낸 JSON의 이벤트 번호, `modules` 순서가 모듈 번호, `kindEvents` 순서가 묶음 종류 번호입니다.
 
 ## 표시 정보 `module_display.json`
@@ -129,8 +149,9 @@ C# `ModuleSet.ExportJson()`이 쓰고(정본), Python `json.dumps(indent=1, ensu
 **판정** `skills.logic.<sha>.json`
 ```json
 {"format": "SkillGraph Logic 1", "dictionaryHash": "…",
+ "boardKeys": [{"name": "Combo.Count", "type": "int", "scope": "Actor", "default": 0}],
  "bundles": [{"key": 2200101, "kind": 0, "nodes": [
-   {"id": 11, "event": 1, "at": 0.25, "from": null, "priority": 0, "order": 10, "module": 1, "links": [[0, "fixed", 2200002]]}]}],
+   {"id": 14, "event": 1, "at": 0.25, "from": null, "priority": 0, "order": 10, "module": 19, "links": [[0, "board", 0], [2, "fixed", 3]]}]}],
  "values": [{"key": 2300101, "entries": [[14, 0.5], [21, 12]]}],
  "modifiers": [{"key": 2400201, "targets": [2100201], "name": 7, "op": 2, "value": 0.1, "priority": 0}],
  "skills": [{"key": 2100101, "bundle": 2200101, "values": 2300101}],
@@ -138,11 +159,12 @@ C# `ModuleSet.ExportJson()`이 쓰고(정본), Python `json.dumps(indent=1, ensu
 ```
 - `event`·`module`·`kind`·열거 값은 번호입니다(사전 순서).
 - `at`: 시각 숫자(격자에 맞춤) · `["ref", 수치 번호]` · 구독 주체 번호 · `null`.
-- `links`: `[칸 번호, "fixed", 값]` 또는 `[칸 번호, "ref", 수치 번호]`.
+- `links`: `[칸 번호, "fixed", 값]` · `[칸 번호, "ref", 수치 번호]` · `[칸 번호, "board", 보드 키 번호]`.
 - 수치 번호는 연출 파일의 `valueNames` 위치입니다.
+- `boardKeys`: 보드 키 표에 행이 있을 때만 판정·연출 두 파일에 같은 목록으로 들어갑니다(이름 순, 보드 키 번호 = 위치). `default`는 형식에 맞춘 값(빈 칸 = 0 · 0.0 · false · `""`). 보드 키가 없는 데이터는 0.4.0과 같은 바이트입니다. 0.4.0 런타임은 `"board"` 링크를 모르므로 보드를 쓰는 데이터는 0.5.0 런타임으로 읽습니다.
 - 주인 목록 이름(`skills`·`buffs`)은 설정 `owners[].export`입니다.
 
-**연출** `skills.presentation.<sha>.json`: `valueNames`, 연출 줄 `bundles`, `metas`(이름·설명 코드·아이콘), `resources`(키·스킨·클립·효과·소리).
+**연출** `skills.presentation.<sha>.json`: `valueNames`, 연출 줄 `bundles`, `metas`(이름·설명 코드·아이콘), `resources`(키·스킨·클립·효과·소리), (보드 키가 있으면) `boardKeys`.
 
 **manifest** `skills.manifest.json`: 두 파일 이름·SHA-256, 사전 SHA-256, 원본 통합 문서 이름·SHA-256, 도구 버전.
 
@@ -162,13 +184,13 @@ C# `ModuleSet.ExportJson()`이 쓰고(정본), Python `json.dumps(indent=1, ensu
 | `save` | 쓴 파일, 직전 사본, 새 `base`. 검증 오류가 있으면 막음(`allowErrors`로 무시) |
 | `practice` | `action: create|reset` |
 
-**편집 모델**(`SkillGraph Edit 1`) 윗단 키: `workspace`·`settings`(층·시간·종류·Key 자릿수·생성/버프 모듈·기본 열)·`dictionary`(이벤트·종류별 이벤트·모듈·칸·열거)·`display`·`issues`·`owners`(사슬·수치 사슬·단계 묶음·버프)·`bundles`(펼친 노드·칸 출처·정한 층·뺀 노드·영향 목록·키프레임)·`values`·`keyNames`·`resources`·`aux`·`ops`(동작 결과: 새 Key·노드 ID).
+**편집 모델**(`SkillGraph Edit 1`) 윗단 키: `workspace`·`settings`(층·시간·종류·Key 자릿수·생성/버프 모듈·기본 열)·`dictionary`(이벤트·종류별 이벤트·모듈·칸·열거)·`display`·`issues`·`owners`(사슬·수치 사슬·단계 묶음·버프)·`bundles`(펼친 노드·칸 출처·정한 층·뺀 노드·영향 목록·키프레임)·`values`·`keyNames`·`resources`·`aux`·`ops`(동작 결과: 새 Key·노드 ID)·`board`(보드 키 표가 등록됐을 때만: `table`·`sheet`·`types`·`scopes[{name, label, kinds}]`·`keys[{name, type, scope, default, desc, uses[{bundle, node, slot, writes}]}]`). 칸 출처는 `default`·`ref`·`fixed`·`board`입니다.
 
 **편집 동작**
 
 | `op` | 필드 |
 |---|---|
-| `setLink` | `bundle node slot source(Ref|Fixed|Default|null) value` |
+| `setLink` | `bundle node slot source(Ref|Fixed|Default|Board|null) value` |
 | `addNode` | `bundle event [eventValue fromNode line module order priority links note]` |
 | `removeNode` · `revert` | `bundle node [slot]` |
 | `moveNode` | `bundle node [event eventValue fromNode order priority line]` |
@@ -184,6 +206,9 @@ C# `ModuleSet.ExportJson()`이 쓰고(정본), Python `json.dumps(indent=1, ensu
 | `saveCombo` · `insertCombo` · `removeCombo` | `name bundle nodes` / `bundle combo [event eventValue fromNode]` / `name` |
 | `setMemo` · `setBands` · `setCollapsed` | `bundle node text` / `bundle bands[{name from to}]` / `bundle collapsed` |
 | `addColumn` · `setColumn` · `removeColumn` | `bundle event [eventValue fromNode]` (+ `toEvent toEventValue toFromNode`) |
+| `addBoardKey` | `name [type(기본 int) scope(기본 첫 범위) default desc]` |
+| `setBoardKey` | `name [newName type scope default desc]` (있는 필드만 바꿈. `newName`은 그 키를 쓰는 값 연결도 바꿈) |
+| `removeBoardKey` | `name` (그 키를 쓰는 값 연결이 있으면 거절하고 칸 목록을 알림) |
 
 실패한 동작은 "N번째 동작(op): 이유"로 돌아오고 편집기는 그 동작을 목록에서 뺍니다.
 

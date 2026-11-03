@@ -56,6 +56,7 @@
 - `← Bolt.Damage` — 주인의 수치 묶음 사슬에서 찾는 값(밸런스 칸은 이쪽을 권장)
 - `■ Box` — 그래프에 고정한 값(구조 칸: 열거값·다른 묶음 Key 등)
 - `· 0 (기본값)` — 모듈 선언의 기본값
+- `◂ Combo.Count` — 실행 중의 보드 키 값([12. 보드 키](#12-보드-키))
 
 같은 효과 묶음을 여러 기술이 만들 때, 수치 참조는 **그 효과를 만든 주인의 수치 묶음**에서 풉니다. 그래서 투사체 바탕 하나를 두고 기술마다 `Bolt.Damage`만 다르게 둘 수 있습니다.
 
@@ -71,6 +72,7 @@
 | 연결 | `MissingValueName` `SpawnNotEffect` `SpawnCycle` `MetaBundleKind` `CompanionMissing` |
 | 순서·시각 | `OrderTie` `OffGrid`(경고) `FixedTiming`(경고) `FixedBalance`(경고) `UnusedValue`(경고) |
 | 키프레임 | `KeyframeMissing` `KeyframeMotionStart` `KeyframeOffsetNegative` `KeyframeUnreachable` |
+| 보드 키 | `UnknownBoardKey` `BoardTypeMismatch` `BoardScopeMismatch` `BoardWriteTarget` `BoardKeyName` `BoardKeyType` `UnusedBoardKey`(경고) |
 
 제품 모드(게임 데이터 만들기)는 실행기가 없는 모듈·지원하지 않는 값도 오류로 막고, 연습 공간의 주인 번호를 쓴 Key를 막습니다. 게임 고유의 규칙은 설정의 `plugins.validate`(Python 함수)로 더합니다.
 
@@ -121,6 +123,7 @@ Excel이 원본이고 편집기는 Excel을 고쳐 씁니다.
 | 단계 묶음 | 기술 메타의 열 대신 별도 표(예: 직업 해금 표)에서 주인·묶음·단계를 읽고, 여러 열로 나누거나 일부 행을 뺌 |
 | 표 등록부 | 열 추가·시트 이름·문서 이름 |
 | 규칙 | "Hit 노드가 있는 Effect는 HitShape가 필요" 같은 동반 모듈 규칙(검사 코드 이름도 정할 수 있음) |
+| 보드 키 | `board.table`(키 표, 끄기), `board.scopes`(범위 표시 이름·범위를 쓸 묶음 종류·호스트 범위 더하기) |
 | 플러그인 | `plugins.validate`(검사 추가), `plugins.export`(내보낸 JSON 보강) |
 | 편집기 글자·메뉴 동작 | `editor.text`(언어별 글자 덮어쓰기, 모듈별 출구 이름 `exit.<모듈>.<출구 이벤트>`), `editor.export`(더 보기 데이터 만들기를 프로젝트 명령으로), 처음 언어 = `language` |
 | Player 빌드 | 정의 기호 `SKILLGRAPH_EDITOR_ONLY`를 둔 프로젝트는 런타임 어셈블리(`Noskang.SkillGraph`)를 Player 빌드에서 뺌(편집기만 쓰는 호스트) |
@@ -134,6 +137,7 @@ Excel이 원본이고 편집기는 Excel을 고쳐 씁니다.
 - `ModuleSet`(C#)은 호스트가 선언하는 모듈 사전입니다. `ExportJson()`이 Python과 같은 바이트를 쓰고, `Hash`가 판정 JSON의 `dictionaryHash`와 같아야 불러옵니다.
 - `SkillData.Load()`는 판정 JSON을 노드·칸 단위로 묶습니다. 칸 값은 주인의 수치 표(수정자 적용 뒤)에서 읽습니다.
 - `SkillRunner`는 데모용 실행기입니다. 시작 이벤트를 내고, 시각 노드를 시간에 맞춰 실행하고, 출구 모듈이 `Pass`/`Fail`을 돌려주면 출구 이벤트를 냅니다. 모듈의 실제 동작은 호스트의 `IModuleHandler`가 맡습니다.
+- 보드: 시전마다 Cast 보드 하나(생성한 효과가 같이 씀), 게임이 넘기는 Actor 보드(`Start(owner, actor)`). 모듈 처리기는 `call.Number(slot)`로 보드 값을 읽고 `call.Write(slot, value)`로 씁니다. 자세한 것은 [12. 보드 키](#12-보드-키).
 
 ## 11. 화면 원칙
 
@@ -141,8 +145,25 @@ Excel이 원본이고 편집기는 Excel을 고쳐 씁니다.
 
 - 위 = 판정, 아래 = 연출. 같은 열 위치, 가로 이동·확대 연동.
 - 노드 카드는 칸을 적게: 정한 칸과 필수 칸만, 나머지는 `▸ 기본값 N개`·단계 칩.
-- 출처 기호: `←` 수치 참조(초록) · `■` 고정(파랑) · `▲` 밸런스 칸 고정(주황, 수치 참조 권장) · `·` 기본값(회색) · `!` 필요(빨강).
+- 출처 기호: `←` 수치 참조(초록) · `■` 고정(파랑) · `▲` 밸런스 칸 고정(주황, 수치 참조 권장) · `·` 기본값(회색) · `!` 필요(빨강) · `◂` 보드 키 읽기 · `▸` 보드 키 쓰기(청록).
 - 검사 출구 열은 검사 노드 옆에 계단처럼 붙고, 통과(●)·실패(○) 선이 이어집니다.
 - 묶음 제목 = 기획 문장(그룹 설명 열), 구간 이름 띠로 열 여러 개를 묶어 이름 붙임.
 - 효과·버프 묶음은 접힌 한 줄 상자로 오른쪽에 쌓고, 생성 선을 따라 펼침.
 - 겹침 없는 자동 배치(크기가 고정 값이라 계산만으로 정해짐, EditMode 시험이 모든 기술에 대해 확인).
+
+## 12. 보드 키
+
+**보드 키**는 기술이 도는 동안 노드가 쓰고 읽는 이름 붙은 값입니다(`Combo.Count`, `Hit.Dealt`). 쌓였다 소모되는 패시브(콤보 수, 강화 구슬, 스택)를 전용 코드 없이 그래프로 만듭니다.
+
+- **선언**: 통합 문서의 보드 키 표 `BoardKeyData`(이름 · 형식 · 범위 · 기본값 · 설명). 표는 선택이라 시트가 없으면 보드를 안 쓰는 것과 같습니다.
+- **범위**: `Cast` = 시전 한 번(시전 묶음과 거기서 만든 효과 묶음이 같이 봄), `Actor` = 캐릭터 한 명(게임이 보드를 만들어 넘기고 보관). 버프는 자기 Cast 보드를 갖고, 가진 캐릭터의 Actor 보드를 받습니다.
+- **읽기**: 칸의 출처를 `Board`로 두면(편집기 `◂▸ 보드 키`) 실행 중인 보드에서 값을 읽습니다. 칸 형식과 키 형식이 맞아야 합니다(`float` 칸은 `int`·`float` 키).
+- **쓰기**: 모듈 사전의 칸 형식 `board`는 "노드가 쓰는 키"를 받는 칸입니다. 예를 들어 피해 모듈에 선택 칸 `AmountTo: board`를 두면, 키를 고른 노드만 준 피해를 그 키에 씁니다(처리기에서 `call.Write("AmountTo", 피해)`). `board:read`는 키를 이름으로 받아 읽는 칸입니다(검사). 따로 '출력' 개념은 없습니다.
+- **표준 꾸러미** `BoardModules`(선택): `BoardSet`(넣기) · `BoardAdd`(더하기, `Min`~`Max`) · `BoardCheck`(비교 → 통과/실패 출구) · `BoardClear`(기본값으로). 호스트가 `BoardModules.AddTo(builder)`로 자기 사전에 넣고, 실행기는 `BoardModules.Handler(내 처리기)` 또는 `BoardModules.Run(node, values, scopes, out result)`로 돌립니다.
+- **실행(`Blackboard`)**: 읽기 · 쓰기(키 형식으로 맞춤) · 바뀜 알림 `Changed(BoardChange{Board, Key, Old, New})` · 기본값과 다른 키 목록 `Values()` · 통째로 넣기 `Load(list, notify)`. 게임이 보드 값을 서버에서 클라로 보낼 때 이 세 지점을 쓰고, 전송 형식은 게임이 정합니다.
+- **표시**: 그림·숫자 같은 연출은 게임이 선언하는 연출 모듈입니다. 라이브러리는 그 칸이 보드 키를 읽는 길까지만 줍니다.
+- **덧붙임**: 보드 키 표에 행이 없으면 판정·연출 JSON과 편집 저장이 0.4.0과 바이트까지 같습니다(시험 `test_data_without_keys_keeps_040_bytes`).
+
+데모의 예: Slash가 맞을 때마다 Slash 판정 영역의 `BoardAdd Combo.Count +1 (Max 3)`. 휘두를 때 `BoardCheck Combo.Count ≥ 3`이 통과하면 마무리 영역을 만들고 `BoardClear`, 실패하면 보통 판정 영역. 명중 글자(`ShowText`)가 `◂ Combo.Count`를 보여 줍니다.
+
+아직 없는 것: 시각 칸(이벤트 값)이 보드를 읽는 것, 턴제 '계산 → 재생'(대상별 `Target` 범위, 줄마다 시간 축)은 다음 단계입니다.

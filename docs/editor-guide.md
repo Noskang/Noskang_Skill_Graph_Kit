@@ -16,10 +16,10 @@
 
 | 자리 | 내용 |
 |---|---|
-| 도구 막대 | 기술·버프 고르기(누르면 id 오름차순 목록 + 검색 칸, id나 이름 일부를 치면 걸러짐 · ↑↓ · Enter · Esc) · **Edit layer(편집 층)** · 보기 *Logic only / Both / Presentation edit / Fold presentation*(기능만 / 둘 다 / 연출 편집 / 연출 접기) · *Link pan(가로 연동)* · 오류·경고 수 · *Frame·All(맞추기·전체)* · *Panel* · *Undo·Redo·Save(되돌리기·다시하기·저장)* · *More(더 보기)* · `한`/`EN` |
+| 도구 막대 | 기술·버프 고르기(누르면 id 오름차순 목록 + 검색 칸, id나 이름 일부를 치면 걸러짐 · ↑↓ · Enter · Esc. 다른 기술로 바뀌면 두 그래프가 그 기술 전체에 맞춰짐, 100%까지) · **Edit layer(편집 층)** · 보기 *Logic only / Both / Presentation edit / Fold presentation*(기능만 / 둘 다 / 연출 편집 / 연출 접기) · *Link pan(가로 연동)* · 오류·경고 수 · *Frame·All(맞추기·전체)* · *Panel* · *Undo·Redo·Save(되돌리기·다시하기·저장)* · *More(더 보기)* · `한`/`EN` |
 | 위 그래프 | 판정 줄. 주 묶음 상자, 오른쪽에 생성되는 효과·걸리는 버프 상자(접힘) |
 | 아래 그래프 | 연출 줄. 위와 같은 열 위치. "둘 다" 보기에서는 한 줄 카드 |
-| 오른쪽 패널 | **Values(수치)** 단계별 표 · **Node(노드)** 메모·칸 편집·값 연결 후보 · **Resources(연출 리소스)** 스킨별 클립·효과·소리 |
+| 오른쪽 패널 | **Values(수치)** 단계별 표 · **Node(노드)** 메모·칸 편집·값 연결 후보 · **Resources(연출 리소스)** 스킨별 클립·효과·소리 · **Board(보드)** 보드 키(보드 키 표가 있는 프로젝트만) |
 | 검증 목록 | 오류·경고. 누르면 그 노드로 이동(접힌 상자는 펼침) |
 | 상태 줄 | 고른 기술·편집 층·카드 줄 수·저장 전 편집 수 |
 
@@ -37,7 +37,7 @@
 
 ![노드 탭](images/02_charge_branch.png)
 
-- 칸 줄 기호: `←` 수치 참조 · `■` 고정 · `▲` 밸런스 칸을 그래프에 고정(경고, 수치 참조 권장) · `·` 기본값 · `!` 필요.
+- 칸 줄 기호: `←` 수치 참조 · `■` 고정 · `▲` 밸런스 칸을 그래프에 고정(경고, 수치 참조 권장) · `·` 기본값 · `!` 필요 · `◂` 보드 키 읽기 · `▸` 보드 키 쓰기.
 - 칸을 누르면 **수치 탭**에서 그 수치 행이 강조되고, 수치 행에 마우스를 올리면 그 수치를 쓰는 칸과 열 머리가 모두 강조됩니다.
 - **노드 탭**: 칸마다 출처(기본값 / ← 수치 / ■ 고정)와 값을 고르고 *적용*. `↺`는 이 층의 칸 되돌리기.
 - **값 연결 후보**: 묶음이 주로 쓰는 객체 이름 + 칸 이름(예 `Bolt.Speed`). *연결*은 없는 수치를 0으로 만들고 연결합니다.
@@ -61,6 +61,19 @@
 - 행 = 수치 이름, 열 = 단계. **흰 굵은 값** = 그 단계 수치 묶음이 정한 값, 회색 = 물려받은 값.
 - 값을 누르면 고치고, 오른쪽 단추로 되돌리기·부모에 적용·설명 고치기. 열 머리를 누르면 그 단계로 바뀝니다.
 - 기술이 거는 버프의 수치는 아래에 따로 보입니다(`넘김` = 버프 걸기 노드가 버프에 넘기는 값).
+
+## 보드 키
+
+![보드 탭](images/08_board_tab.png)
+
+보드 키는 기술이 도는 동안 노드가 쓰고 읽는 이름 붙은 값입니다(데모: Slash 콤보 수 `Combo.Count`). 키는 통합 문서의 보드 키 시트에 있고, **Board(보드)** 탭에서 고칩니다.
+
+- **키 목록**: 이름 · 형식(`int`·`float`·`bool`·`text`·`key:<대역>`) · 범위(`Cast` 시전 한 번, `Actor` 캐릭터) · 기본값 · 쓰는 칸 수(`▸` 쓰기 / `◂` 읽기).
+- **키 더하기 · 고치기 · 지우기**: 이름을 바꾸면 그 키를 쓰는 칸도 같이 바뀝니다. 쓰는 칸이 남아 있으면 지우지 않고 그 칸들을 알립니다. 시트가 없던 통합 문서는 첫 키를 저장할 때 시트가 생깁니다.
+- **키 고르기**: 그 키를 쓰는 노드에 테두리가 생기고, 같은 그래프 안에서 쓰는 노드 → 읽는 노드 점선이 진해집니다(점선은 늘 옅게 보이고, 끌어 잇지는 않음). 판정 ↔ 연출처럼 그래프를 건너는 쌍은 선 대신 두 그래프의 테두리로 보입니다. 아래 *쓰는 칸* 목록을 누르면 그 노드로 갑니다.
+- **칸에서 고르기**: 노드 탭의 칸 출처에 `◂▸ 보드 키`가 있습니다. 형식이 맞는 키만 나옵니다(`float` 칸은 `int`·`float` 키). 키를 받는 칸(`BoardSet`·`BoardAdd`·`BoardCheck`·`BoardClear`의 *Key*)은 보드 키만 고릅니다.
+
+![보드 노드](images/09_board_nodes.png)
 
 ## 저장
 
@@ -102,7 +115,7 @@
 Unity -projectPath DemoProject -executeMethod Noskang.SkillGraph.Editor.SkillGraphCapture.Run -skillgraphCapture <절대 경로>/screens.json
 ```
 
-명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 동작이 실패하면 오류 창 없이 그 장에서 멈추고 이유를 로그에 남깁니다. 캡처 창은 편집기 세션(`Library/SkillGraphKit/session-product.json`)을 읽거나 쓰지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 누를 곳의 `field`는 입력 창이면 칸 이름, 열 창이면 칸 id(`event`·`time`·`value`·`valueName`·`keyframe`·`offset`·`source`), `button`은 `ok`·`cancel`·`save`입니다. 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
+명세는 장마다 기술·층·보기·패널·창 크기·맞춤·고른 노드·펼친 상자·열 칩·언어와, 번호 강조(`callouts`)·누를 곳 빨간 상자(`click`)·둘레 자르기(`crop`)·열어 둘 메뉴나 창(`open`)을 적습니다. 편집 동작(`ops`)은 화면에만 적용하고 저장하지 않으며, 열린 창은 확인을 누르지 않습니다. 동작이 실패하면 오류 창 없이 그 장에서 멈추고 이유를 로그에 남깁니다. 캡처 창은 편집기 세션(`Library/SkillGraphKit/session-product.json`)을 읽거나 쓰지 않습니다. 운영체제 메뉴는 찍을 수 없어 같은 항목을 창 안에 그려 찍습니다. 누를 곳의 `field`는 입력 창이면 칸 이름, 열 창이면 칸 id(`event`·`time`·`value`·`valueName`·`keyframe`·`offset`·`source`), `button`은 `ok`·`cancel`·`save`입니다. `panel: "board"`와 `boardKey`는 보드 탭과 고른 키, `pick`은 그 장을 맞춘 뒤 도구 막대처럼 다른 기술로 바꾸기(맞춤 포함)입니다. `"quit": true`면 다 찍고 편집기를 닫고, `false`면 마지막 장의 상태(캡처 창과 그 장에서 연 창)를 그대로 남깁니다(보고서 `Library/SkillGraphKit/capture-last.json`의 `kept`). 전체 키 목록은 `SkillGraphCapture.cs` 맨 위 설명, 예시는 [`DemoProject/Capture/screens.json`](../DemoProject/Capture/screens.json).
 
 ## Python 명령줄
 
@@ -114,5 +127,5 @@ python -X utf8 -m skillgraph export --config <…> --out <폴더>        # 판�
 python -X utf8 -m skillgraph dictionary-view --config <…>            # [생성] 모듈 사전 Excel
 python -X utf8 -m skillgraph expand-view --config <…>                # 펼친 결과를 원본 Skills.xlsx 안 '!' 시트로 씀(원본 파일이 바뀜, 직전 사본은 백업 폴더)
 python -X utf8 -m skillgraph codes --config <…>                      # 검증 코드 목록(수준·메시지 틀, 설정 규칙·플러그인 코드 포함)
-python -X utf8 -m skillgraph.demo --out <폴더> [--project] [--lang ko]   # 데모 데이터 만들기
+python -X utf8 -m skillgraph.demo --out <폴더> [--project] [--lang ko] [--no-board]   # 데모 데이터 만들기(--no-board: 보드 키 없는 0.4.0 데모)
 ```

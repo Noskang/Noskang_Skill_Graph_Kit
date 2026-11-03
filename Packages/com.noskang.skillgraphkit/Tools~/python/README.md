@@ -9,6 +9,7 @@ Python 3.10+ and `openpyxl` 3.1. No other packages.
 | `expand.py` | Override layers: `+` / `-` / overridden nodes and slots, value bundle inheritance |
 | `validate.py` | Checks against the module dictionary and between owners, bundles and values |
 | `keyframes.py` | `@node:keyframe[+offset]` time references read from `.anim` clips |
+| `board.py` | Board keys: the key table, slot types (`board`, `board:<type>`, `board:read`), checks between links and keys |
 | `pipeline.py` | read → expand → validate → export (logic / presentation JSON) |
 | `editor.py` | Graph editor backend: operations, edit model, change list, Excel write-back, aux file, practice workspace, `serve` |
 | `views.py` | Generated read-only views (expanded sheet, module dictionary workbook, graph model) |

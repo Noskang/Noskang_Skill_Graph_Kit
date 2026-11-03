@@ -2,6 +2,57 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-11-03
+
+Board keys: named values that nodes write and read while a skill runs, so stacking passives and combo counters are built
+in the graph instead of custom code. Data without board keys exports and saves byte for byte as in 0.4.0.
+
+### Added
+- **Board key table** `BoardKeyData` (ModuleBundles workbook, sheet `Board Keys`; optional, a workbook without the sheet is
+  fine): `Name` (Object.Name), `Type` (`int` · `float` · `bool` · `text` · `key:<band>`), `Scope` (`Cast` = one cast with
+  the effects it spawns, `Actor` = one character, kept by the game), `Default`, `Desc`.
+- Settings `board.table` (the key table, `null` turns boards off) and `board.scopes` (`label` per scope, `kinds` that may
+  use it, extra host scopes).
+- Value link source `Board`: a slot reads a key's value. Module slot types `board` / `board:<type>,…` (the key the node
+  writes) and `board:read[,<type>,…]` (a key read by name); a board slot takes only a Board link.
+- Checks `UnknownBoardKey`, `BoardTypeMismatch`, `BoardScopeMismatch`, `BoardWriteTarget`, `BoardKeyName`, `BoardKeyType`
+  and the warning `UnusedBoardKey`.
+- Logic and presentation JSON: `boardKeys` (name order) when the table has rows; links `[slot, "board", key number]`.
+- Edit operations `addBoardKey`, `setBoardKey` (renaming also renames every link to the key), `removeBoardKey` (refused
+  while a link uses the key); `setLink` takes `source: "Board"`. The edit model has a `board` block and the slot source
+  `board`. Saving the first key of a workbook without the sheet creates the sheet with its header rows.
+- Registry: `"optional": true` tables (read as empty when the sheet is missing) and the column type `any` (a value or
+  TRUE / FALSE).
+- **Runtime** `Blackboard` (typed read / write, `Changed(BoardChange)` with the old and new value, `Values()` = keys away
+  from their default, `Load(list, notify)` replaces the whole board), `BoardKey`, `IBoardScopes`, `SkillData.BoardKeys` /
+  `NewBoard(scope)`, `BoundNode.BoardKey(slot)` and Board-aware `Value` / `Number` / `Integer` / `Text`.
+  `SkillRunner.Start(owner, actor)` and `StartBuff(buff, event, actor)` take the character's board; a cast has one Cast
+  board that its spawned effects share; `SkillRunner.Scopes` supplies host scopes. `ModuleCall` reads Board slots and
+  has `Read`, `Key`, `Board` and `Write(slot, value)`.
+- **Standard board modules** `BoardModules` (optional for a host): `BoardSet`, `BoardAdd` (Min..Max), `BoardCheck` (pass /
+  fail exits, operators shown as ≥ > = ≠ ≤ <) and `BoardClear`; `AddTo(builder)`, `AddDisplay(display)`,
+  `Handler(next)` for `SkillRunner`, and `Run(node, values, scopes, out result)` for a host's own runner.
+- **Editor**: a Board tab (keys, add / edit / remove, the slots that write ▸ or read ◂ the picked key, click to go to the
+  node), the slot source "◂▸ Board key" (keys whose type fits), ◂ / ▸ on card rows, faint dashed lines from a writer to a
+  reader in the same graph (brighter for the picked key), English / Korean text keys `tab.board`, `board.*`,
+  `slot.board`, `row.board*`.
+- Capture spec keys `panel: "board"`, `boardKey` and `pick` (switch owners as the toolbar picker does); the capture report
+  lists the windows a `"quit": false` run leaves open (`kept`).
+- Demo: Slash counts hits in `Combo.Count` (Actor, max 3) and the third makes the next swing a finisher that clears it; a
+  hit text (`ShowText`, new demo module) shows the count. `python -m skillgraph.demo --no-board` writes the 0.4.0 demo.
+- Screenshots 08 – 10 (board tab, board slots, Korean); 01 – 07 taken again for the new tab.
+- Tests for each (66 Python, 33 package EditMode, 39 EditMode with the demo).
+
+### Changed
+- Switching skills or buffs fits both graphs to the new owner from the layout's box bounds (at most 100 %). It used to call
+  GraphView's frame all 50 ms later, which could run before the new boxes were measured and keep the old zoom.
+
+### Fixed
+- Capture with `"quit": false` now leaves the last shot on screen (the capture window and the windows that shot opened);
+  every shot used to close its windows, so nothing was left to look at.
+- Pressing the toolbar skill picker while its tooltip shows puts the tooltip away before the list opens (it could stay over
+  the list for a moment) and brings it back when the list closes.
+
 ## [0.4.0] - 2026-11-03
 
 The toolbar skill picker can be searched, for projects with many skills.
