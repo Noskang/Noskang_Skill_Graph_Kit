@@ -1,6 +1,6 @@
 """Made-up demo data: a small real-time action skill set built only from generic modules.
 
-  python -X utf8 -m skillgraph.demo --out <folder> [--lang en|ko]
+  python -X utf8 -m skillgraph.demo --out <folder> [--lang en|ko] [--project] [--no-board]
 
 Writes skillgraph.json, the module dictionary and display files, one animation clip and the three workbooks.
 The output is byte-for-byte reproducible (fixed workbook timestamps and zip entry times), so the committed sample
@@ -88,14 +88,33 @@ MODULES = [
     ('ShowVisual', 'Presentation', ['CastStart', 'Moment', 'Create', 'Hit', 'Destroy', 'StatusApply', 'StatusExpire'],
      [slot('PresentationKey', 'key:presentation', '', S, None), slot('Attach', 'enum:ATTACH', '', S, 'Effect')], [], True),
 ]
+# The board example adds a text module and the package's standard board modules (BoardModules.AddTo: every event, group 'board').
+SHOW_TEXT = ('ShowText', 'Presentation', ['CastStart', 'Moment', 'Create', 'Hit', 'CheckPass', 'CheckFail'],
+             [slot('Text', 'string', '', S, '{0}'), slot('Value', 'float', '', S, 0.0)], [], True)
+BOARD_OPS = ['AtLeast', 'Above', 'Equal', 'NotEqual', 'AtMost', 'Below']
+BOARD_MODULES = [
+    ('BoardSet', 'Logic', EVENTS, [slot('Key', 'board:int,float,bool', '', S, None, ''), slot('Value', 'float', '', S, None, '')], [], True),
+    ('BoardAdd', 'Logic', EVENTS, [slot('Key', 'board:int,float', '', S, None, ''), slot('Amount', 'float', '', S, 1.0, ''),
+                                   slot('Min', 'float', '', S, 0.0, ''), slot('Max', 'float', '', S, None, '')], [], True),
+    ('BoardCheck', 'Logic', EVENTS, [slot('Key', 'board:read,int,float,bool', '', S, None, ''), slot('Op', 'enum:BOARD_OP', '', S, 'AtLeast', ''),
+                                     slot('Value', 'float', '', S, None, '')], ['Pass', 'Fail'], True),
+    ('BoardClear', 'Logic', EVENTS, [slot('Key', 'board', '', S, None, '')], [], True),
+]
 
 
-def dictionary_json(fmt='SkillGraph Module Dictionary 1'):
+def modules(board=True):
+    return MODULES + ([SHOW_TEXT] + BOARD_MODULES if board else [])
+
+
+def dictionary_json(fmt='SkillGraph Module Dictionary 1', board=True):
+    """board=False: the demo dictionary of 0.4.0 (no board modules)."""
+    enums = dict(SLOT_ENUMS, BOARD_OP=BOARD_OPS) if board else SLOT_ENUMS
     return dict(format=fmt, events=EVENTS, kindEvents=KIND_EVENTS, presentationEvents=PRESENTATION_EVENTS,
                 subscriptionEvents=['OnHurt'], subjects=['Self', 'Ally', 'Enemy', 'Any'], timedEvents=['Moment', 'Alarm'],
-                exitEvents=['CheckPass', 'CheckFail'], startEvent='CastStart', slotEnums=SLOT_ENUMS,
-                modules=[dict(name=n, line=line, group='common', events=ev, slots=slots, exits=exits, random=False, implemented=impl)
-                         for n, line, ev, slots, exits, impl in MODULES])
+                exitEvents=['CheckPass', 'CheckFail'], startEvent='CastStart', slotEnums=enums,
+                modules=[dict(name=n, line=line, group='board' if n.startswith('Board') else 'common', events=ev, slots=slots, exits=exits,
+                              random=False, implemented=impl)
+                         for n, line, ev, slots, exits, impl in modules(board)])
 
 
 def T(en, ko):
@@ -153,12 +172,27 @@ DISPLAY = {
                   {'PresentationKey': (T('Sound', '소리'), T('Sound resource', '소리 리소스'))}),
     'ShowVisual': ('Presentation', T('Show visual', '그림 표시'), T('Shows a visual effect', '효과 그림을 보여 줌'),
                    {'PresentationKey': (T('Visual', '그림'), T('Visual resource', '그림 리소스')), 'Attach': (T('Attach', '붙는 곳'), T('Where it follows', '따라가는 대상'))}),
+    'ShowText': ('Presentation', T('Show text', '글자 표시'), T('Shows a short text; {0} becomes the value', '짧은 글자를 보여 줌. {0} 자리에 값'),
+                 {'Text': (T('Text', '글자'), T('{0} is replaced by Value', '{0} 자리에 값이 들어감')), 'Value': (T('Value', '값'), T('Shown in {0}', '{0}에 보일 값'))}),
+    # BoardModules.AddDisplay (package text)
+    'BoardSet': ('Board', T('Set board key', '보드 키 넣기'), T('Puts a value into a board key', '보드 키에 값을 넣음'),
+                 {'Key': (T('Key', '키'), T('Board key to set', '넣을 보드 키')), 'Value': (T('Value', '값'), T('New value (a bool key takes 0 or 1)', '새 값(bool 키는 0 또는 1)'))}),
+    'BoardAdd': ('Board', T('Add to board key', '보드 키 더하기'), T('Adds to a number key and keeps it between Min and Max', '숫자 키에 더하고 최소~최대 사이로 둠'),
+                 {'Key': (T('Key', '키'), T('Board key to change', '바꿀 보드 키')), 'Amount': (T('Amount', '더할 값'), T('Added each time (negative subtracts)', '한 번에 더하는 값(음수는 뺌)')),
+                  'Min': (T('Min', '최소'), T('Lowest value', '가장 작은 값')), 'Max': (T('Max', '최대'), T('Highest value', '가장 큰 값'))}),
+    'BoardCheck': ('Board', T('Check board key', '보드 키 검사'), T('Compares a key with a value: pass or fail', '키를 값과 비교해 통과 또는 실패'),
+                   {'Key': (T('Key', '키'), T('Board key to compare', '비교할 보드 키')), 'Op': (T('Compare', '비교'), T('How to compare', '비교하는 방법')),
+                    'Value': (T('Value', '값'), T('Compared with', '견줄 값'))}),
+    'BoardClear': ('Board', T('Clear board key', '보드 키 비우기'), T('Puts a key back to its default', '키를 기본값으로 되돌림'),
+                   {'Key': (T('Key', '키'), T('Board key to clear', '비울 보드 키'))}),
 }
+BOARD_FAMILY = dict(name='Board', label=T('Board', '보드'), color='#3F8C8C', icon='▣')
+BOARD_SYMBOLS = ['≥', '>', '=', '≠', '≤', '<']
 
 
-def display_json(dictionary_hash):
-    modules = []
-    for name, _, _, slots, _, _ in MODULES:
+def display_json(dictionary_hash, board=True):
+    entries = []
+    for name, _, _, slots, _, _ in modules(board):
         family, label, note, texts = DISPLAY[name]
         entry = dict(name=name, label=label, family=family, note=note, slots=[[s[0], texts[s[0]][0], texts[s[0]][1]] for s in slots],
                      stages=[dict(name='Basic', advanced=False, slots=[s[0] for s in slots])], kind=None, choose=None, unused=[])
@@ -169,12 +203,14 @@ def display_json(dictionary_hash):
         if name == 'PlayMotion':
             entry['stages'] = [dict(name='Basic', advanced=False, slots=['PresentationKey', 'Speed']),
                                dict(name='Timing', advanced=True, slots=['While', 'Until', 'LoopFrom', 'LoopPeriod'])]
-        modules.append(entry)
+        entries.append(entry)
     events = {'CastStart': T('Cast start', '시전 시작'), 'Moment': T('At time', '시각'), 'Create': T('Created', '생성'), 'Step': T('Every tick', '매 박자'),
               'Alarm': T('Alarm', '알람'), 'Hit': T('Hit', '명중'), 'LifeEnd': T('Life end', '수명 끝'), 'Destroy': T('Destroyed', '소멸'),
               'Cancel': T('Cancelled', '취소'), 'CheckPass': T('Pass', '통과'), 'CheckFail': T('Fail', '실패'), 'StatusApply': T('Applied', '적용'),
               'StatusExpire': T('Expired', '만료'), 'StatusRemove': T('Removed', '제거'), 'OnHurt': T('When hurt', '맞을 때')}
-    return dict(format='SkillGraph Module Display 1', dictionaryHash=dictionary_hash, families=FAMILIES, events=events, enumLabels={}, modules=modules)
+    families, enum_labels = (FAMILIES + [BOARD_FAMILY], {'BOARD_OP': {op: T(s, s) for op, s in zip(BOARD_OPS, BOARD_SYMBOLS)}}) if board else (FAMILIES, {})
+    return dict(format='SkillGraph Module Display 1', dictionaryHash=dictionary_hash, families=families, events=events, enumLabels=enum_labels,
+                modules=entries)
 
 
 # ------------------------------------------------------------------ workbook rows
@@ -194,12 +230,56 @@ def fix(bundle, nid, slot_, value):
     return dict(BundleKey=bundle, NodeId=nid, Slot=slot_, Source='Fixed', Value=value)
 
 
+def key(bundle, nid, slot_, name):
+    return dict(BundleKey=bundle, NodeId=nid, Slot=slot_, Source='Board', Value=name)
+
+
 def skill(key, name, bundle, values, tier_group=None, tier=None, icon=None, note=None):
     return dict(Key=key, NameRef=name, NameLoc=f'SKILL.K{key}.NAME', ModuleBundleKey=bundle, ValueBundleKey=values, IconKey=icon,
                 TierGroup=tier_group, Tier=tier, Note=note)
 
 
-def demo_rows():
+def after(rows, last, items):
+    """Insert items after the last row that last(row) accepts (rows stay grouped by bundle in the sheets)."""
+    at = max(i for i, r in enumerate(rows) if last(r)) + 1
+    rows[at:at] = items
+
+
+def add_combo(rows):
+    """The board example. Every Slash hit counts Combo.Count (an Actor key: the caster keeps it between casts) up to 3.
+    At the swing a BoardCheck decides: three in a row -> the finisher area and the count goes back to 0, else the normal hit.
+    The hit's text shows the count."""
+    P = 'Presentation'
+    rows['BoardKeyData'] = [dict(Name='Combo.Count', Type='int', Scope='Actor', Default=0, Desc='Slash hits in a row (0-3)')]
+    after(rows['ValueData'], lambda r: r['BundleKey'] == 2300101, [dict(BundleKey=2300101, Name='Finisher.Damage', Value=30, Desc='Finisher damage'),
+                                                                     dict(BundleKey=2300101, Name='Finisher.Radius', Value=1.8, Desc='Finisher reach')])
+    after(rows['ModuleBundleData'], lambda r: r['Key'] == 2200101, [dict(Key=2200113, Kind='Effect', ParentKey=2200002, Desc='Slash hit area: counts the combo'),
+                                                                     dict(Key=2200114, Kind='Effect', ParentKey=2200002, Desc='Slash finisher area')])
+    nodes = rows['ModuleNodeData']
+    hit = next(n for n in nodes if (n['BundleKey'], n['NodeId']) == (2200101, 11))
+    hit.update(Event='CheckFail', EventValue=None, FromNode=14, Note=None)
+    after(nodes, lambda r: r['BundleKey'] == 2200101, [
+        node(2200101, 14, 'Moment', 'BoardCheck', '@10:Swing', override='+', note='Hit follows the animation; three hits in a row make a finisher'),
+        node(2200101, 15, 'CheckPass', 'SpawnEffect', frm=14, override='+'),
+        node(2200101, 16, 'CheckPass', 'BoardClear', frm=14, order=20, override='+'),
+        node(2200113, 10, 'Hit', 'BoardAdd', order=20, override='+'), node(2200113, 11, 'Hit', 'ShowText', line=P, override='+'),
+        node(2200114, 12, 'Hit', 'ShowText', line=P, override='+')])
+    links = rows['ValueLinkData']
+    next(r for r in links if (r['BundleKey'], r['NodeId'], r['Slot']) == (2200101, 11, 'BundleKey'))['Value'] = 2200113
+    after(links, lambda r: r['BundleKey'] == 2200101, [
+        key(2200101, 14, 'Key', 'Combo.Count'), fix(2200101, 14, 'Value', 3), fix(2200101, 15, 'BundleKey', 2200114), key(2200101, 16, 'Key', 'Combo.Count'),
+        key(2200113, 10, 'Key', 'Combo.Count'), fix(2200113, 10, 'Max', 3), fix(2200113, 11, 'Text', 'Combo {0}'), key(2200113, 11, 'Value', 'Combo.Count'),
+        ref(2200114, 2, 'Radius', 'Finisher.Radius'), ref(2200114, 3, 'Amount', 'Finisher.Damage'), fix(2200114, 12, 'Text', 'Finisher!')])
+    return rows
+
+
+def demo_rows(board=True):
+    """board=False: the demo rows of 0.4.0 (no board keys)."""
+    rows = base_rows()
+    return add_combo(rows) if board else rows
+
+
+def base_rows():
     P = 'Presentation'
     skills = [
         skill(2100101, 'Slash', 2200101, 2300101, note='Basic melee: the hit follows the swing keyframe'),
@@ -478,22 +558,23 @@ def write_json(path, obj):
 PROJECT_SETTINGS = {'dataDir': 'SkillData', 'keyframes': {'animRoot': 'Assets/SkillGraphDemo/Animations'}}
 
 
-def make(target, lang='en', project=False):
+def make(target, lang='en', project=False, board=True):
+    """board=False writes the 0.4.0 demo (no board modules, keys or combo nodes)."""
     target = Path(target)
     settings = dict(SETTINGS, language=lang, **(PROJECT_SETTINGS if project else {}))
     write_json(target / 'skillgraph.json', settings)
     cfg = Config(settings, target)
-    raw = (json.dumps(dictionary_json(), ensure_ascii=False, indent=1) + '\n').encode('utf-8')
+    raw = (json.dumps(dictionary_json(board=board), ensure_ascii=False, indent=1) + '\n').encode('utf-8')
     cfg.dictionary_path.parent.mkdir(parents=True, exist_ok=True)
     cfg.dictionary_path.write_bytes(raw)
-    write_json(cfg.generated() / cfg['files']['display'], display_json(sha(raw)))
+    write_json(cfg.generated() / cfg['files']['display'], display_json(sha(raw), board))
     for name in CLIPS:
         p = cfg.path(cfg['keyframes']['animRoot']) / (name + '.anim')
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(anim_text(name, cfg['keyframes']['function']).encode('utf-8'))
     d = Dictionary(cfg.dictionary_path, cfg)
     reg = load_registry(cfg, d)
-    files = write_workbooks(cfg, reg, demo_rows(), cfg.data_dir)
+    files = write_workbooks(cfg, reg, demo_rows(board), cfg.data_dir)
     return dict(folder=str(target), files=files, dictionarySha256=d.hash)
 
 
@@ -502,8 +583,9 @@ def main(argv=None):
     p.add_argument('--out', required=True)
     p.add_argument('--lang', default='en', choices=['en', 'ko'])
     p.add_argument('--project', action='store_true', help='Unity project layout (SkillData/ and Assets/SkillGraphDemo/Animations)')
+    p.add_argument('--no-board', action='store_true', help='the demo without board keys (as in 0.4.0)')
     a = p.parse_args(argv)
-    print(json.dumps(make(a.out, a.lang, a.project), ensure_ascii=False, indent=1))
+    print(json.dumps(make(a.out, a.lang, a.project, not a.no_board), ensure_ascii=False, indent=1))
     return 0
 
 

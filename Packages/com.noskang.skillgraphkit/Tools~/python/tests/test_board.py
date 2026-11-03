@@ -15,6 +15,7 @@ from skillgraph import editor as se
 from skillgraph.codes import LEVELS
 from skillgraph.config import Config
 from skillgraph.core import canonical, sha
+from skillgraph.keyframes import clear_cache
 from skillgraph.messages import MESSAGES
 from skillgraph.pipeline import build, run
 from skillgraph.views import graph_model
@@ -67,7 +68,7 @@ def demo_fingerprint():
     """A fresh demo sample without board keys: logic / presentation exports, dictionary files and an edit save."""
     folder = Path(tempfile.mkdtemp(prefix='skillgraph-board-'))
     try:
-        demo.make(folder)
+        demo.make(folder, board=False)
         cfg = Config(json.loads((folder / 'skillgraph.json').read_text(encoding='utf-8')), folder)
         b = build(cfg)
         return dict(logic=sha(b['logic']), presentation=sha(b['presentation']), dictionary=sha_path(cfg.dictionary_path),
@@ -99,9 +100,9 @@ def board_rows(rows):
     """Combo.Count (Actor) counts hits of the base hit area, Slash checks it when the cast starts, Damage writes what it dealt."""
     rows['BoardKeyData'] = [dict(Name='Combo.Count', Type='int', Scope='Actor', Default=0, Desc='Hits in a row'),
                             dict(Name='Hit.Dealt', Type='float', Scope='Cast')]
-    rows['ModuleNodeData'] += [demo.node(2200002, 4, 'Hit', 'Tally', order=20), demo.node(2200101, 14, 'CastStart', 'Gate', order=20, override='+')]
+    rows['ModuleNodeData'] += [demo.node(2200002, 4, 'Hit', 'Tally', order=30), demo.node(2200101, 17, 'CastStart', 'Gate', order=20, override='+')]
     rows['ValueLinkData'] += [link(2200002, 4, 'Key', 'Combo.Count'), link(2200002, 3, 'AmountTo', 'Hit.Dealt'),
-                              link(2200101, 14, 'Key', 'Combo.Count'), demo.fix(2200101, 14, 'Than', 3)]
+                              link(2200101, 17, 'Key', 'Combo.Count'), demo.fix(2200101, 17, 'Than', 3)]
 
 
 class Board(Temp):
@@ -127,9 +128,28 @@ class Board(Temp):
         return run(self.cfg.documents(), self.cfg, True)
 
 
-def logic_node(r, bundle, nid):
-    b = next(b for b in r['logic']['bundles'] if b['key'] == bundle)
+class NoBoard:
+    """A fresh demo sample without board keys (the 0.4.0 demo)."""
+
+    def __enter__(self):
+        self.dir = Path(tempfile.mkdtemp(prefix='skillgraph-noboard-'))
+        clear_cache()
+        demo.make(self.dir, board=False)
+        self.cfg = Config(json.loads((self.dir / 'skillgraph.json').read_text(encoding='utf-8')), self.dir)
+        return self
+
+    def __exit__(self, *a):
+        clear_cache()
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+
+def logic_node(r, bundle, nid, line='logic'):
+    b = next(b for b in r[line]['bundles'] if b['key'] == bundle)
     return next(n for n in b['nodes'] if n['id'] == nid)
+
+
+def logic_node_list(r, bundle):
+    return next(b for b in r['logic']['bundles'] if b['key'] == bundle)['nodes']
 
 
 def issues(r, level='errors'):
@@ -141,8 +161,23 @@ class BoardTests(unittest.TestCase):
         self.assertEqual(demo_fingerprint(), BASE_040['demo'], 'demo: logic / presentation exports, dictionary files, edit save')
         self.assertEqual(turn_fingerprint(), BASE_040['turn'], 'turn-based preset: exports and edit save')
 
-    def test_key_sheet_is_optional(self):
+    def test_demo_combo(self):
+        # The demo's board example: Slash checks Combo.Count at the swing, its hit area adds to it, the hit text reads it.
         with Temp() as t:
+            r = run(t.cfg.documents(), t.cfg, True)
+            self.assertEqual((issues(r), issues(r, 'warnings')), ([], []))
+            self.assertEqual(r['logic']['boardKeys'], [dict(name='Combo.Count', type='int', scope='Actor', default=0)])
+            mods = [m['name'] for m in r['dictionary'].modules]
+            self.assertEqual(mods[-5:], ['ShowText', 'BoardSet', 'BoardAdd', 'BoardCheck', 'BoardClear'], 'the package board modules go last')
+            check = logic_node(r, 2200101, 14)
+            self.assertEqual((check['at'], check['links']), (0.25, [[0, 'board', 0], [2, 'fixed', 3]]), 'BoardCheck Combo.Count >= 3 at the swing')
+            self.assertEqual({n['id']: n['from'] for n in logic_node_list(r, 2200101) if n['from']}, {11: 14, 15: 14, 16: 14}, 'normal hit, finisher, clear')
+            self.assertEqual(logic_node(r, 2200113, 10)['links'], [[0, 'board', 0], [3, 'fixed', 3]], 'BoardAdd +1 up to 3')
+            text = logic_node(r, 2200113, 11, 'presentation')
+            self.assertEqual(text['links'], [[0, 'fixed', 'Combo {0}'], [1, 'board', 0]], 'the hit text reads the count')
+
+    def test_key_sheet_is_optional(self):
+        with NoBoard() as t:
             wb = openpyxl.load_workbook(t.cfg.data_dir / 'ModuleBundles.xlsx')
             self.assertNotIn('Board Keys', wb.sheetnames, 'no keys, no sheet')
             r = run(t.cfg.documents(), t.cfg, True)
@@ -160,7 +195,7 @@ class BoardTests(unittest.TestCase):
             self.assertEqual(r['presentation']['boardKeys'], keys, 'same numbers in both files')
             self.assertEqual(logic_node(r, 2200002, 4)['links'], [[0, 'board', 0]], '[slot, "board", key number]')
             self.assertIn([2, 'board', 2], logic_node(r, 2200002, 3)['links'])
-            self.assertEqual(logic_node(r, 2200101, 14)['links'], [[0, 'board', 0], [1, 'fixed', 3]])
+            self.assertEqual(logic_node(r, 2200101, 17)['links'], [[0, 'board', 0], [1, 'fixed', 3]])
             self.assertFalse({k['name'] for k in keys} & set(r['names']), 'board keys are not value names')
             view = graph_model(r, t.cfg, 'test')
             slot = next(s for b in view['bundles'] if b['key'] == 2200002 for n in b['nodes'] if n['id'] == 4 for s in n['slots'] if s['name'] == 'Key')
@@ -221,14 +256,14 @@ class BoardTests(unittest.TestCase):
             self.assertEqual((combo['name'], combo['type'], combo['scope'], combo['default'], combo['desc']), ('Combo.Count', 'int', 'Actor', 0, 'Hits in a row'))
             uses = {(u['bundle'], u['node'], u['slot'], u['writes']) for u in combo['uses']}
             self.assertIn((2200002, 4, 'Key', True), uses, 'Tally writes the key')
-            self.assertIn((2200101, 14, 'Key', False), uses, 'Gate reads it by name')
+            self.assertIn((2200101, 17, 'Key', False), uses, 'Gate reads it by name')
             self.assertIn((2200112, 4, 'Key', True), uses, 'a child bundle inherits the node')
             area = next(x for x in m['bundles'] if x['key'] == 2200002)
             slot = next(s for n in area['nodes'] if n['id'] == 3 for s in n['slots'] if s['name'] == 'AmountTo')
             self.assertEqual((slot['source'], slot['value']), ('board', 'Hit.Dealt'))
 
     def test_edit_operations(self):
-        with Temp() as t:  # the demo without keys: the first key creates the sheet
+        with NoBoard() as t:  # the demo without keys: the first key creates the sheet
             bk = se.Backend(t.cfg)
             first = se.Loaded(se.Workspace(t.cfg))
             ops = [dict(op='addBoardKey', name='Combo.Count', type='int', scope='Actor', default=0, desc='Hits in a row'),

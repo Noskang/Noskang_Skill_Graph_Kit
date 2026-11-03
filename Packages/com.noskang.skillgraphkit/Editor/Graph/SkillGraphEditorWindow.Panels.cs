@@ -10,18 +10,95 @@ using static Noskang.SkillGraph.Editor.SkillGraphText;
 
 namespace Noskang.SkillGraph.Editor
 {
-    // Side panel: [Values] tier table, [Node] note, memo, slot editing and link suggestions, [Resources] per-skin presentation resources.
+    // Side panel: [Values] tier table, [Node] note, memo, slot editing and link suggestions, [Resources] per-skin presentation resources,
+    // [Board] board keys (only when the project has a board key table).
     public sealed partial class SkillGraphEditorWindow
     {
         private void BuildPanel()
         {
             if(panel==null)return;panel.Clear();if(model==null)return;
             var tabs=new VisualElement();tabs.AddToClassList("sg-tabs");
-            foreach(var key in new[]{"values","node","resources"})
+            var keys=model.Board!=null?new[]{"values","node","resources","board"}:new[]{"values","node","resources"};
+            foreach(var key in keys)
                 tabs.Add(Tool(T("tab."+key),()=>{s.tab=key;SaveSession();BuildPanel();},T("tab."+key+"Tip"),s.tab==key));
             panel.Add(tabs);
             panelBody=new ScrollView{style={flexGrow=1}};panel.Add(panelBody);
-            if(s.tab=="values")BuildValues();else if(s.tab=="node")BuildNode();else BuildResources();
+            if(s.tab=="values"||s.tab=="board"&&model.Board==null)BuildValues();else if(s.tab=="node")BuildNode();else if(s.tab=="board")BuildBoard();else BuildResources();
+        }
+
+        // ---- board: every key (name · type · scope · default). Picking one frames its nodes in both graphs and lists the slots
+        // that write (▸) or read (◂) it; a click there goes to the node.
+        private string boardKey;
+        public string BoardKey=>boardKey;
+        public void SelectBoardKey(string key)
+        {
+            boardKey=key;top?.HighlightBoard(key);bottom?.HighlightBoard(key);
+            if(s.tab=="board")BuildPanel();
+        }
+        private void BuildBoard()
+        {
+            var b=model.Board;
+            panelBody.Add(Cls(new Label(F("board.title",b.Sheet)),"sg-panel__title"));
+            if(b.Keys.Count==0)panelBody.Add(Cls(new Label(T("board.empty")),"sg-note"));
+            foreach(var k in b.Keys)
+            {
+                var row=Cls(new VisualElement(),"sg-board-row");if(k.Name==boardKey)row.AddToClassList("sg-board-row--selected");
+                row.Add(Cls(new Label(k.Name),"sg-board-row__name"));
+                row.Add(Cls(new Label(k.Type+" · "+b.ScopeLabel(k.Scope)+" · "+F("board.default",k.Default==null||k.Default.IsNull?"—":SkillGraphModel.Text(k.Default))),"sg-board-row__meta"));
+                row.Add(Cls(new Label(F("board.useCount",k.Uses.Count(u=>u.Writes),k.Uses.Count(u=>!u.Writes))),"sg-board-row__uses"));
+                row.tooltip=k.Desc;var name=k.Name;
+                row.RegisterCallback<MouseDownEvent>(e=>{if(e.button==0)SelectBoardKey(boardKey==name?null:name);});
+                panelBody.Add(row);
+            }
+            var actions=Cls(new VisualElement(),"sg-actions");
+            actions.Add(Tool(T("board.add"),AddBoardKeyPrompt,T("board.addTip")));
+            var sel=boardKey==null?null:b.Key(boardKey);
+            if(sel!=null)
+            {
+                actions.Add(Tool(T("board.edit"),()=>EditBoardKeyPrompt(sel),T("board.editTip")));
+                actions.Add(Tool(T("board.remove"),()=>{if(Apply(SkillGraphJson.Op("removeBoardKey",("name",sel.Name))))SelectBoardKey(null);},T("board.removeTip")));
+            }
+            panelBody.Add(actions);
+            if(sel!=null)
+            {
+                panelBody.Add(Cls(new Label(F("board.uses",sel.Name)),"sg-section"));
+                if(sel.Uses.Count==0)panelBody.Add(Cls(new Label(T("board.unused")),"sg-note"));
+                foreach(var u in sel.Uses)
+                {
+                    var node=model.Bundles.TryGetValue(u.Bundle,out var bundle)?bundle.Node(u.Node):null;
+                    var use=Cls(new Label((u.Writes?"▸ ":"◂ ")+u.Bundle+" #"+u.Node+" "+(node!=null?model.ModuleLabel(node.Module):"")+" · "+u.Slot),"sg-board-use");
+                    use.tooltip=u.Writes?T("board.writesTip"):T("board.readsTip");var target=u;
+                    use.RegisterCallback<MouseDownEvent>(e=>{if(e.button==0)GoTo(new SkillGraphModel.Issue{Bundle=target.Bundle,Node=target.Node,Slot=target.Slot});});
+                    panelBody.Add(use);
+                }
+            }
+            panelBody.Add(Cls(new Label(F("board.help",b.Sheet)),"sg-note"));
+        }
+        private (string,string)[] BoardFields(SkillGraphModel.BoardKeyInfo k)=>new[]{(T("board.fieldName"),k?.Name??""),(T("board.fieldType"),k?.Type??"int"),
+            (T("board.fieldScope"),k?.Scope??model.Board.Scopes.FirstOrDefault()?.Name??""),(T("board.fieldDefault"),k==null||k.Default==null||k.Default.IsNull?"":SkillGraphModel.Text(k.Default)),(T("board.fieldDesc"),k?.Desc??"")};
+        private string BoardFieldText()=>F("board.fieldsText",string.Join(", ",model.Board.Types),string.Join(", ",model.Board.Scopes.Select(x=>x.Name)));
+        private static object BoardDefault(string text)
+        {
+            text=text.Trim();if(text.Length==0)return null;
+            if(text=="true"||text=="false")return text=="true";
+            return double.TryParse(text,NumberStyles.Float,CultureInfo.InvariantCulture,out double d)?(object)d:text;
+        }
+        private void AddBoardKeyPrompt()
+        {
+            Prompt.Show(T("board.addTitle"),BoardFieldText(),BoardFields(null),v=>
+            {
+                var op=SkillGraphJson.Op("addBoardKey",("name",v[0].Trim()),("type",v[1].Trim()),("scope",v[2].Trim()),("default",BoardDefault(v[3])),("desc",v[4]));
+                if(Apply(op))SelectBoardKey(v[0].Trim());
+            });
+        }
+        private void EditBoardKeyPrompt(SkillGraphModel.BoardKeyInfo k)
+        {
+            Prompt.Show(T("board.editTitle"),BoardFieldText()+"\n"+T("board.renameText"),BoardFields(k),v=>
+            {
+                var op=SkillGraphJson.Op("setBoardKey",("name",k.Name),("type",v[1].Trim()),("scope",v[2].Trim()),("default",BoardDefault(v[3])),("desc",v[4]));
+                if(v[0].Trim()!=k.Name)op["newName"]=v[0].Trim();
+                if(Apply(op))SelectBoardKey(v[0].Trim());
+            });
         }
 
         // ---- values: rows = value names, columns = tiers. Inherited values grey, values a tier sets itself bold.
@@ -222,10 +299,14 @@ namespace Noskang.SkillGraph.Editor
             var label=Cls(new Label(SlotLabel(info)+(info.Required?" *":"")),"sg-field-row__label");
             label.tooltip=info.Name+" · "+info.Type+(info.Unit.Length>0?" · "+info.Unit:"")+" · "+info.Kind+" · "+info.Timing+"\n"+info.Description.Get(Language)+(m.Unused.Contains(info.Name)?"\n"+T("row.notRunTip"):"")+(applicable?"":"\n"+T("slot.notApplicable"));
             row.Add(label);
-            string sDefault=T("slot.default"),sRef=T("slot.ref"),sFixed=T("slot.fixed");
+            string sDefault=T("slot.default"),sRef=T("slot.ref"),sFixed=T("slot.fixed"),sBoard=T("slot.board");
             var sources=new List<string>{sDefault,sRef,sFixed};bool refable=info.Type=="time"||info.Type=="float"||info.Type=="int"||info.Type.StartsWith("key:",StringComparison.Ordinal);
             if(!refable)sources.Remove(sRef);
-            string cur=sv==null||sv.Source=="default"?sDefault:sv.Source=="ref"?sRef:sFixed;
+            // A board slot takes only a key; a value slot may read one whose type fits.
+            bool boardSlot=SkillGraphModel.IsBoardSlot(info.Type);
+            var keys=model.Board?.Keys.Where(k=>SkillGraphModel.BoardFits(info,k)).Select(k=>k.Name).ToList()??new List<string>();
+            if(boardSlot)sources=new List<string>{sDefault,sBoard};else if(keys.Count>0||sv?.Source=="board")sources.Add(sBoard);
+            string cur=sv==null||sv.Source=="default"?sDefault:sv.Source=="ref"?sRef:sv.Source=="board"?sBoard:sFixed;
             var src=new PopupField<string>(sources,sources.Contains(cur)?cur:sDefault){style={width=92}};row.Add(src);
             VisualElement field=null;Func<object> read=()=>null;
             void Build()
@@ -238,6 +319,11 @@ namespace Noskang.SkillGraph.Editor
                     string now=sv!=null&&sv.Source=="ref"?SkillGraphModel.Text(sv.Value):names.FirstOrDefault()??"";if(!names.Contains(now))names.Insert(0,now);
                     var p=new PopupField<string>(names,now){style={flexGrow=1}};field=p;read=()=>p.value;
                 }
+                else if(choice==sBoard)
+                {
+                    var names=keys.ToList();string now=sv!=null&&sv.Source=="board"?SkillGraphModel.Text(sv.Value):names.FirstOrDefault()??"";if(!names.Contains(now))names.Insert(0,now);
+                    var p=new PopupField<string>(names,now){style={flexGrow=1}};p.tooltip=T("slot.boardTip");field=p;read=()=>p.value;
+                }
                 else if(choice==sFixed)
                 {
                     string e=info.Type.StartsWith("enum:",StringComparison.Ordinal)?info.Type.Substring(5):null;
@@ -248,7 +334,7 @@ namespace Noskang.SkillGraph.Editor
                     }
                     else{var t=new TextField{value=sv!=null&&sv.Source=="fixed"?SkillGraphModel.Text(sv.Value):SkillGraphModel.Text(info.Default),style={flexGrow=1}};field=t;read=()=>Parse(info,t.value);}
                 }
-                else{field=new Label(SkillGraphModel.Text(info.Default)==""?T("slot.requiredValue"):F("slot.defaultValue",SkillGraphModel.Text(info.Default))){style={flexGrow=1,color=new Color(.55f,.57f,.6f)}};read=()=>null;}
+                else{field=new Label(SkillGraphModel.Text(info.Default)==""?T("slot.requiredValue"):F("slot.defaultValue",model.EnumLabel(info.Type,SkillGraphModel.Text(info.Default)))){style={flexGrow=1,color=new Color(.55f,.57f,.6f)}};read=()=>null;}
                 row.Insert(2,field);
             }
             Build();src.RegisterValueChangedCallback(_=>Build());
@@ -256,7 +342,7 @@ namespace Noskang.SkillGraph.Editor
             {
                 string choice=src.value;
                 if(choice==sDefault)Apply(SkillGraphJson.Op("setLink",("bundle",target),("node",c.Node),("slot",info.Name),("source",model.Bundles[target].Parent!=null&&sv!=null&&sv.Source!="default"?"Default":null)));
-                else Apply(SkillGraphJson.Op("setLink",("bundle",target),("node",c.Node),("slot",info.Name),("source",choice==sRef?"Ref":"Fixed"),("value",read())));
+                else Apply(SkillGraphJson.Op("setLink",("bundle",target),("node",c.Node),("slot",info.Name),("source",choice==sRef?"Ref":choice==sBoard?"Board":"Fixed"),("value",read())));
             },F("slot.applyTip",target)));
             if(sv!=null&&sv.Own)row.Add(Tool("↺",()=>Apply(SkillGraphJson.Op("revert",("bundle",target),("node",c.Node),("slot",info.Name))),T("slot.revertTip")));
             box.Add(row);return box;

@@ -12,7 +12,8 @@ namespace SkillGraphDemo
         private const ModuleLine Logic=ModuleLine.Logic,Show=ModuleLine.Presentation;
         private static string[] E(params string[] events)=>events;
 
-        public override ModuleSet Build()=>new ModuleSet.Builder()
+        // The package's board modules go last (BoardModules.AddTo: every event declared above).
+        public override ModuleSet Build()=>BoardModules.AddTo(new ModuleSet.Builder()
             .Events("CastStart","Moment","Create","Step","Alarm","Hit","LifeEnd","Destroy","Cancel","CheckPass","CheckFail","StatusApply","StatusExpire","StatusRemove","OnHurt")
             .Kind("Skill","CastStart","Moment","Cancel","CheckPass","CheckFail")
             .Kind("Effect","Create","Step","Alarm","Hit","LifeEnd","Destroy","CheckPass","CheckFail")
@@ -47,6 +48,7 @@ namespace SkillGraphDemo
                 Slot("While","enum:WHILE","",S,"Owner","cast"),Slot("Until","time","s",S,0,"cast"),Slot("LoopFrom","time","s",S,0,"cast"),Slot("LoopPeriod","time","s",S,0,"cast"))
             .Module("PlaySound",Show,E("CastStart","Moment","Create","Hit","Destroy","CheckPass","CheckFail","StatusApply"),Slot("PresentationKey","key:presentation","",S,null,"cast"))
             .Module("ShowVisual",Show,E("CastStart","Moment","Create","Hit","Destroy","StatusApply","StatusExpire"),Slot("PresentationKey","key:presentation","",S,null,"cast"),Slot("Attach","enum:ATTACH","",S,"Effect","cast"))
+            .Module("ShowText",Show,E("CastStart","Moment","Create","Hit","CheckPass","CheckFail"),Slot("Text","string","",S,"{0}","cast"),Slot("Value","float","",S,0.0,"cast")))
             .Build();
 
         private static LocalText T(string en,string ko)=>new LocalText(en,ko);
@@ -136,6 +138,11 @@ namespace SkillGraphDemo
                 .Slot("PresentationKey",T("Visual","그림"),T("Visual resource","그림 리소스"))
                 .Slot("Attach",T("Attach","붙는 곳"),T("Where it follows","따라가는 대상"))
                 .Stage("Basic","PresentationKey","Attach");
+            d.Module("ShowText",T("Show text","글자 표시"),"Presentation",T("Shows a short text; {0} becomes the value","짧은 글자를 보여 줌. {0} 자리에 값"))
+                .Slot("Text",T("Text","글자"),T("{0} is replaced by Value","{0} 자리에 값이 들어감"))
+                .Slot("Value",T("Value","값"),T("Shown in {0}","{0}에 보일 값"))
+                .Stage("Basic","Text","Value");
+            BoardModules.AddDisplay(d);
             return d;
         }
     }

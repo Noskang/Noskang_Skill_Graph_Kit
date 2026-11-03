@@ -4,10 +4,11 @@ using System.Linq;
 
 namespace Noskang.SkillGraph
 {
-    public enum LinkSource { Default, Fixed, Ref }
+    public enum LinkSource { Default, Fixed, Ref, Board }
 
     // A node of exported data bound to its module declaration. Slot values are looked up by slot index at run time;
     // Ref slots read the owner's value table, so one bundle serves every owner (tier) that inherits it.
+    // Board slots name a board key: a value slot reads the key from the running scopes, a 'board' slot tells the module which key to use.
     public sealed class BoundNode
     {
         public int Id { get; }
@@ -26,27 +27,36 @@ namespace Noskang.SkillGraph
         private readonly LinkSource[] sources;
         private readonly object[] fixedValues;
         private readonly int[] refs;
+        private readonly BoardKey[] boards;
 
-        internal BoundNode(int id,string e,int eventIndex,double at,int atRef,int subject,int from,int priority,int order,ModuleDeclaration module,LinkSource[] sources,object[] fixedValues,int[] refs)
-        {Id=id;Event=e;EventIndex=eventIndex;At=at;AtRef=atRef;Subject=subject;From=from;Priority=priority;Order=order;Module=module;this.sources=sources;this.fixedValues=fixedValues;this.refs=refs;}
+        internal BoundNode(int id,string e,int eventIndex,double at,int atRef,int subject,int from,int priority,int order,ModuleDeclaration module,LinkSource[] sources,object[] fixedValues,int[] refs,BoardKey[] boards)
+        {Id=id;Event=e;EventIndex=eventIndex;At=at;AtRef=atRef;Subject=subject;From=from;Priority=priority;Order=order;Module=module;this.sources=sources;this.fixedValues=fixedValues;this.refs=refs;this.boards=boards;}
 
         public LinkSource Source(int slot)=>sources[slot];
+        // The board key a Board slot names (null for other sources, e.g. an unused optional write slot).
+        public BoardKey BoardKey(int slot)=>slot>=0&&sources[slot]==LinkSource.Board?boards[slot]:null;
+        public BoardKey BoardKey(string slot)=>BoardKey(Module.SlotIndex(slot));
         public double Time(ValueTable values)=>AtRef>=0?values.Number(AtRef):At;
-        public object Value(int slot,ValueTable values)
+        // scopes: where Board slots read (null = the key's default).
+        public object Value(int slot,ValueTable values,IBoardScopes scopes=null)
         {
             switch(sources[slot])
             {
                 case LinkSource.Ref:return values.Get(refs[slot]);
                 case LinkSource.Fixed:return fixedValues[slot];
+                case LinkSource.Board:
+                    var key=boards[slot];var board=scopes?.Board(key.Scope);
+                    return board!=null&&board.TryGet(key.Name,out var v)?v:key.Default;
                 default:return Module.Slots[slot].Default;
             }
         }
-        public double Number(int slot,ValueTable values)=>Convert.ToDouble(Value(slot,values)??0.0,System.Globalization.CultureInfo.InvariantCulture);
-        public int Integer(int slot,ValueTable values)=>(int)Math.Round(Number(slot,values));
-        public string Text(int slot,ValueTable values)=>Value(slot,values)?.ToString()??"";
-        public double Number(string slot,ValueTable values)=>Number(Module.SlotIndex(slot),values);
-        public int Integer(string slot,ValueTable values)=>Integer(Module.SlotIndex(slot),values);
-        public string Text(string slot,ValueTable values)=>Text(Module.SlotIndex(slot),values);
+        public double Number(int slot,ValueTable values,IBoardScopes scopes=null)
+        {var v=Value(slot,values,scopes);return v is bool b?(b?1:0):Convert.ToDouble(v??0.0,System.Globalization.CultureInfo.InvariantCulture);}
+        public int Integer(int slot,ValueTable values,IBoardScopes scopes=null)=>(int)Math.Round(Number(slot,values,scopes));
+        public string Text(int slot,ValueTable values,IBoardScopes scopes=null)=>Value(slot,values,scopes)?.ToString()??"";
+        public double Number(string slot,ValueTable values,IBoardScopes scopes=null)=>Number(Module.SlotIndex(slot),values,scopes);
+        public int Integer(string slot,ValueTable values,IBoardScopes scopes=null)=>Integer(Module.SlotIndex(slot),values,scopes);
+        public string Text(string slot,ValueTable values,IBoardScopes scopes=null)=>Text(Module.SlotIndex(slot),values,scopes);
     }
 
     public sealed class BoundBundle
@@ -92,21 +102,29 @@ namespace Noskang.SkillGraph
         public IReadOnlyDictionary<int,BoundBundle> Bundles { get; }
         public IReadOnlyDictionary<int,SkillOwner> Owners { get; }
         public IReadOnlyList<string> ValueNames { get; }
-        private static readonly HashSet<string> Known=new HashSet<string>{"format","dictionaryHash","bundles","values","modifiers","valueNames","metas","resources"};
+        // Board keys by number (empty when the data has none). Blackboard(BoardKeys, scope) makes a board of one scope.
+        public IReadOnlyList<BoardKey> BoardKeys { get; }
+        private static readonly HashSet<string> Known=new HashSet<string>{"format","dictionaryHash","bundles","values","modifiers","valueNames","metas","resources","boardKeys"};
 
-        private SkillData(ModuleSet set,Dictionary<int,BoundBundle> bundles,Dictionary<int,SkillOwner> owners,List<string> names)
-        {Modules=set;Bundles=bundles;Owners=owners;ValueNames=names.AsReadOnly();}
+        private SkillData(ModuleSet set,Dictionary<int,BoundBundle> bundles,Dictionary<int,SkillOwner> owners,List<string> names,List<BoardKey> boardKeys)
+        {Modules=set;Bundles=bundles;Owners=owners;ValueNames=names.AsReadOnly();BoardKeys=boardKeys.AsReadOnly();}
+
+        public Blackboard NewBoard(string scope)=>new Blackboard(BoardKeys,scope);
 
         public static SkillData Load(byte[] json,ModuleSet set,IReadOnlyList<string> valueNames=null)
         {
             var root=JsonNode.Parse(json);
             if(root["dictionaryHash"].AsText()!=set.Hash)throw new FormatException("Skill data was exported with a different module dictionary");
             var kinds=set.KindEvents.Select(k=>k.Key).ToList();
+            var boardKeys=new List<BoardKey>();
+            if(root.Has("boardKeys"))
+                foreach(var k in root["boardKeys"].AsArray())
+                    boardKeys.Add(new BoardKey(boardKeys.Count,k["name"].AsText(),k["type"].AsText(),k["scope"].AsText(),Plain(k["default"])));
             var bundles=new Dictionary<int,BoundBundle>();
             foreach(var b in root["bundles"].AsArray())
             {
                 int key=b["key"].AsInt();
-                bundles[key]=new BoundBundle(key,kinds[b["kind"].AsInt()],b["nodes"].AsArray().Select(n=>Bind(n,set)));
+                bundles[key]=new BoundBundle(key,kinds[b["kind"].AsInt()],b["nodes"].AsArray().Select(n=>Bind(n,set,boardKeys)));
             }
             var tables=new Dictionary<int,Dictionary<int,object>>();
             if(root.Has("values"))
@@ -126,7 +144,7 @@ namespace Noskang.SkillGraph
             }
             if(root.Has("modifiers"))ApplyModifiers(root["modifiers"].AsArray(),owners);
             var names=root.Has("valueNames")?root["valueNames"].AsArray().Select(x=>x.AsText()).ToList():(valueNames??Array.Empty<string>()).ToList();
-            return new SkillData(set,bundles,owners,names);
+            return new SkillData(set,bundles,owners,names,boardKeys);
         }
 
         // Modifiers: Override (highest priority wins), then Add, then Multiply (0.1 = +10%).
@@ -152,7 +170,7 @@ namespace Noskang.SkillGraph
 
         private static object Plain(JsonNode n)=>n.Kind==JsonKind.Number?n.Number:n.Kind==JsonKind.String?(object)n.Text:n.Kind==JsonKind.Bool?n.Bool:null;
 
-        private static BoundNode Bind(JsonNode n,ModuleSet set)
+        private static BoundNode Bind(JsonNode n,ModuleSet set,List<BoardKey> boardKeys)
         {
             var module=set.Modules[n["module"].AsInt()];
             int e=n["event"].AsInt();
@@ -163,11 +181,12 @@ namespace Noskang.SkillGraph
             else if(at.Kind==JsonKind.Number)time=at.Number;
             else if(at.Kind==JsonKind.Array)atRef=at[1].AsInt();
             int count=module.Slots.Count;
-            var sources=new LinkSource[count];var values=new object[count];var refs=new int[count];
+            var sources=new LinkSource[count];var values=new object[count];var refs=new int[count];var boards=new BoardKey[count];
             foreach(var link in n["links"].AsArray())
             {
                 int slot=link[0].AsInt();
                 if(link[1].AsText()=="ref"){sources[slot]=LinkSource.Ref;refs[slot]=link[2].AsInt();}
+                else if(link[1].AsText()=="board"){sources[slot]=LinkSource.Board;boards[slot]=boardKeys[link[2].AsInt()];}
                 else
                 {
                     sources[slot]=LinkSource.Fixed;
@@ -176,7 +195,7 @@ namespace Noskang.SkillGraph
                     else values[slot]=Plain(raw);
                 }
             }
-            return new BoundNode(n["id"].AsInt(),name,e,time,atRef,subject,n["from"].IsNull?-1:n["from"].AsInt(),n["priority"].AsInt(),n["order"].IsNull?0:n["order"].AsInt(),module,sources,values,refs);
+            return new BoundNode(n["id"].AsInt(),name,e,time,atRef,subject,n["from"].IsNull?-1:n["from"].AsInt(),n["priority"].AsInt(),n["order"].IsNull?0:n["order"].AsInt(),module,sources,values,refs,boards);
         }
     }
 }

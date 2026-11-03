@@ -7,15 +7,22 @@ namespace Noskang.SkillGraph
     public enum ModuleResult { Continue, Pass, Fail }
 
     // What a module handler sees: the running instance, the node and its slot values for the instance owner.
+    // Board slots read the instance's boards; Write puts a value into the key a 'board' slot names.
     public readonly struct ModuleCall
     {
         public SkillInstance Instance { get; }
         public BoundNode Node { get; }
         public SkillRunner Runner=>Instance.Runner;
         public ModuleCall(SkillInstance instance,BoundNode node){Instance=instance;Node=node;}
-        public double Number(string slot)=>Node.Number(slot,Instance.Owner.Values);
-        public int Integer(string slot)=>Node.Integer(slot,Instance.Owner.Values);
-        public string Text(string slot)=>Node.Text(slot,Instance.Owner.Values);
+        public double Number(string slot)=>Node.Number(slot,Instance.Owner.Values,Instance);
+        public int Integer(string slot)=>Node.Integer(slot,Instance.Owner.Values,Instance);
+        public string Text(string slot)=>Node.Text(slot,Instance.Owner.Values,Instance);
+        public object Read(string slot)=>Node.Value(Node.Module.SlotIndex(slot),Instance.Owner.Values,Instance);
+        // The key a board slot names and the board it lives on (null when the slot names none or its scope has no board).
+        public BoardKey Key(string slot)=>Node.BoardKey(slot);
+        public Blackboard Board(string slot){var k=Key(slot);return k==null?null:Instance.ScopeBoard(k.Scope);}
+        // Writes value to the key a board slot names. false when the slot names no key (an optional write slot left empty).
+        public bool Write(string slot,object value){var k=Key(slot);var b=Board(slot);if(b==null)return false;b.Set(k.Name,value);return true;}
     }
 
     // The host implements modules. Unknown modules can be ignored; exit modules return Pass or Fail.
@@ -25,21 +32,28 @@ namespace Noskang.SkillGraph
     }
 
     // One running bundle: a cast of a skill, a spawned effect or an applied buff. Timed nodes fire when Time passes them.
-    public sealed class SkillInstance
+    // Board: the Cast board (a cast and every effect it spawns share one). Actor: the character's board the game passed in.
+    public sealed class SkillInstance : IBoardScopes
     {
         public SkillRunner Runner { get; }
         public SkillOwner Owner { get; }
         public BoundBundle Bundle { get; }
         public SkillInstance Parent { get; }
+        public Blackboard Board { get; }
+        public Blackboard Actor { get; }
         public double Time { get; private set; }
         public bool Ended { get; private set; }
         // Free slot for the host (e.g. the GameObject that shows an effect).
         public object Tag { get; set; }
         private readonly List<(double at,BoundNode node)> pending=new List<(double,BoundNode)>();
 
-        internal SkillInstance(SkillRunner runner,SkillOwner owner,BoundBundle bundle,SkillInstance parent)
+        // The board of a scope: Cast, Actor, or a host scope through SkillRunner.Scopes (null = none).
+        public Blackboard ScopeBoard(string scope)=>scope==SkillRunner.CastScope?Board:scope==SkillRunner.ActorScope?Actor:Runner.Scopes?.Invoke(this,scope);
+        Blackboard IBoardScopes.Board(string scope)=>ScopeBoard(scope);
+
+        internal SkillInstance(SkillRunner runner,SkillOwner owner,BoundBundle bundle,SkillInstance parent,Blackboard board,Blackboard actor)
         {
-            Runner=runner;Owner=owner;Bundle=bundle;Parent=parent;
+            Runner=runner;Owner=owner;Bundle=bundle;Parent=parent;Board=board;Actor=actor;
             foreach(var n in bundle.Nodes)
                 if(runner.Modules.IsTimed(n.Event))
                 {
@@ -68,38 +82,43 @@ namespace Noskang.SkillGraph
     // It knows nothing about any game: the host handles modules and raises events such as "hit" on instances.
     public sealed class SkillRunner
     {
+        public const string CastScope="Cast",ActorScope="Actor";
         public SkillData Data { get; }
         public ModuleSet Modules=>Data.Modules;
         public IModuleHandler Handler { get; }
         public IReadOnlyList<SkillInstance> Running=>running;
         public event Action<SkillInstance,BoundNode,ModuleResult> NodeRun;
+        // Boards of scopes other than Cast and Actor (settings board.scopes), asked per instance. Null = such keys read their default.
+        public Func<SkillInstance,string,Blackboard> Scopes { get; set; }
         private readonly List<SkillInstance> running=new List<SkillInstance>();
 
         public SkillRunner(SkillData data,IModuleHandler handler){Data=data;Handler=handler;}
 
-        // Starts an owner's bundle and raises the start event (e.g. CastStart).
-        public SkillInstance Start(int ownerKey)
+        // Starts an owner's bundle and raises the start event (e.g. CastStart). actor: the caster's board, kept by the game
+        // (one per character); null = a new board for this cast only.
+        public SkillInstance Start(int ownerKey,Blackboard actor=null)
         {
             var owner=Data.Owners.TryGetValue(ownerKey,out var o)?o:throw new KeyNotFoundException("Unknown owner: "+ownerKey);
-            return Begin(owner,owner.Bundle,null,Modules.StartEvent);
+            return Begin(owner,owner.Bundle,null,Modules.StartEvent,actor);
         }
 
-        // Starts another bundle under the same owner values (spawned effects, applied buffs). firstEvent: e.g. Create.
+        // Starts another bundle under the same owner values and boards (spawned effects). firstEvent: e.g. Create.
         public SkillInstance Spawn(SkillInstance parent,int bundleKey,string firstEvent)
         {
             var bundle=Data.Bundles.TryGetValue(bundleKey,out var b)?b:throw new KeyNotFoundException("Unknown bundle: "+bundleKey);
-            return Begin(parent.Owner,bundle,parent,firstEvent);
+            return Begin(parent.Owner,bundle,parent,firstEvent,parent.Actor);
         }
 
-        public SkillInstance StartBuff(int buffKey,string firstEvent)
+        // A buff gets its own Cast board; actor: the board of the character that has the buff.
+        public SkillInstance StartBuff(int buffKey,string firstEvent,Blackboard actor=null)
         {
             var owner=Data.Owners.TryGetValue(buffKey,out var o)?o:throw new KeyNotFoundException("Unknown owner: "+buffKey);
-            return Begin(owner,owner.Bundle,null,firstEvent);
+            return Begin(owner,owner.Bundle,null,firstEvent,actor);
         }
 
-        private SkillInstance Begin(SkillOwner owner,BoundBundle bundle,SkillInstance parent,string firstEvent)
+        private SkillInstance Begin(SkillOwner owner,BoundBundle bundle,SkillInstance parent,string firstEvent,Blackboard actor)
         {
-            var instance=new SkillInstance(this,owner,bundle,parent);
+            var instance=new SkillInstance(this,owner,bundle,parent,parent?.Board??Data.NewBoard(CastScope),actor??Data.NewBoard(ActorScope));
             running.Add(instance);
             if(firstEvent!=null)Raise(instance,firstEvent);
             return instance;

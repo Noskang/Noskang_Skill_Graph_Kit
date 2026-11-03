@@ -20,6 +20,10 @@ namespace SkillGraphDemo
 
         public SkillRunner Runner { get; private set; }
         public SkillData Data { get; private set; }
+        // Presentation bundles (texts only are drawn here) and the caster's board, kept between casts (Combo.Count lives on it).
+        public SkillData Presentation { get; private set; }
+        public Blackboard Actor { get; private set; }
+        private string banner;private float bannerUntil;
         private readonly List<EffectView> effects=new List<EffectView>();
         private readonly List<Dummy> dummies=new List<Dummy>();
         private readonly List<string> log=new List<string>();
@@ -36,11 +40,20 @@ namespace SkillGraphDemo
             var names=presentation["valueNames"].AsArray().Select(x=>x.AsText()).ToList();
             return SkillData.Load(File.ReadAllBytes(Path.Combine(folder,manifest["logicFile"].AsText())),set,names);
         }
+        // The presentation file binds the same way (bundles and board keys; no owners).
+        public static SkillData LoadPresentation(ModuleSet set,string folder)
+        {
+            var manifest=JsonNode.Parse(File.ReadAllBytes(Path.Combine(folder,"skills.manifest.json")));
+            return SkillData.Load(File.ReadAllBytes(Path.Combine(folder,manifest["presentationFile"].AsText())),set);
+        }
 
         private void Start()
         {
-            Data=LoadData(new DemoModules().Build(),Path.Combine(Application.streamingAssetsPath,"SkillData"));
-            Runner=new SkillRunner(Data,this);
+            var set=new DemoModules().Build();var folder=Path.Combine(Application.streamingAssetsPath,"SkillData");
+            Data=LoadData(set,folder);Presentation=LoadPresentation(set,folder);
+            Actor=Data.NewBoard(SkillRunner.ActorScope);
+            Actor.Changed+=c=>Log($"board {c.Key}: {c.Old} → {c.New}");
+            Runner=new SkillRunner(Data,BoardModules.Handler(this));
             Runner.NodeRun+=(i,n,r)=>Log($"{i.Bundle.Key}#{n.Id} {n.Event} {n.Module.Name}{(r!=ModuleResult.Continue?" → "+r:"")}");
             skills.AddRange(Data.Owners.Values.Where(o=>o.List=="skills").OrderBy(o=>o.Key));
             caster=GameObject.CreatePrimitive(PrimitiveType.Capsule);caster.name="Caster";caster.transform.position=new Vector3(0,1,0);
@@ -58,7 +71,7 @@ namespace SkillGraphDemo
             for(int i=0;i<skills.Count&&i<9;i++)
             {
                 var key=KeyCode.Alpha1+i;
-                if(Input.GetKeyDown(key)){castKey=key;Log("cast "+skills[i].Key);Runner.Start(skills[i].Key);}
+                if(Input.GetKeyDown(key)){castKey=key;Log("cast "+skills[i].Key);Runner.Start(skills[i].Key,Actor);}
             }
             if(charging!=null)
             {
@@ -84,7 +97,7 @@ namespace SkillGraphDemo
                     var delta=d.Go.transform.position-e.Go.transform.position;
                     bool inside=e.Box?Mathf.Abs(delta.x)<=e.Width/2+0.5f&&Mathf.Abs(delta.z)<=e.Height/2+0.5f:delta.magnitude<=e.Radius+0.5f;
                     if(!inside)continue;
-                    e.Hit.Add(d);e.Last=d;Runner.Raise(e.Instance,"Hit");
+                    e.Hit.Add(d);e.Last=d;Runner.Raise(e.Instance,"Hit");Present(e.Instance,"Hit");
                     if(e.Instance.Ended)break;
                 }
             }
@@ -126,7 +139,7 @@ namespace SkillGraphDemo
                 case "ApplyStatus":
                     var buff=call.Integer("BuffKey");string target=call.Text("Target");
                     if(target=="Allies"&&view?.Last!=null)break;
-                    var b=Runner.StartBuff(buff,"StatusApply");Log($"buff {buff} on {target} for {call.Number("Duration"):0.#}s");
+                    var b=Runner.StartBuff(buff,"StatusApply",Actor);Log($"buff {buff} on {target} for {call.Number("Duration"):0.#}s");
                     StartCoroutine(Expire(b,(float)call.Number("Duration")));
                     break;
                 case "StatModify":
@@ -142,6 +155,18 @@ namespace SkillGraphDemo
             return ModuleResult.Continue;
         }
 
+        // After a logic event the presentation nodes of the same bundle run on the same instance, so they read the boards as
+        // the logic left them (the combo text shows the count the hit just added).
+        private void Present(SkillInstance instance,string e)
+        {
+            if(Presentation==null||!Presentation.Bundles.TryGetValue(instance.Bundle.Key,out var b))return;
+            foreach(var n in b.On(e).Where(n=>n.Module.Name=="ShowText"))
+            {
+                banner=string.Format(System.Globalization.CultureInfo.InvariantCulture,n.Text("Text",instance.Owner.Values,instance),n.Number("Value",instance.Owner.Values,instance));
+                bannerUntil=Time.time+1.2f;Log("text "+banner);
+            }
+        }
+
         private System.Collections.IEnumerator Expire(SkillInstance buff,float seconds)
         {
             yield return new WaitForSeconds(seconds);
@@ -155,6 +180,8 @@ namespace SkillGraphDemo
             for(int i=0;i<skills.Count&&i<9;i++)GUILayout.Label($"{i+1}  {skills[i].Key}");
             GUILayout.Space(8);
             foreach(var d in dummies)GUILayout.Label($"{d.Go.name}: {d.Hp:0.#} HP");
+            if(Actor!=null)foreach(var k in Actor.Keys)GUILayout.Label($"{k.Name}: {Actor.Get(k.Name)}");
+            if(banner!=null&&Time.time<bannerUntil)GUILayout.Label(banner,new GUIStyle(GUI.skin.label){fontSize=28,fontStyle=FontStyle.Bold});
             GUILayout.Space(8);
             foreach(var line in log)GUILayout.Label(line);
             GUILayout.EndArea();

@@ -41,12 +41,12 @@ namespace Noskang.SkillGraph.Tests
         {
             var m=Model();
             Assert.That(m.Issues.Where(i=>i.Level=="error"),Is.Empty);
-            Assert.That((m.Owners.Count,m.Bundles.Count),Is.EqualTo((11,19)));
+            Assert.That((m.Owners.Count,m.Bundles.Count),Is.EqualTo((11,21)));
             Assert.That(m.Layers,Is.EqualTo(new[]{"Base","Owner skill","Tier"}));
             Assert.That((m.TimeUnit,m.TimeGrid),Is.EqualTo(("s",0.025)));
             Assert.That(m.TimedEvents,Is.EqualTo(new[]{"Moment","Alarm"}));
             Assert.That(m.ExitEvents,Is.EqualTo(new[]{"CheckPass","CheckFail"}));
-            Assert.That(m.Families.Count,Is.EqualTo(6));
+            Assert.That(m.Families.Count,Is.EqualTo(7),"six demo families and the package Board family");
             Assert.That(m.Module("HitShape").Label.Get("ko"),Is.EqualTo("판정 모양"));
             Assert.That(m.Module("HitShape").Slot("Radius").Label.Get("en"),Is.EqualTo("Radius"));
             Assert.That(m.OwnerNumber(2100205),Is.EqualTo(2));
@@ -55,12 +55,12 @@ namespace Noskang.SkillGraph.Tests
         [Test]public void ColumnsCardsAndSpawnEdge()
         {
             var l=Layout(2100101);var main=l.Boxes.Single(b=>b.Main);
-            Assert.That(main.Columns.Select(c=>c.Key),Is.EqualTo(new[]{"CastStart","Moment:@10:Swing"}),"start column, then the keyframe column");
+            Assert.That(main.Columns.Select(c=>c.Key).Take(2),Is.EqualTo(new[]{"CastStart","Moment:@10:Swing"}),"start column, then the keyframe column (then the combo check's exits)");
             Assert.That((main.Columns[1].Label,main.Columns[1].KeyframePart,main.Columns[1].RestPart),Is.EqualTo(("Swing : 0.25s","Swing"," : 0.25s")));
-            var effect=l.Boxes.Single(b=>b.Bundle==2200002);
+            var effect=l.Boxes.Single(b=>b.Bundle==2200113);
             Assert.That(effect.Collapsed,Is.True,"effect boxes start collapsed");
-            Assert.That(l.Edges.Count(e=>e.Kind=="spawn"&&e.ToBundle==2200002),Is.EqualTo(1));
-            var open=Layout(2100101,true);var eb=open.Boxes.Single(b=>b.Bundle==2200002);
+            Assert.That(l.Edges.Count(e=>e.Kind=="spawn"&&e.ToBundle==2200113),Is.EqualTo(1));
+            var open=Layout(2100101,true);var eb=open.Boxes.Single(b=>b.Bundle==2200113);
             Assert.That(eb.Collapsed,Is.False);
             Assert.That(eb.Columns.Select(c=>c.Key),Is.EqualTo(new[]{"Create","Hit"}));
             var inherited=l.Cards.Single(c=>c.Bundle==2200101&&c.Module=="CastLock");
@@ -112,7 +112,7 @@ namespace Noskang.SkillGraph.Tests
             var opened=Layout(2100101,false,new HashSet<string>{SkillGraphLayout.Options.Chip(2200101,10,"Timing")});
             var again=opened.Cards.Single(c=>c.Bundle==2200101&&c.Module=="PlayMotion");
             Assert.That(again.Rows.Select(r=>r.Slot),Is.EqualTo(new[]{"PresentationKey","While","Until","LoopFrom","LoopPeriod"}));
-            var shape=Layout(2100101,true).Cards.Single(c=>c.Bundle==2200002&&c.Module=="HitShape");
+            var shape=Layout(2100101,true).Cards.Single(c=>c.Bundle==2200113&&c.Module=="HitShape");
             Assert.That(shape.Chips,Is.Empty,"box-only stage is not shown for a circle");
         }
 
@@ -240,18 +240,19 @@ namespace Noskang.SkillGraph.Tests
                 foreach(var b in open)Assert.That(b.Top.width,Is.EqualTo(Width(Math.Max(span,b.Columns.Count))).Within(0.01),"box "+b.Bundle);
                 var l=Layout(2100101);
                 Assert.That(l.ValueText(unit,three),Is.EqualTo(reach));
-                var box=Layout(2100101).Boxes.Single(b=>b.Bundle==2200002);Assert.That(box.Collapsed,Is.True);Assert.That(summary(box.Summary),Is.True,box.Summary);
+                // Slash's hit area inherits the base hit area, so its line starts with the inherit label.
+                var box=Layout(2100101).Boxes.Single(b=>b.Bundle==2200113);Assert.That(box.Collapsed,Is.True);Assert.That(summary(box.Summary),Is.True,box.Summary);
             }
             WithSettings("{}",()=>
             {
                 SkillGraphText.SetLanguage("en",false);
-                Check(2,"3m",t=>t=="Duration 0.1s · Radius 1.2m · Amount 12 · nodes 3");
+                Check(2,"3m",t=>t.StartsWith("inherits ",StringComparison.Ordinal)&&t.Contains(" · Duration 0.1s · Radius 1.2m · nodes 4"));
                 Assert.That(SkillGraphSettings.NewSkillModuleParent,Is.Null);
             });
             WithSettings("{\"editor\":{\"boxMinColumns\":3,\"valueUnits\":[\"s\"],\"boxSummary\":[{\"module\":\"Damage\",\"slot\":\"Amount\",\"label\":\"Hit\"}],\"newSkillModuleParent\":2200001}}",()=>
             {
                 SkillGraphText.SetLanguage("en",false);
-                Check(3,"3",t=>t=="Hit 12 · nodes 3");
+                Check(3,"3",t=>t.StartsWith("inherits ",StringComparison.Ordinal)&&t.Contains(" · Hit 12 · nodes 4")&&!t.Contains("Radius"));
                 Assert.That(SkillGraphSettings.NewSkillModuleParent,Is.EqualTo(2200001));
             });
             Assert.That(SkillGraphEditorWindow.KeyTail(2300201,2300204),Is.EqualTo("4"));
@@ -380,6 +381,25 @@ namespace Noskang.SkillGraph.Tests
             foreach(var c in new[]{input,text,arrow})
                 Assert.That(UnityEngine.UIElements.UQueryExtensions.Q(f,className:c).GetClasses(),Is.EquivalentTo(UnityEngine.UIElements.UQueryExtensions.Q(probe,className:c).GetClasses()),c);
             Assert.That(f.Text,Is.EqualTo("2100101 Slash"));
+        }
+        [Test]public void BoardKeysRowsAndLines()
+        {
+            // The demo combo: Slash checks Combo.Count (◂, by name), BoardClear and the hit area's BoardAdd write it (▸), the hit text reads it.
+            var m=Model();var b=m.Board;
+            Assert.That((b.Sheet,b.Keys.Count),Is.EqualTo(("Board Keys",1)));
+            Assert.That(b.Scopes.Select(s=>s.Name),Is.EqualTo(new[]{"Cast","Actor"}));
+            var key=b.Key("Combo.Count");Assert.That((key.Type,key.Scope,SkillGraphModel.Text(key.Default)),Is.EqualTo(("int","Actor","0")));
+            Assert.That(key.Uses.Select(u=>(u.Bundle,u.Node,u.Slot,u.Writes)),Is.SupersetOf(new[]{(2200101,14,"Key",false),(2200101,16,"Key",true),(2200113,10,"Key",true),(2200113,11,"Value",false)}));
+            var l=Layout(2100101,true);
+            SkillGraphLayout.RowView Row(int bundle,int node,string slot)=>l.Cards.Single(c=>c.Bundle==bundle&&c.Node==node).Rows.Single(r=>r.Slot==slot);
+            Assert.That((Row(2200101,14,"Key").Symbol,Row(2200101,14,"Key").Board),Is.EqualTo(("◂","Combo.Count")),"BoardCheck reads the key by name");
+            Assert.That(Row(2200113,10,"Key").Symbol,Is.EqualTo("▸"),"BoardAdd writes it");
+            Assert.That(Row(2200113,11,"Value").Symbol,Is.EqualTo("◂"),"the hit text reads it (Board source)");
+            var lines=l.Edges.Where(e=>e.Kind=="board").Select(e=>(e.FromBundle,e.FromNode,e.ToBundle,e.Bottom)).ToList();
+            Assert.That(lines,Is.EquivalentTo(new[]{(2200101,16,2200101,false),(2200113,10,2200101,false)}),"writer -> reader in the logic graph; the text in the other graph gets no line");
+            var text=m.Module("ShowText").Slot("Value");var sound=m.Module("PlaySound").Slot("PresentationKey");var check=m.Module("BoardCheck").Slot("Key");
+            Assert.That((SkillGraphModel.BoardFits(text,key),SkillGraphModel.BoardFits(sound,key),SkillGraphModel.BoardFits(check,key)),Is.EqualTo((true,false,true)));
+            Assert.That((SkillGraphModel.BoardSlotWrites(check.Type),SkillGraphModel.BoardSlotWrites(m.Module("BoardAdd").Slot("Key").Type)),Is.EqualTo((false,true)));
         }
         [Test]public void OwnerFieldPutsItsTooltipAwayWhileTheListIsOpen()
         {

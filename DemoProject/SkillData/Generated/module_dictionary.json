@@ -112,6 +112,14 @@
    "Owner",
    "Charging",
    "Released"
+  ],
+  "BOARD_OP": [
+   "AtLeast",
+   "Above",
+   "Equal",
+   "NotEqual",
+   "AtMost",
+   "Below"
   ]
  },
  "modules": [
@@ -694,6 +702,243 @@
      "structure",
      "Effect",
      "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "ShowText",
+   "line": "Presentation",
+   "group": "common",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Hit",
+    "CheckPass",
+    "CheckFail"
+   ],
+   "slots": [
+    [
+     "Text",
+     "string",
+     "",
+     "structure",
+     "{0}",
+     "cast",
+     null
+    ],
+    [
+     "Value",
+     "float",
+     "",
+     "structure",
+     0.0,
+     "cast",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "BoardSet",
+   "line": "Logic",
+   "group": "board",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Step",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "Destroy",
+    "Cancel",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply",
+    "StatusExpire",
+    "StatusRemove",
+    "OnHurt"
+   ],
+   "slots": [
+    [
+     "Key",
+     "board:int,float,bool",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ],
+    [
+     "Value",
+     "float",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "BoardAdd",
+   "line": "Logic",
+   "group": "board",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Step",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "Destroy",
+    "Cancel",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply",
+    "StatusExpire",
+    "StatusRemove",
+    "OnHurt"
+   ],
+   "slots": [
+    [
+     "Key",
+     "board:int,float",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ],
+    [
+     "Amount",
+     "float",
+     "",
+     "structure",
+     1.0,
+     "",
+     null
+    ],
+    [
+     "Min",
+     "float",
+     "",
+     "structure",
+     0.0,
+     "",
+     null
+    ],
+    [
+     "Max",
+     "float",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ]
+   ],
+   "exits": [],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "BoardCheck",
+   "line": "Logic",
+   "group": "board",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Step",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "Destroy",
+    "Cancel",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply",
+    "StatusExpire",
+    "StatusRemove",
+    "OnHurt"
+   ],
+   "slots": [
+    [
+     "Key",
+     "board:read,int,float,bool",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ],
+    [
+     "Op",
+     "enum:BOARD_OP",
+     "",
+     "structure",
+     "AtLeast",
+     "",
+     null
+    ],
+    [
+     "Value",
+     "float",
+     "",
+     "structure",
+     null,
+     "",
+     null
+    ]
+   ],
+   "exits": [
+    "Pass",
+    "Fail"
+   ],
+   "random": false,
+   "implemented": true
+  },
+  {
+   "name": "BoardClear",
+   "line": "Logic",
+   "group": "board",
+   "events": [
+    "CastStart",
+    "Moment",
+    "Create",
+    "Step",
+    "Alarm",
+    "Hit",
+    "LifeEnd",
+    "Destroy",
+    "Cancel",
+    "CheckPass",
+    "CheckFail",
+    "StatusApply",
+    "StatusExpire",
+    "StatusRemove",
+    "OnHurt"
+   ],
+   "slots": [
+    [
+     "Key",
+     "board",
+     "",
+     "structure",
+     null,
+     "",
      null
     ]
    ],

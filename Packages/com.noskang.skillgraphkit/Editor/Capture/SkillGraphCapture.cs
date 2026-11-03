@@ -17,7 +17,7 @@ namespace Noskang.SkillGraph.Editor
     // Capture command: opens the editor in states described by a JSON spec and saves PNGs (for manuals and screenshots).
     //   Unity.exe -projectPath <project> -executeMethod Noskang.SkillGraph.Editor.SkillGraphCapture.Run -skillgraphCapture <spec.json>
     // spec: {"quit":true,"shots":[{"name","out","owner","layer","view":"Logic|Both|PresentationEdit","workspace","language":"en|ko","ops":[...],"expand":[bundle],
-    //        "chips":["bundle/node/stage"],"select":{"bundle","node","bottom"},"slot","panel":"values|node|resources|none","size":[w,h],
+    //        "chips":["bundle/node/stage"],"select":{"bundle","node","bottom"},"slot","panel":"values|node|resources|board|none","boardKey":key,"size":[w,h],
     //        "frame":"all|select|main|box:<bundle>","zoom":scale,"pick":owner (then switch owners as the toolbar picker does),
     //        "issues":false,"scrollTo":value name,"panelWidth":points,
     //        "callouts":[{"n":1,"bundle","node"[,"slot"]}|{"n":2,"column","bundle"}|{"n":3,"target":"layer|views|panel|issues|toolbar|status"}|{"n":4,"rect":[x,y,w,h]}],
@@ -325,6 +325,8 @@ namespace Noskang.SkillGraph.Editor
             if(outer?.fixedPane!=null)outer.fixedPane.style.width=(float)(x.Get("panelWidth")?.Number??330);
             capturing=true;captureFailure=null;try{Refresh();}finally{capturing=false;}
             if(captureFailure!=null)throw new InvalidOperationException(captureFailure);
+            // "boardKey": the key picked in the board tab (its nodes framed, its lines brighter).
+            SelectBoardKey(x.Get("boardKey")?.TextOr(null));
             var owner=model?.OwnerOf(s.owner);if(owner!=null&&s.layer==0)s.layer=owner.Bundle;
             if(x.Get("select") is JsonNode sel&&!sel.IsNull)
             {

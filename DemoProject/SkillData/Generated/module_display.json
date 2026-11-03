@@ -1,6 +1,6 @@
 {
  "format": "SkillGraph Module Display 1",
- "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+ "dictionaryHash": "8105d0721c25f8ef9017a97080aad6404e481ac38b72a1ad5c63ed4d7176d86a",
  "families": [
   {
    "name": "CastFlow",
@@ -55,6 +55,15 @@
    },
    "color": "#C0742C",
    "icon": "▶"
+  },
+  {
+   "name": "Board",
+   "label": {
+    "en": "Board",
+    "ko": "보드"
+   },
+   "color": "#3F8C8C",
+   "icon": "▣"
   }
  ],
  "events": {
@@ -119,7 +128,34 @@
    "ko": "맞을 때"
   }
  },
- "enumLabels": {},
+ "enumLabels": {
+  "BOARD_OP": {
+   "AtLeast": {
+    "en": "≥",
+    "ko": "≥"
+   },
+   "Above": {
+    "en": ">",
+    "ko": ">"
+   },
+   "Equal": {
+    "en": "=",
+    "ko": "="
+   },
+   "NotEqual": {
+    "en": "≠",
+    "ko": "≠"
+   },
+   "AtMost": {
+    "en": "≤",
+    "ko": "≤"
+   },
+   "Below": {
+    "en": "<",
+    "ko": "<"
+   }
+  }
+ },
  "modules": [
   {
    "name": "CastLock",
@@ -1005,6 +1041,275 @@
      "slots": [
       "PresentationKey",
       "Attach"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "ShowText",
+   "label": {
+    "en": "Show text",
+    "ko": "글자 표시"
+   },
+   "family": "Presentation",
+   "note": {
+    "en": "Shows a short text; {0} becomes the value",
+    "ko": "짧은 글자를 보여 줌. {0} 자리에 값"
+   },
+   "slots": [
+    [
+     "Text",
+     {
+      "en": "Text",
+      "ko": "글자"
+     },
+     {
+      "en": "{0} is replaced by Value",
+      "ko": "{0} 자리에 값이 들어감"
+     }
+    ],
+    [
+     "Value",
+     {
+      "en": "Value",
+      "ko": "값"
+     },
+     {
+      "en": "Shown in {0}",
+      "ko": "{0}에 보일 값"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Text",
+      "Value"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "BoardSet",
+   "label": {
+    "en": "Set board key",
+    "ko": "보드 키 넣기"
+   },
+   "family": "Board",
+   "note": {
+    "en": "Puts a value into a board key",
+    "ko": "보드 키에 값을 넣음"
+   },
+   "slots": [
+    [
+     "Key",
+     {
+      "en": "Key",
+      "ko": "키"
+     },
+     {
+      "en": "Board key to set",
+      "ko": "넣을 보드 키"
+     }
+    ],
+    [
+     "Value",
+     {
+      "en": "Value",
+      "ko": "값"
+     },
+     {
+      "en": "New value (a bool key takes 0 or 1)",
+      "ko": "새 값(bool 키는 0 또는 1)"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Key",
+      "Value"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "BoardAdd",
+   "label": {
+    "en": "Add to board key",
+    "ko": "보드 키 더하기"
+   },
+   "family": "Board",
+   "note": {
+    "en": "Adds to a number key and keeps it between Min and Max",
+    "ko": "숫자 키에 더하고 최소~최대 사이로 둠"
+   },
+   "slots": [
+    [
+     "Key",
+     {
+      "en": "Key",
+      "ko": "키"
+     },
+     {
+      "en": "Board key to change",
+      "ko": "바꿀 보드 키"
+     }
+    ],
+    [
+     "Amount",
+     {
+      "en": "Amount",
+      "ko": "더할 값"
+     },
+     {
+      "en": "Added each time (negative subtracts)",
+      "ko": "한 번에 더하는 값(음수는 뺌)"
+     }
+    ],
+    [
+     "Min",
+     {
+      "en": "Min",
+      "ko": "최소"
+     },
+     {
+      "en": "Lowest value",
+      "ko": "가장 작은 값"
+     }
+    ],
+    [
+     "Max",
+     {
+      "en": "Max",
+      "ko": "최대"
+     },
+     {
+      "en": "Highest value",
+      "ko": "가장 큰 값"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Key",
+      "Amount",
+      "Min",
+      "Max"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "BoardCheck",
+   "label": {
+    "en": "Check board key",
+    "ko": "보드 키 검사"
+   },
+   "family": "Board",
+   "note": {
+    "en": "Compares a key with a value: pass or fail",
+    "ko": "키를 값과 비교해 통과 또는 실패"
+   },
+   "slots": [
+    [
+     "Key",
+     {
+      "en": "Key",
+      "ko": "키"
+     },
+     {
+      "en": "Board key to compare",
+      "ko": "비교할 보드 키"
+     }
+    ],
+    [
+     "Op",
+     {
+      "en": "Compare",
+      "ko": "비교"
+     },
+     {
+      "en": "How to compare",
+      "ko": "비교하는 방법"
+     }
+    ],
+    [
+     "Value",
+     {
+      "en": "Value",
+      "ko": "값"
+     },
+     {
+      "en": "Compared with",
+      "ko": "견줄 값"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Key",
+      "Op",
+      "Value"
+     ]
+    }
+   ],
+   "kind": null,
+   "choose": null,
+   "unused": []
+  },
+  {
+   "name": "BoardClear",
+   "label": {
+    "en": "Clear board key",
+    "ko": "보드 키 비우기"
+   },
+   "family": "Board",
+   "note": {
+    "en": "Puts a key back to its default",
+    "ko": "키를 기본값으로 되돌림"
+   },
+   "slots": [
+    [
+     "Key",
+     {
+      "en": "Key",
+      "ko": "키"
+     },
+     {
+      "en": "Board key to clear",
+      "ko": "비울 보드 키"
+     }
+    ]
+   ],
+   "stages": [
+    {
+     "name": "Basic",
+     "advanced": false,
+     "slots": [
+      "Key"
      ]
     }
    ],

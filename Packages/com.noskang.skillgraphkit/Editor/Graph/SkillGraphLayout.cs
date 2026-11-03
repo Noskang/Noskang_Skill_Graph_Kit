@@ -26,7 +26,8 @@ namespace Noskang.SkillGraph.Editor
             public bool CompactPresentation;public bool FoldPresentation;
             public static string Chip(int bundle,int node,string stage)=>bundle+"/"+node+"/"+stage;
         }
-        public sealed class RowView { public string Slot,Label,Text,Symbol,Tag,Tooltip,Stage;public bool StageDot,Overridden,Unread,Missing,Balance; }
+        // Board: the board key the row reads (◂) or writes (▸), else null.
+        public sealed class RowView { public string Slot,Label,Text,Symbol,Tag,Tooltip,Stage,Board;public bool StageDot,Overridden,Unread,Missing,Balance; }
         public sealed class ChipView { public string Stage;public int Count;public bool Unused,Advanced,Open; }
         public sealed class Card
         {
@@ -34,6 +35,8 @@ namespace Noskang.SkillGraph.Editor
             public List<RowView> Rows=new List<RowView>();public List<ChipView> Chips=new List<ChipView>();public int Defaults,Errors,Warnings,InheritedTint=-1;public int? Runs;public string[] Exits=Array.Empty<string>();
             public bool Compact,DefaultsInChips;public string Summary;
             public Rect Rect;public float Height;
+            // Board keys the node writes or reads (any slot, shown or folded).
+            public List<(string Key,bool Writes)> BoardKeys=new List<(string,bool)>();
         }
         public sealed class Column { public string Key,Event,Label,Sub;public JsonNode EventValue;public int? From;public double Time;public float X;public int Index;public bool Empty;public string KeyframePart,RestPart; }
         // Column closest to a dragged node's centre (the same column is highlighted while dragging and used on drop).
@@ -43,7 +46,8 @@ namespace Noskang.SkillGraph.Editor
             public int Bundle;public string Kind,Title,KeyText,Inherit,Summary,BottomSummary;public bool Collapsed,Main;public Rect Top,Bottom;public List<Column> Columns=new List<Column>();
             public List<(string Name,float X0,float X1)> Bands=new List<(string,float,float)>();public List<(string Column,string Text)> BottomCounts=new List<(string,string)>();
         }
-        public sealed class Edge { public Vector2 From,To;public string Kind;public bool Bottom;public int FromBundle,FromNode,ToBundle; }
+        // Kind board: a faint line from a node that writes Key to one in the same graph that reads it (shown only, never dragged).
+        public sealed class Edge { public Vector2 From,To;public string Kind,Key;public bool Bottom;public int FromBundle,FromNode,ToBundle; }
 
         private readonly HashSet<(int,int)> removed=new HashSet<(int,int)>();
         public SkillGraphModel Model { get; }
@@ -70,8 +74,17 @@ namespace Noskang.SkillGraph.Editor
                 var box=MakeBox(key,false,options,right,topY,bottomY);
                 topY=box.Top.yMax+NodeGap;bottomY=box.Collapsed?bottomY+BottomSummaryHeight+8:box.Bottom.yMax+NodeGap;
             }
-            MakeEdges();
+            MakeEdges();MakeBoardLines();
             TopBounds=Union(Boxes.Select(b=>b.Top));BottomBounds=Union(Boxes.Where(b=>b.Bottom.width>0).Select(b=>b.Bottom));
+        }
+
+        // Writer -> reader of the same board key inside one graph. Pairs across the two graphs are not drawn (the board tab highlights both).
+        private void MakeBoardLines()
+        {
+            foreach(var w in Cards.Where(c=>!c.Removed))foreach(var (key,writes) in w.BoardKeys.Where(k=>k.Writes).Distinct())
+                foreach(var r in Cards.Where(c=>c!=w&&!c.Removed&&c.Presentation==w.Presentation&&c.BoardKeys.Any(k=>k.Key==key&&!k.Writes)))
+                    Edges.Add(new Edge{From=new Vector2(w.Rect.center.x,w.Rect.yMax),To=new Vector2(r.Rect.center.x,r.Rect.yMax),Kind="board",Key=key,Bottom=w.Presentation,
+                        FromBundle=w.Bundle,FromNode=w.Node,ToBundle=r.Bundle});
         }
 
         // Value bundle that slot references in a box read: a buff box reads its buff's own values, everything else the viewed owner's.
@@ -256,6 +269,7 @@ namespace Noskang.SkillGraph.Editor
             if(n.DefinedIn!=n.Bundle){card.Inherited=Short(Model.KeyName(n.DefinedIn));card.InheritedTint=Array.IndexOf(Model.Bundles.TryGetValue(n.Bundle,out var bb)?bb.Chain:Array.Empty<int>(),n.DefinedIn);}
             if(Model.Memos.TryGetValue(n.Bundle,out var memos)&&memos.TryGetValue(n.Id,out var memo))card.Memo=memo;
             if(o.Runs!=null)card.Runs=o.Runs.TryGetValue((n.Bundle,n.Id),out int r)?r:0;
+            card.BoardKeys=n.Slots.Where(s=>s.Source=="board").Select(s=>(SkillGraphModel.Text(s.Value),SkillGraphModel.BoardSlotWrites(m?.Slot(s.Name)?.Type??""))).ToList();
             card.Errors=Model.Issues.Count(i=>i.Bundle==n.Bundle&&i.Node==n.Id&&i.Level=="error");card.Warnings=Model.Issues.Count(i=>i.Bundle==n.Bundle&&i.Node==n.Id&&i.Level=="warning");
             if(m==null){card.Height=HeadRow+NodePad;return card;}
             card.Exits=m.Exits;
@@ -331,6 +345,7 @@ namespace Noskang.SkillGraph.Editor
             else foreach(var s in set.Where(s=>s!=key&&s.Name!=m.KindSlot).Take(2))
             {
                 var info=m.Slot(s.Name);if(info==null)continue;
+                if(s.Source=="board"){parts.Add(Label(info)+" "+BoardText(info,s));continue;}
                 var value=s.Source=="ref"?Model.ResolveValue(ValuesFor(n.Bundle),SkillGraphModel.Text(s.Value))?.Value:s.Value;
                 parts.Add(Label(info)+" "+ValueText(info,value));
             }
@@ -362,6 +377,13 @@ namespace Noskang.SkillGraph.Editor
                 else{row.Symbol="·";row.Text=ValueText(info,v?.Value??info.Default)+" "+(v!=null&&v.Own?T("row.toDefault"):T("row.default"));}
                 return row;
             }
+            if(v.Source=="board")
+            {
+                string name=SkillGraphModel.Text(v.Value);var key=Model.Board?.Key(name);
+                row.Board=name;row.Symbol=SkillGraphModel.BoardSlotWrites(info.Type)?"▸":"◂";row.Text=name;row.Missing=key==null;
+                row.Tooltip=(key==null?F("row.boardMissing",name):F("row.boardTip",name,key.Type,Model.Board.ScopeLabel(key.Scope)))+"\n— "+info.Description.Get(Language);
+                return row;
+            }
             if(v.Source=="ref")
             {
                 row.Symbol="←";string name=SkillGraphModel.Text(v.Value);int values=ValuesFor(n.Bundle);var e=Model.ResolveValue(values,name);
@@ -374,6 +396,8 @@ namespace Noskang.SkillGraph.Editor
             row.Text=ValueText(info,v.Value);
             return row;
         }
+        // '◂ key' when the slot reads a board key, '▸ key' when it writes one.
+        public static string BoardText(SkillGraphModel.SlotInfo info,SkillGraphModel.SlotValue v)=>(SkillGraphModel.BoardSlotWrites(info.Type)?"▸ ":"◂ ")+SkillGraphModel.Text(v.Value);
         public string ValueText(SkillGraphModel.SlotInfo info,JsonNode value)
         {
             if(value==null||value.IsNull)return "—";

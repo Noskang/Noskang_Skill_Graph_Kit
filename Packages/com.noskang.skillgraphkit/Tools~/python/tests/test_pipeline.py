@@ -66,14 +66,14 @@ class SampleTests(unittest.TestCase):
         with Temp() as t:
             r = check(t)
             slash = next(b for b in r['logic']['bundles'] if b['key'] == 2200101)
-            self.assertEqual(next(n['at'] for n in slash['nodes'] if n['id'] == 11), 0.25, '@10:Swing = frame 15 at 60 fps')
+            self.assertEqual(next(n['at'] for n in slash['nodes'] if n['id'] == 14), 0.25, '@10:Swing = frame 15 at 60 fps (the combo check)')
             pres = next(b for b in r['presentation']['bundles'] if b['key'] == 2200101)
             self.assertEqual(next(n['at'] for n in pres['nodes'] if n['id'] == 12), 0.25)
         self.assertEqual(split_keyframe('Swing+0.1', {'Swing'}), ('Swing', 0.1))
         self.assertEqual(split_keyframe('Hit_2', {'Hit_2'}), ('Hit_2', 0.0))
 
         def set_ref(value):
-            return lambda rows: find(rows, 'ModuleNodeData', BundleKey=2200101, NodeId=11).update(EventValue=value)
+            return lambda rows: find(rows, 'ModuleNodeData', BundleKey=2200101, NodeId=14).update(EventValue=value)
         cases = [('@10:Swing+0.05', None, 0.3), ('@10:Swing-0.1', None, 0.15), ('@10:Start-0.1', 'KeyframeOffsetNegative', None),
                  ('@10:Nope', 'KeyframeMissing', None), ('@1:Swing', 'KeyframeMotion', None)]
         for value, code, at in cases:
@@ -83,7 +83,7 @@ class SampleTests(unittest.TestCase):
                     self.assertIn(code, error_codes(r), value)
                 else:
                     slash = next(b for b in r['logic']['bundles'] if b['key'] == 2200101)
-                    self.assertEqual(next(n['at'] for n in slash['nodes'] if n['id'] == 11), at, value)
+                    self.assertEqual(next(n['at'] for n in slash['nodes'] if n['id'] == 14), at, value)
 
     def test_value_name_rules(self):
         def edit(rows):
@@ -107,7 +107,7 @@ class SampleTests(unittest.TestCase):
             r = check(t)
             self.assertIn('MissingValueName', error_codes(r))
             issue = next(x for x in r['errors'] if x.code == 'MissingValueName')
-            self.assertEqual((issue.at['bundle'], issue.at['node'], issue.at['slot']), (2200002, 2, 'Radius'))
+            self.assertEqual((issue.at['bundle'], issue.at['node'], issue.at['slot']), (2200113, 2, 'Radius'), 'Slash reaches the base area through its hit area')
 
     def test_enum_number_is_rejected(self):
         with Temp(rows=lambda rows: find(rows, 'ModuleBundleData', Key=2200001).update(Kind=0)) as t:
@@ -282,7 +282,7 @@ class SampleTests(unittest.TestCase):
     def test_generated_views(self):
         with Temp() as t:
             res = dictionary_view(t.cfg)
-            self.assertEqual(res['modules'], len(demo.MODULES))
+            self.assertEqual(res['modules'], len(demo.modules()))
             wb = openpyxl.load_workbook(res['file'])
             self.assertIn('Module dictionary', wb.sheetnames)
             before = sha(t.cfg.data_dir / 'Skills.xlsx')

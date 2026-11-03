@@ -75,9 +75,19 @@ namespace Noskang.SkillGraph.Editor
                 if(Bottom&&box.Bottom.width<=0)continue;
                 AddElement(new BoxElement(this,box,layout));
             }
-            AddElement(new EdgesElement(layout.Edges.Where(x=>x.Bottom==Bottom).ToList(),Bottom?layout.BottomBounds:layout.TopBounds));
+            edges=new EdgesElement(this,layout.Edges.Where(x=>x.Bottom==Bottom).ToList(),Bottom?layout.BottomBounds:layout.TopBounds);AddElement(edges);
             foreach(var c in layout.Cards.Where(c=>c.Presentation==Bottom)){var e=new CardElement(this,c);cards.Add(e);AddElement(e);}
+            HighlightBoard(BoardKey);
         }
+        // The key picked in the board tab: nodes that write or read it get a frame, its lines are drawn brighter (null = none).
+        public string BoardKey { get; private set; }
+        public void HighlightBoard(string key)
+        {
+            BoardKey=key;
+            foreach(var c in cards)c.EnableInClassList("sg-card--board",key!=null&&c.Card.BoardKeys.Any(k=>k.Key==key));
+            edges?.MarkDirtyRepaint();
+        }
+        private EdgesElement edges;
         public IEnumerable<SkillGraphLayout.Card> Cards=>cards.Select(c=>c.Card);
         public bool CanDeleteSelected=>canDeleteSelection;
         public void Select(SkillGraphLayout.Card card)
@@ -235,7 +245,7 @@ namespace Noskang.SkillGraph.Editor
                 var row=new VisualElement();row.AddToClassList("sg-row");
                 if(r.Overridden)row.AddToClassList("sg-row--override");if(r.Missing)row.AddToClassList("sg-row--missing");if(r.Unread)row.AddToClassList("sg-row--unread");
                 var label=Text((r.StageDot?"● ":"")+r.Label,"sg-row__label");if(r.StageDot)label.AddToClassList("sg-row__label--stage");row.Add(label);
-                string kind=r.Symbol=="←"?"ref":r.Symbol=="■"?"fixed":r.Symbol=="▲"?"balance":r.Missing?"missing":"default";
+                string kind=r.Board!=null?(r.Missing?"missing":"board"):r.Symbol=="←"?"ref":r.Symbol=="■"?"fixed":r.Symbol=="▲"?"balance":r.Missing?"missing":"default";
                 var value=Text(r.Symbol+" "+r.Text,"sg-row__value");value.AddToClassList("sg-row__value--"+kind);row.Add(value);
                 if(r.Tag!=null)row.Add(Text(r.Tag,"sg-row__tag"));
                 if(r.Unread)row.Add(Text(T("row.notRun"),"sg-row__tag"));
@@ -280,12 +290,25 @@ namespace Noskang.SkillGraph.Editor
     // Spawn edges (node -> box) and exit edges (pass / fail port -> exit column), drawn as Painter2D curves.
     internal sealed class EdgesElement : GraphElement
     {
-        private readonly List<SkillGraphLayout.Edge> edges;
-        public EdgesElement(List<SkillGraphLayout.Edge> edges,Rect bounds)
+        private readonly List<SkillGraphLayout.Edge> edges;private readonly SkillGraphCanvas canvas;
+        public EdgesElement(SkillGraphCanvas canvas,List<SkillGraphLayout.Edge> edges,Rect bounds)
         {
-            this.edges=edges;capabilities=0;layer=-10;pickingMode=PickingMode.Ignore;
+            this.canvas=canvas;this.edges=edges;capabilities=0;layer=-10;pickingMode=PickingMode.Ignore;
             var r=new Rect(bounds.x-50,bounds.y-50,bounds.width+100,bounds.height+100);SetPosition(r);style.width=r.width;style.height=r.height;
             generateVisualContent+=Draw;
+        }
+        // Board lines: a dashed arc under the two cards ending in a small diamond at the reader; faint unless its key is picked.
+        private static void DrawBoard(Painter2D p,Vector2 a,Vector2 b,bool lit)
+        {
+            p.strokeColor=lit?new Color(.36f,.8f,.8f,.95f):new Color(.36f,.72f,.72f,.35f);p.lineWidth=lit?2f:1.2f;
+            var c=(a+b)/2+new Vector2(0,Mathf.Clamp(Mathf.Abs(b.x-a.x)*0.15f,18,60));var prev=a;const int steps=24;
+            for(int i=1;i<=steps;i++)
+            {
+                float t=i/(float)steps;var q=(1-t)*(1-t)*a+2*(1-t)*t*c+t*t*b;
+                if(i%2==1){p.BeginPath();p.MoveTo(prev);p.LineTo(q);p.Stroke();}
+                prev=q;
+            }
+            p.fillColor=p.strokeColor;p.BeginPath();p.MoveTo(b+new Vector2(0,-4));p.LineTo(b+new Vector2(4,0));p.LineTo(b+new Vector2(0,4));p.LineTo(b+new Vector2(-4,0));p.ClosePath();p.Fill();
         }
         private void Draw(MeshGenerationContext ctx)
         {
@@ -293,6 +316,7 @@ namespace Noskang.SkillGraph.Editor
             foreach(var e in edges)
             {
                 var a=e.From-origin;var b=e.To-origin;float dx=Mathf.Max(40,Mathf.Abs(b.x-a.x)*0.5f);
+                if(e.Kind=="board"){DrawBoard(p,a,b,canvas.BoardKey==e.Key);continue;}
                 p.strokeColor=e.Kind=="pass"?new Color(.36f,.82f,.45f,.9f):e.Kind=="fail"?new Color(.85f,.4f,.4f,.85f):e.Kind=="buff"?new Color(.6f,.45f,.9f,.85f):new Color(.75f,.78f,.85f,.75f);
                 p.lineWidth=e.Kind=="pass"||e.Kind=="fail"?2f:1.6f;
                 p.BeginPath();p.MoveTo(a);p.BezierCurveTo(a+new Vector2(dx,0),b-new Vector2(dx,0),b);p.Stroke();

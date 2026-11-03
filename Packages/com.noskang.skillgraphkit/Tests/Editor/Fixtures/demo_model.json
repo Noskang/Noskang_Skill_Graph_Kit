@@ -5,7 +5,41 @@
   "format": "SkillGraph Aux 1"
  },
  "board": {
-  "keys": [],
+  "keys": [
+   {
+    "default": 0,
+    "desc": "Slash hits in a row (0-3)",
+    "name": "Combo.Count",
+    "scope": "Actor",
+    "type": "int",
+    "uses": [
+     {
+      "bundle": 2200101,
+      "node": 14,
+      "slot": "Key",
+      "writes": false
+     },
+     {
+      "bundle": 2200101,
+      "node": 16,
+      "slot": "Key",
+      "writes": true
+     },
+     {
+      "bundle": 2200113,
+      "node": 10,
+      "slot": "Key",
+      "writes": true
+     },
+     {
+      "bundle": 2200113,
+      "node": 11,
+      "slot": "Value",
+      "writes": false
+     }
+    ]
+   }
+  ],
   "scopes": [
    {
     "kinds": null,
@@ -512,14 +546,14 @@
     {
      "added": true,
      "definedIn": 2200101,
-     "event": "Moment",
-     "eventValue": "@10:Swing",
+     "event": "CheckFail",
+     "eventValue": null,
      "fields": {},
-     "fromNode": null,
+     "fromNode": 14,
      "id": 11,
      "line": "Logic",
      "module": "SpawnEffect",
-     "note": "Hit follows the animation",
+     "note": "",
      "order": 10,
      "own": true,
      "priority": 0,
@@ -529,7 +563,7 @@
        "name": "BundleKey",
        "own": true,
        "source": "fixed",
-       "value": 2200002
+       "value": 2200113
       },
       {
        "definedIn": null,
@@ -575,6 +609,113 @@
        "own": true,
        "source": "fixed",
        "value": 2500102
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "Moment",
+     "eventValue": "@10:Swing",
+     "fields": {},
+     "fromNode": null,
+     "id": 14,
+     "line": "Logic",
+     "module": "BoardCheck",
+     "note": "Hit follows the animation; three hits in a row make a finisher",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "Key",
+       "own": true,
+       "source": "board",
+       "value": "Combo.Count"
+      },
+      {
+       "definedIn": null,
+       "name": "Op",
+       "own": false,
+       "source": "default",
+       "value": "AtLeast"
+      },
+      {
+       "definedIn": 2200101,
+       "name": "Value",
+       "own": true,
+       "source": "fixed",
+       "value": 3
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "CheckPass",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": 14,
+     "id": 15,
+     "line": "Logic",
+     "module": "SpawnEffect",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "BundleKey",
+       "own": true,
+       "source": "fixed",
+       "value": 2200114
+      },
+      {
+       "definedIn": null,
+       "name": "Count",
+       "own": false,
+       "source": "default",
+       "value": 1
+      },
+      {
+       "definedIn": null,
+       "name": "OffsetX",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "AngleStep",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200101,
+     "event": "CheckPass",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": 14,
+     "id": 16,
+     "line": "Logic",
+     "module": "BoardClear",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200101,
+       "name": "Key",
+       "own": true,
+       "source": "board",
+       "value": "Combo.Count"
       }
      ]
     }
@@ -1208,6 +1349,354 @@
    "removed": [],
    "usedBy": [
     2100102
+   ]
+  },
+  {
+   "chain": [
+    2200002,
+    2200113
+   ],
+   "desc": "Slash hit area: counts the combo",
+   "key": 2200113,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200002,
+       "name": "Radius",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Amount",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200113,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 10,
+     "line": "Logic",
+     "module": "BoardAdd",
+     "note": "",
+     "order": 20,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200113,
+       "name": "Key",
+       "own": true,
+       "source": "board",
+       "value": "Combo.Count"
+      },
+      {
+       "definedIn": null,
+       "name": "Amount",
+       "own": false,
+       "source": "default",
+       "value": 1.0
+      },
+      {
+       "definedIn": null,
+       "name": "Min",
+       "own": false,
+       "source": "default",
+       "value": 0.0
+      },
+      {
+       "definedIn": 2200113,
+       "name": "Max",
+       "own": true,
+       "source": "fixed",
+       "value": 3
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200113,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 11,
+     "line": "Presentation",
+     "module": "ShowText",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200113,
+       "name": "Text",
+       "own": true,
+       "source": "fixed",
+       "value": "Combo {0}"
+      },
+      {
+       "definedIn": 2200113,
+       "name": "Value",
+       "own": true,
+       "source": "board",
+       "value": "Combo.Count"
+      }
+     ]
+    }
+   ],
+   "parent": 2200002,
+   "prefixes": [
+    "Hit"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100101
+   ]
+  },
+  {
+   "chain": [
+    2200002,
+    2200114
+   ],
+   "desc": "Slash finisher area",
+   "key": 2200114,
+   "keyframes": [],
+   "kind": "Effect",
+   "nodes": [
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 1,
+     "line": "Logic",
+     "module": "SetLifetime",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200002,
+       "name": "Duration",
+       "own": false,
+       "source": "ref",
+       "value": "Hit.Life"
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Create",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 2,
+     "line": "Logic",
+     "module": "HitShape",
+     "note": "",
+     "order": 20,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": null,
+       "name": "Shape",
+       "own": false,
+       "source": "default",
+       "value": "Circle"
+      },
+      {
+       "definedIn": 2200114,
+       "name": "Radius",
+       "own": true,
+       "source": "ref",
+       "value": "Finisher.Radius"
+      },
+      {
+       "definedIn": null,
+       "name": "Width",
+       "own": false,
+       "source": "default",
+       "value": 0
+      },
+      {
+       "definedIn": null,
+       "name": "Height",
+       "own": false,
+       "source": "default",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "added": false,
+     "definedIn": 2200002,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 3,
+     "line": "Logic",
+     "module": "Damage",
+     "note": "",
+     "order": 10,
+     "own": false,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200114,
+       "name": "Amount",
+       "own": true,
+       "source": "ref",
+       "value": "Finisher.Damage"
+      },
+      {
+       "definedIn": null,
+       "name": "Kind",
+       "own": false,
+       "source": "default",
+       "value": "Normal"
+      }
+     ]
+    },
+    {
+     "added": true,
+     "definedIn": 2200114,
+     "event": "Hit",
+     "eventValue": null,
+     "fields": {},
+     "fromNode": null,
+     "id": 12,
+     "line": "Presentation",
+     "module": "ShowText",
+     "note": "",
+     "order": 10,
+     "own": true,
+     "priority": 0,
+     "slots": [
+      {
+       "definedIn": 2200114,
+       "name": "Text",
+       "own": true,
+       "source": "fixed",
+       "value": "Finisher!"
+      },
+      {
+       "definedIn": null,
+       "name": "Value",
+       "own": false,
+       "source": "default",
+       "value": 0.0
+      }
+     ]
+    }
+   ],
+   "parent": 2200002,
+   "prefixes": [
+    "Finisher",
+    "Hit"
+   ],
+   "removed": [],
+   "usedBy": [
+    2100101
    ]
   },
   {
@@ -3673,6 +4162,255 @@
       "unit": ""
      }
     ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Hit",
+     "CheckPass",
+     "CheckFail"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Show text",
+    "line": "Presentation",
+    "name": "ShowText",
+    "note": "Shows a short text; {0} becomes the value",
+    "slots": [
+     {
+      "default": "{0}",
+      "description": "{0} is replaced by Value",
+      "kind": "structure",
+      "name": "Text",
+      "supported": null,
+      "timing": "cast",
+      "type": "string",
+      "unit": ""
+     },
+     {
+      "default": 0.0,
+      "description": "Shown in {0}",
+      "kind": "structure",
+      "name": "Value",
+      "supported": null,
+      "timing": "cast",
+      "type": "float",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Step",
+     "Alarm",
+     "Hit",
+     "LifeEnd",
+     "Destroy",
+     "Cancel",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply",
+     "StatusExpire",
+     "StatusRemove",
+     "OnHurt"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Set board key",
+    "line": "Logic",
+    "name": "BoardSet",
+    "note": "Puts a value into a board key",
+    "slots": [
+     {
+      "default": null,
+      "description": "Board key to set",
+      "kind": "structure",
+      "name": "Key",
+      "supported": null,
+      "timing": "",
+      "type": "board:int,float,bool",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "New value (a bool key takes 0 or 1)",
+      "kind": "structure",
+      "name": "Value",
+      "supported": null,
+      "timing": "",
+      "type": "float",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Step",
+     "Alarm",
+     "Hit",
+     "LifeEnd",
+     "Destroy",
+     "Cancel",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply",
+     "StatusExpire",
+     "StatusRemove",
+     "OnHurt"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Add to board key",
+    "line": "Logic",
+    "name": "BoardAdd",
+    "note": "Adds to a number key and keeps it between Min and Max",
+    "slots": [
+     {
+      "default": null,
+      "description": "Board key to change",
+      "kind": "structure",
+      "name": "Key",
+      "supported": null,
+      "timing": "",
+      "type": "board:int,float",
+      "unit": ""
+     },
+     {
+      "default": 1.0,
+      "description": "Added each time (negative subtracts)",
+      "kind": "structure",
+      "name": "Amount",
+      "supported": null,
+      "timing": "",
+      "type": "float",
+      "unit": ""
+     },
+     {
+      "default": 0.0,
+      "description": "Lowest value",
+      "kind": "structure",
+      "name": "Min",
+      "supported": null,
+      "timing": "",
+      "type": "float",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "Highest value",
+      "kind": "structure",
+      "name": "Max",
+      "supported": null,
+      "timing": "",
+      "type": "float",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Step",
+     "Alarm",
+     "Hit",
+     "LifeEnd",
+     "Destroy",
+     "Cancel",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply",
+     "StatusExpire",
+     "StatusRemove",
+     "OnHurt"
+    ],
+    "exits": [
+     "Pass",
+     "Fail"
+    ],
+    "implemented": true,
+    "label": "Check board key",
+    "line": "Logic",
+    "name": "BoardCheck",
+    "note": "Compares a key with a value: pass or fail",
+    "slots": [
+     {
+      "default": null,
+      "description": "Board key to compare",
+      "kind": "structure",
+      "name": "Key",
+      "supported": null,
+      "timing": "",
+      "type": "board:read,int,float,bool",
+      "unit": ""
+     },
+     {
+      "default": "AtLeast",
+      "description": "How to compare",
+      "kind": "structure",
+      "name": "Op",
+      "supported": null,
+      "timing": "",
+      "type": "enum:BOARD_OP",
+      "unit": ""
+     },
+     {
+      "default": null,
+      "description": "Compared with",
+      "kind": "structure",
+      "name": "Value",
+      "supported": null,
+      "timing": "",
+      "type": "float",
+      "unit": ""
+     }
+    ]
+   },
+   {
+    "events": [
+     "CastStart",
+     "Moment",
+     "Create",
+     "Step",
+     "Alarm",
+     "Hit",
+     "LifeEnd",
+     "Destroy",
+     "Cancel",
+     "CheckPass",
+     "CheckFail",
+     "StatusApply",
+     "StatusExpire",
+     "StatusRemove",
+     "OnHurt"
+    ],
+    "exits": [],
+    "implemented": true,
+    "label": "Clear board key",
+    "line": "Logic",
+    "name": "BoardClear",
+    "note": "Puts a key back to its default",
+    "slots": [
+     {
+      "default": null,
+      "description": "Board key to clear",
+      "kind": "structure",
+      "name": "Key",
+      "supported": null,
+      "timing": "",
+      "type": "board",
+      "unit": ""
+     }
+    ]
    }
   ],
   "presentationEvents": [
@@ -3691,6 +4429,14 @@
     "Effect",
     "Body",
     "Ground"
+   ],
+   "BOARD_OP": [
+    "AtLeast",
+    "Above",
+    "Equal",
+    "NotEqual",
+    "AtMost",
+    "Below"
    ],
    "DAMAGE_KIND": [
     "Normal",
@@ -3740,10 +4486,37 @@
    "Alarm"
   ]
  },
- "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
+ "dictionaryHash": "8105d0721c25f8ef9017a97080aad6404e481ac38b72a1ad5c63ed4d7176d86a",
  "display": {
-  "dictionaryHash": "33ba2516312093e01153500f81aab66cf1edd4c4119807dba5a0c349213da19e",
-  "enumLabels": {},
+  "dictionaryHash": "8105d0721c25f8ef9017a97080aad6404e481ac38b72a1ad5c63ed4d7176d86a",
+  "enumLabels": {
+   "BOARD_OP": {
+    "Above": {
+     "en": ">",
+     "ko": ">"
+    },
+    "AtLeast": {
+     "en": "≥",
+     "ko": "≥"
+    },
+    "AtMost": {
+     "en": "≤",
+     "ko": "≤"
+    },
+    "Below": {
+     "en": "<",
+     "ko": "<"
+    },
+    "Equal": {
+     "en": "=",
+     "ko": "="
+    },
+    "NotEqual": {
+     "en": "≠",
+     "ko": "≠"
+    }
+   }
+  },
   "events": {
    "Alarm": {
     "en": "Alarm",
@@ -3860,6 +4633,15 @@
      "ko": "연출"
     },
     "name": "Presentation"
+   },
+   {
+    "color": "#3F8C8C",
+    "icon": "▣",
+    "label": {
+     "en": "Board",
+     "ko": "보드"
+    },
+    "name": "Board"
    }
   ],
   "format": "SkillGraph Module Display 1",
@@ -4754,6 +5536,275 @@
      }
     ],
     "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Presentation",
+    "kind": null,
+    "label": {
+     "en": "Show text",
+     "ko": "글자 표시"
+    },
+    "name": "ShowText",
+    "note": {
+     "en": "Shows a short text; {0} becomes the value",
+     "ko": "짧은 글자를 보여 줌. {0} 자리에 값"
+    },
+    "slots": [
+     [
+      "Text",
+      {
+       "en": "Text",
+       "ko": "글자"
+      },
+      {
+       "en": "{0} is replaced by Value",
+       "ko": "{0} 자리에 값이 들어감"
+      }
+     ],
+     [
+      "Value",
+      {
+       "en": "Value",
+       "ko": "값"
+      },
+      {
+       "en": "Shown in {0}",
+       "ko": "{0}에 보일 값"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Text",
+       "Value"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Board",
+    "kind": null,
+    "label": {
+     "en": "Set board key",
+     "ko": "보드 키 넣기"
+    },
+    "name": "BoardSet",
+    "note": {
+     "en": "Puts a value into a board key",
+     "ko": "보드 키에 값을 넣음"
+    },
+    "slots": [
+     [
+      "Key",
+      {
+       "en": "Key",
+       "ko": "키"
+      },
+      {
+       "en": "Board key to set",
+       "ko": "넣을 보드 키"
+      }
+     ],
+     [
+      "Value",
+      {
+       "en": "Value",
+       "ko": "값"
+      },
+      {
+       "en": "New value (a bool key takes 0 or 1)",
+       "ko": "새 값(bool 키는 0 또는 1)"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Key",
+       "Value"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Board",
+    "kind": null,
+    "label": {
+     "en": "Add to board key",
+     "ko": "보드 키 더하기"
+    },
+    "name": "BoardAdd",
+    "note": {
+     "en": "Adds to a number key and keeps it between Min and Max",
+     "ko": "숫자 키에 더하고 최소~최대 사이로 둠"
+    },
+    "slots": [
+     [
+      "Key",
+      {
+       "en": "Key",
+       "ko": "키"
+      },
+      {
+       "en": "Board key to change",
+       "ko": "바꿀 보드 키"
+      }
+     ],
+     [
+      "Amount",
+      {
+       "en": "Amount",
+       "ko": "더할 값"
+      },
+      {
+       "en": "Added each time (negative subtracts)",
+       "ko": "한 번에 더하는 값(음수는 뺌)"
+      }
+     ],
+     [
+      "Min",
+      {
+       "en": "Min",
+       "ko": "최소"
+      },
+      {
+       "en": "Lowest value",
+       "ko": "가장 작은 값"
+      }
+     ],
+     [
+      "Max",
+      {
+       "en": "Max",
+       "ko": "최대"
+      },
+      {
+       "en": "Highest value",
+       "ko": "가장 큰 값"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Key",
+       "Amount",
+       "Min",
+       "Max"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Board",
+    "kind": null,
+    "label": {
+     "en": "Check board key",
+     "ko": "보드 키 검사"
+    },
+    "name": "BoardCheck",
+    "note": {
+     "en": "Compares a key with a value: pass or fail",
+     "ko": "키를 값과 비교해 통과 또는 실패"
+    },
+    "slots": [
+     [
+      "Key",
+      {
+       "en": "Key",
+       "ko": "키"
+      },
+      {
+       "en": "Board key to compare",
+       "ko": "비교할 보드 키"
+      }
+     ],
+     [
+      "Op",
+      {
+       "en": "Compare",
+       "ko": "비교"
+      },
+      {
+       "en": "How to compare",
+       "ko": "비교하는 방법"
+      }
+     ],
+     [
+      "Value",
+      {
+       "en": "Value",
+       "ko": "값"
+      },
+      {
+       "en": "Compared with",
+       "ko": "견줄 값"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Key",
+       "Op",
+       "Value"
+      ]
+     }
+    ],
+    "unused": []
+   },
+   {
+    "choose": null,
+    "family": "Board",
+    "kind": null,
+    "label": {
+     "en": "Clear board key",
+     "ko": "보드 키 비우기"
+    },
+    "name": "BoardClear",
+    "note": {
+     "en": "Puts a key back to its default",
+     "ko": "키를 기본값으로 되돌림"
+    },
+    "slots": [
+     [
+      "Key",
+      {
+       "en": "Key",
+       "ko": "키"
+      },
+      {
+       "en": "Board key to clear",
+       "ko": "비울 보드 키"
+      }
+     ]
+    ],
+    "stages": [
+     {
+      "advanced": false,
+      "name": "Basic",
+      "slots": [
+       "Key"
+      ]
+     }
+    ],
+    "unused": []
    }
   ]
  },
@@ -4782,6 +5833,8 @@
   "2200104": "Dash",
   "2200111": "Battle Cry",
   "2200112": "Ground Spike area",
+  "2200113": "Slash hit area: counts the combo",
+  "2200114": "Slash finisher area",
   "2200201": "Fire Bolt",
   "2200202": "Fire Bolt II",
   "2200203": "Fire Bolt III",
@@ -4826,7 +5879,8 @@
    "bundle": 2200101,
    "bundles": [
     2200101,
-    2200002
+    2200113,
+    2200114
    ],
    "chain": [
     2200001,
@@ -5268,6 +6322,20 @@
      "name": "Cast.Duration",
      "own": false,
      "value": 0.5
+    },
+    {
+     "definedIn": 2300101,
+     "desc": "Finisher damage",
+     "name": "Finisher.Damage",
+     "own": true,
+     "value": 30
+    },
+    {
+     "definedIn": 2300101,
+     "desc": "Finisher reach",
+     "name": "Finisher.Radius",
+     "own": true,
+     "value": 1.8
     },
     {
      "definedIn": 2300101,
@@ -5786,9 +6854,9 @@
  "workspace": {
   "aux": "Data/Editor/skill_graph.json",
   "base": {
-   "ModuleBundles": "7fcd25d90937a77f0badf84b365bf36405da86baf9578f01f66d603d67a43549",
+   "ModuleBundles": "8387d5c03b4101ddcce5c7c168ff56e0c17cf2ea09ce50e9484331d671b3099d",
    "Presentation": "3d451f5a8d8f603129f703312c4d0f7569346e115984af027735d7026a537c49",
-   "Skills": "c1f3ca1b227a434081cdd520ca7765b8656c09fabde64a336d320fe66a1b3e6f"
+   "Skills": "4ed8d9d9403d36fa2a6ba7e8e093281d24aaed49e8d26cab806f8870d83ea1fd"
   },
   "files": {
    "ModuleBundles": "Data/ModuleBundles.xlsx",

@@ -30,9 +30,9 @@ class EditorTests(unittest.TestCase):
     def test_model_without_edits(self):
         with Temp() as t:
             m = se.Backend(t.cfg).handle(dict(cmd='model'))['model']
-            self.assertEqual((len(m['owners']), len(m['bundles'])), (11, 19))
+            self.assertEqual((len(m['owners']), len(m['bundles'])), (11, 21))
             self.assertEqual(errors(m), [])
-            self.assertEqual(len(m['display']['families']), 6)
+            self.assertEqual(len(m['display']['families']), 7, 'six demo families and the package Board family')
             lock = next(x for x in m['dictionary']['modules'] if x['name'] == 'CastLock')
             self.assertEqual((lock['label'], lock['slots'][0]['description']), ('Cast lock', 'How long the cast lasts'), 'display text merged in')
             t3 = next(o for o in m['owners'] if o['key'] == 2100203)

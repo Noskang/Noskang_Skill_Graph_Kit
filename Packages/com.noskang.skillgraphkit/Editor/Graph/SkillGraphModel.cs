@@ -52,6 +52,16 @@ namespace Noskang.SkillGraph.Editor
         public sealed class Family { public string Name,Color,Icon;public LocalText Label; }
         public sealed class Band { public string Name,From,To; }
         public sealed class Combo { public string Name,Desc;public int Nodes; }
+        // Board keys (settings board.table): each key with the slots that write (▸) or read (◂) it.
+        public sealed class BoardUse { public int Bundle,Node;public string Slot;public bool Writes; }
+        public sealed class BoardKeyInfo { public string Name,Type,Scope,Desc;public JsonNode Default;public List<BoardUse> Uses=new List<BoardUse>(); }
+        public sealed class BoardScope { public string Name,Label;public string[] Kinds; }
+        public sealed class BoardInfo
+        {
+            public string Table,Sheet;public string[] Types=Array.Empty<string>();public List<BoardScope> Scopes=new List<BoardScope>();public List<BoardKeyInfo> Keys=new List<BoardKeyInfo>();
+            public BoardKeyInfo Key(string name)=>Keys.FirstOrDefault(k=>k.Name==name);
+            public string ScopeLabel(string scope)=>Scopes.FirstOrDefault(s=>s.Name==scope)?.Label??scope;
+        }
 
         public JsonNode Root { get; private set; }
         public string Format,Workspace,DictionaryHash,Language="en";public bool Practice,PracticeExists,ExternalChange,DisplayStale;public int PendingChanges;public bool PendingAux;
@@ -82,6 +92,25 @@ namespace Noskang.SkillGraph.Editor
         // Empty columns (no node yet) kept in the aux file.
         public Dictionary<int,List<(string Event,JsonNode Value,int? From)>> EmptyColumns=new Dictionary<int,List<(string,JsonNode,int?)>>();
         public List<JsonNode> OpResults=new List<JsonNode>();
+        // Null when the project has no board key table (boards off): no board tab, no board source.
+        public BoardInfo Board;
+
+        // A 'board' slot names a key: 'board' / 'board:<type>,…' writes it, 'board:read[,<type>,…]' reads it by name.
+        public static bool IsBoardSlot(string type)=>type=="board"||type.StartsWith("board:",StringComparison.Ordinal);
+        private static string[] BoardParts(string type)=>type.StartsWith("board:",StringComparison.Ordinal)?type.Substring(6).Split(',').Select(x=>x.Trim()).Where(x=>x.Length>0).ToArray():Array.Empty<string>();
+        public static bool BoardSlotWrites(string type)=>IsBoardSlot(type)&&!BoardParts(type).Contains("read");
+        // Keys a slot can take (the Python check's rule): a board slot its listed types (any when none), a value slot the key types it can read.
+        public static bool BoardFits(SlotInfo slot,BoardKeyInfo key)
+        {
+            if(IsBoardSlot(slot.Type)){var types=BoardParts(slot.Type).Where(p=>p!="read").ToArray();return types.Length==0||types.Contains(key.Type);}
+            switch(slot.Type)
+            {
+                case "float":case "time":return key.Type=="int"||key.Type=="float";
+                case "string":return key.Type=="text";
+                case "int":case "bool":return key.Type==slot.Type;
+                default:return slot.Type.StartsWith("key:",StringComparison.Ordinal)&&key.Type==slot.Type;
+            }
+        }
 
         public Owner OwnerOf(int key)=>Owners.FirstOrDefault(o=>o.Key==key);
         public ModuleInfo Module(string name)=>name!=null&&Modules.TryGetValue(name,out var m)?m:null;
@@ -266,6 +295,17 @@ namespace Noskang.SkillGraph.Editor
             }
             foreach(var c in aux["combos"].AsArray())m.Combos.Add(new Combo{Name=c["name"].AsText(),Desc=c.Get("desc")?.TextOr("")??"",Nodes=c["nodes"].AsArray().Count});
             m.OpResults=root["ops"].AsArray().ToList();
+            if(root.Get("board") is JsonNode board&&!board.IsNull)
+            {
+                m.Board=new BoardInfo{Table=board["table"].AsText(),Sheet=board["sheet"].AsText(),Types=Texts(board["types"])};
+                foreach(var s in board["scopes"].AsArray())m.Board.Scopes.Add(new BoardScope{Name=s["name"].AsText(),Label=Text(s["label"]),Kinds=s["kinds"].IsNull?null:Texts(s["kinds"])});
+                foreach(var k in board["keys"].AsArray())
+                {
+                    var key=new BoardKeyInfo{Name=k["name"].AsText(),Type=Text(k["type"]),Scope=Text(k["scope"]),Desc=k["desc"].AsText(),Default=k["default"]};
+                    foreach(var u in k["uses"].AsArray())key.Uses.Add(new BoardUse{Bundle=u["bundle"].AsInt(),Node=u["node"].AsInt(),Slot=u["slot"].AsText(),Writes=u["writes"].Bool});
+                    m.Board.Keys.Add(key);
+                }
+            }
             return m;
         }
         public static int[] Ints(JsonNode n)=>n==null||n.IsNull?Array.Empty<int>():n.AsArray().Select(x=>x.AsInt()).ToArray();

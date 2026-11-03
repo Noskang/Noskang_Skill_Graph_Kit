@@ -33,14 +33,17 @@ namespace SkillGraphDemo.Tests
         private sealed class Recorder : IModuleHandler
         {
             public readonly List<string> Calls=new List<string>();public ModuleResult Charge=ModuleResult.Pass;
+            public readonly List<SkillInstance> Spawned=new List<SkillInstance>();
             public ModuleResult Run(ModuleCall call)
             {
                 Calls.Add(call.Instance.Bundle.Key+"#"+call.Node.Id+" "+call.Node.Module.Name);
-                if(call.Node.Module.Name=="SpawnEffect")call.Runner.Spawn(call.Instance,call.Integer("BundleKey"),"Create");
+                if(BoardModules.Run(call.Node,call.Instance.Owner.Values,call.Instance,out var board))return board;
+                if(call.Node.Module.Name=="SpawnEffect")Spawned.Add(call.Runner.Spawn(call.Instance,call.Integer("BundleKey"),"Create"));
                 return call.Node.Module.Name=="Charge"?Charge:ModuleResult.Continue;
             }
         }
-        private static SkillData Data()=>DemoRunner.LoadData(new DemoModules().Build(),Path.GetFullPath("Assets/StreamingAssets/SkillData"));
+        private static string Folder=>Path.GetFullPath("Assets/StreamingAssets/SkillData");
+        private static SkillData Data()=>DemoRunner.LoadData(new DemoModules().Build(),Folder);
 
         [Test]public void RunnerFollowsTimesAndKeyframes()
         {
@@ -49,8 +52,26 @@ namespace SkillGraphDemo.Tests
             Assert.That(rec.Calls,Is.EqualTo(new[]{"2200101#1 CastLock"}),"cast start: only the logic node (presentation is separate data)");
             runner.Tick(0.2);Assert.That(rec.Calls.Count,Is.EqualTo(1));
             runner.Tick(0.05);
-            Assert.That(rec.Calls.Skip(1).First(),Is.EqualTo("2200101#11 SpawnEffect"),"the hit spawns on the Swing keyframe (0.25 s)");
-            Assert.That(rec.Calls,Has.Member("2200002#2 HitShape"),"the spawned effect ran its Create nodes");
+            Assert.That(rec.Calls.Skip(1).Take(2),Is.EqualTo(new[]{"2200101#14 BoardCheck","2200101#11 SpawnEffect"}),"on the Swing keyframe (0.25 s) the combo check fails: the normal hit");
+            Assert.That(rec.Calls,Has.Member("2200113#2 HitShape"),"the spawned hit area ran its Create nodes");
+        }
+
+        [Test]public void SlashComboCountsHitsOnTheCasterAndFinishes()
+        {
+            var set=new DemoModules().Build();var data=Data();var pres=DemoRunner.LoadPresentation(set,Folder);
+            var rec=new Recorder();var runner=new SkillRunner(data,rec);var actor=data.NewBoard(SkillRunner.ActorScope);
+            var text=pres.Bundles[2200113].On("Hit").Single(n=>n.Module.Name=="ShowText");
+            for(int cast=1;cast<=3;cast++)
+            {
+                runner.Start(2100101,actor);runner.Tick(0.25);var hit=rec.Spawned.Last();
+                Assert.That(hit.Bundle.Key,Is.EqualTo(2200113),"the normal hit area");
+                runner.Raise(hit,"Hit");
+                Assert.That(actor.Integer("Combo.Count"),Is.EqualTo(cast),"each hit adds one on the caster's board");
+                Assert.That(text.Text("Text",hit.Owner.Values,hit)+" "+text.Number("Value",hit.Owner.Values,hit),Is.EqualTo("Combo {0} "+cast),"the hit text reads the board");
+            }
+            runner.Start(2100101,actor);runner.Tick(0.25);
+            Assert.That((rec.Spawned.Last().Bundle.Key,actor.Integer("Combo.Count")),Is.EqualTo((2200114,0)),"three in a row: the finisher, and the count goes back to 0");
+            Assert.That(data.BoardKeys.Select(k=>(k.Name,k.Type,k.Scope)),Is.EqualTo(new[]{("Combo.Count","int","Actor")}));
         }
 
         [Test]public void ChargeExitsPickTheBranch()
