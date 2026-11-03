@@ -18,7 +18,8 @@ namespace Noskang.SkillGraph.Editor
     //   Unity.exe -projectPath <project> -executeMethod Noskang.SkillGraph.Editor.SkillGraphCapture.Run -skillgraphCapture <spec.json>
     // spec: {"quit":true,"shots":[{"name","out","owner","layer","view":"Logic|Both|PresentationEdit","workspace","language":"en|ko","ops":[...],"expand":[bundle],
     //        "chips":["bundle/node/stage"],"select":{"bundle","node","bottom"},"slot","panel":"values|node|resources|none","size":[w,h],
-    //        "frame":"all|select|main|box:<bundle>","zoom":scale,"issues":false,"scrollTo":value name,"panelWidth":points,
+    //        "frame":"all|select|main|box:<bundle>","zoom":scale,"pick":owner (then switch owners as the toolbar picker does),
+    //        "issues":false,"scrollTo":value name,"panelWidth":points,
     //        "callouts":[{"n":1,"bundle","node"[,"slot"]}|{"n":2,"column","bundle"}|{"n":3,"target":"layer|views|panel|issues|toolbar|status"}|{"n":4,"rect":[x,y,w,h]}],
     //        "click": target or [targets] (red 'click here' box), "crop": {"around":"click"|target|[...],"margin":48,"min":[w,h]} or false,
     //        "open": {"menu":"more"|"node"|"column"|"value",...} | {"search":{"bundle","column"[,"bottom"]},"path":[...]} | {"window":"newSkill|newEffect|newBuff|addValue|editValue|duplicateSkill|childBundle|saveCombo|column|valueAction|save",...}}]}
@@ -27,6 +28,7 @@ namespace Noskang.SkillGraph.Editor
     // Context menus are native OS menus in Unity 6: they cannot be read from the window buffer and block the editor while open,
     // so the same items are drawn inside the window instead (capture report: menu = "drawn").
     // Needs a visible editor (batchmode has no window buffer). Operations stay on screen only; dialogs are never confirmed.
+    // "quit": true exits the editor when done; false keeps the last shot on screen (capture window and the windows it opened).
     public static class SkillGraphCapture
     {
         private sealed class Shot { public JsonNode Spec;public string Out; }
@@ -64,7 +66,8 @@ namespace Noskang.SkillGraph.Editor
                 {
                     EditorApplication.update-=Step;SetLanguage(userLanguage,false);Debug.Log("[SkillGraph capture] done: "+string.Join(", ",written));
                     Directory.CreateDirectory(Path.GetDirectoryName(ReportPath));
-                    File.WriteAllText(ReportPath,SkillGraphJson.Write(new Dictionary<string,object>{{"written",written.Cast<object>().ToList()},{"shots",report}}),new UTF8Encoding(false));
+                    var kept=quit?new List<object>():new EditorWindow[]{window}.Concat(aux).Where(w=>w!=null).Select(w=>(object)w.GetType().Name).ToList();
+                    File.WriteAllText(ReportPath,SkillGraphJson.Write(new Dictionary<string,object>{{"written",written.Cast<object>().ToList()},{"shots",report},{"kept",kept}}),new UTF8Encoding(false));
                     if(quit)EditorApplication.Exit(0);return;
                 }
                 var shot=shots[index];var x=shot.Spec;
@@ -78,7 +81,9 @@ namespace Noskang.SkillGraph.Editor
                 }
                 if(phase==1)
                 {
-                    window.FrameForCapture(x.Get("frame")?.TextOr("main")??"main",(float)(x.Get("zoom")?.Number??1));window.ScrollPanelForCapture(x);
+                    window.FrameForCapture(x.Get("frame")?.TextOr("main")??"main",(float)(x.Get("zoom")?.Number??1));
+                    if(x.Get("pick") is JsonNode pick&&!pick.IsNull)window.SelectOwner(pick.AsInt());
+                    window.ScrollPanelForCapture(x);
                     phase=2;next=EditorApplication.timeSinceStartup+1.5;return;
                 }
                 if(phase==2)
@@ -104,13 +109,16 @@ namespace Noskang.SkillGraph.Editor
                     foreach(var w in aux)w.Repaint();phase=4;next=EditorApplication.timeSinceStartup+0.8;return;
                 }
                 window.Repaint();Write(window,x,shot.Out);written.Add(shot.Out);
-                CloseAux();window.ClearMenuForCapture();window.DrawCallouts(Array.Empty<JsonNode>());
+                // "quit": false leaves the last shot on screen as it was taken: its opened windows, drawn menu and callouts stay.
+                if(KeepsShot(quit,index,shots.Count)){aux.RemoveAll(w=>w==null);}
+                else{CloseAux();window.ClearMenuForCapture();window.DrawCallouts(Array.Empty<JsonNode>());}
                 Debug.Log("[SkillGraph capture] "+(index+1)+"/"+shots.Count+" "+shot.Out+(menuMode!=null?" (menu "+menuMode+")":""));
                 index++;phase=0;next=EditorApplication.timeSinceStartup+0.5;
             }
             catch(Exception e){Debug.LogError("[SkillGraph capture] failed: "+e);EditorApplication.update-=Step;CloseAux();SetLanguage(userLanguage,false);if(quit)EditorApplication.Exit(3);}
         }
         private static void CloseAux(){foreach(var w in aux)if(w!=null)w.Close();aux.Clear();}
+        public static bool KeepsShot(bool quit,int index,int count)=>!quit&&index==count-1;
 
         // Compose the editor window with any window that opened, draw the click boxes, crop around them and save.
         private static void Write(SkillGraphEditorWindow w,JsonNode x,string path)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,9 +11,11 @@ namespace Noskang.SkillGraph.Editor
 {
     // Toolbar skill / buff picker, closed. It copies the theme classes of a stock popup field (root, input, text, arrow),
     // so it draws exactly like one; pressing it raises Opened instead of the stock menu.
+    // Pressing first puts its tooltip away and raises Opened on the next frame, so a tooltip shown while hovering never stays
+    // over the opened list; RestoreTooltip (when the list closes) brings the tooltip back.
     public sealed class SkillGraphOwnerField : VisualElement
     {
-        private readonly TextElement text;
+        private readonly TextElement text;private string tip;
         public event Action Opened;
         public string Text=>text.text;
         public SkillGraphOwnerField(string label)
@@ -22,7 +25,20 @@ namespace Noskang.SkillGraph.Editor
             var input=Copy(probe.Q(className:BasePopupField<string,string>.inputUssClassName),new VisualElement());Add(input);
             text=Copy(probe.Q<TextElement>(className:BasePopupField<string,string>.textUssClassName),new TextElement{text=label});input.Add(text);
             input.Add(Copy(probe.Q(className:BasePopupField<string,string>.arrowUssClassName),new VisualElement()));
-            RegisterCallback<PointerDownEvent>(e=>{if(e.button!=0)return;e.StopPropagation();Opened?.Invoke();});
+            RegisterCallback<PointerDownEvent>(e=>{if(e.button!=0)return;e.StopPropagation();Press();});
+        }
+        public void Press()
+        {
+            if(!string.IsNullOrEmpty(tooltip)){tip=tooltip;tooltip="";}
+            CloseTooltip();
+            if(panel!=null)schedule.Execute(()=>Opened?.Invoke());else Opened?.Invoke();
+        }
+        public void RestoreTooltip(){if(tip!=null){tooltip=tip;tip=null;}}
+        // The editor's tooltip window has no public close; without this a tooltip already shown stays up until the next redraw.
+        private static void CloseTooltip()
+        {
+            try{typeof(EditorWindow).Assembly.GetType("UnityEditor.TooltipView")?.GetMethod("Close",BindingFlags.Static|BindingFlags.Public|BindingFlags.NonPublic,null,Type.EmptyTypes,null)?.Invoke(null,null);}
+            catch(Exception){}
         }
         private static TE Copy<TE>(VisualElement from,TE to) where TE:VisualElement{if(from!=null)foreach(var c in from.GetClasses())to.AddToClassList(c);to.pickingMode=from?.pickingMode??PickingMode.Position;return to;}
     }
@@ -34,6 +50,8 @@ namespace Noskang.SkillGraph.Editor
     {
         public const float RowHeight=20;
         public static SkillGraphOwnerPicker Last;
+        // Raised when the drop-down goes away (picked, Esc, or a click elsewhere).
+        public event Action Closed;
         private List<(int Key,string Name)> all=new List<(int Key,string Name)>();private List<(int Key,string Name)> shown=new List<(int Key,string Name)>();
         private int current,cursor;private Action<int> pick;private bool open;
         private TextField search;private ListView list;private Label count,empty;
@@ -130,6 +148,6 @@ namespace Noskang.SkillGraph.Editor
             }
             e.StopPropagation();
         }
-        private void OnDestroy(){if(Last==this)Last=null;}
+        private void OnDestroy(){if(Last==this)Last=null;Closed?.Invoke();}
     }
 }

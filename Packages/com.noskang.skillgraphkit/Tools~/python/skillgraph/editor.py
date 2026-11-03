@@ -21,13 +21,14 @@ import sys
 import tempfile
 from pathlib import Path
 
-from .core import Dictionary, Report, SkillDataError, load_registry, sha_file
+from .board import TYPES as BOARD_TYPES, board_keys, usage
+from .core import Dictionary, Report, SkillDataError, load_registry, localized, sha_file
 from .keyframes import KeyframeError, is_keyframe_ref, motion_keyframes
 from .messages import text
 from .pipeline import run_data
 from .expand import expand_modules, expand_values
 from .validate import owners as owner_rows, spawn_targets
-from .workbook import lock_state, open_workbook, parse, read_table
+from .workbook import lock_state, open_workbook, parse, read_table, write_header
 
 
 class OpError(Exception):
@@ -255,7 +256,7 @@ def op_set_link(e, o):
         if row is not None:
             e.delete('ValueLinkData', row)
         return
-    if src not in ('Ref', 'Fixed', 'Default'):
+    if src not in ('Ref', 'Fixed', 'Default', 'Board'):
         e.fail('op.source', source=src)
     value = None if src == 'Default' else o.get('value')
     if row is None:
@@ -645,6 +646,59 @@ def op_set_collapsed(e, o):
     _aux_bundle(e, o['bundle'])['collapsed'] = bool(o.get('collapsed'))
 
 
+# ---- board keys. Name, type, scope and default are checked by validation like any other row.
+def _board_table(e):
+    t = e.cfg.board_table(e.reg)
+    if t is None:
+        e.fail('op.boardOff')
+    return t
+
+
+def _board_row(e, t, name):
+    row = e.find(t, Name=name)
+    if row is None:
+        e.fail('op.noBoardKey', name=name)
+    return row
+
+
+def _board_links(e, name):
+    return [r for r in e.rows('ValueLinkData') if r.get('Source') == 'Board' and r.get('Value') == name]
+
+
+def op_add_board_key(e, o):
+    t = _board_table(e)
+    if e.find(t, Name=o['name']) is not None:
+        e.fail('op.boardExists', name=o['name'])
+    e.insert(t, dict(Name=o['name'], Type=o.get('type') or 'int', Scope=o.get('scope') or e.cfg.board_scopes()[0],
+                     Default=o.get('default'), Desc=o.get('desc')))
+
+
+def op_set_board_key(e, o):
+    """Change type, scope, default or description (fields that are present); newName also renames every link to the key."""
+    t = _board_table(e)
+    row = _board_row(e, t, o['name'])
+    for field, col in (('type', 'Type'), ('scope', 'Scope'), ('default', 'Default'), ('desc', 'Desc')):
+        if field in o:
+            e.set(t, row, col, o[field])
+    new = o.get('newName')
+    if new and new != o['name']:
+        if e.find(t, Name=new) is not None:
+            e.fail('op.boardExists', name=new)
+        for r in _board_links(e, o['name']):
+            e.set('ValueLinkData', r, 'Value', new)
+        e.set(t, row, 'Name', new)
+
+
+def op_remove_board_key(e, o):
+    """Only a key no link names: the refusal lists the slots that still use it."""
+    t = _board_table(e)
+    row = _board_row(e, t, o['name'])
+    uses = _board_links(e, o['name'])
+    if uses:
+        e.fail('op.boardInUse', name=o['name'], uses=', '.join(f"{r['BundleKey']}/{r['NodeId']}/{r['Slot']}" for r in uses))
+    e.delete(t, row)
+
+
 # ---- columns (event conditions). A column = nodes that share event, time and source node.
 # An empty column has no Excel row yet, so it lives in the aux file until a node moves in.
 def column_id(e, event, value, frm):
@@ -769,7 +823,8 @@ OPS = {'setLink': op_set_link, 'addNode': op_add_node, 'removeNode': op_remove_n
        'applyValueToParent': op_apply_value_to_parent, 'newValues': op_new_values, 'newSkill': op_new_skill, 'duplicateSkill': op_duplicate_skill,
        'setMeta': op_set_meta, 'insertCombo': op_insert_combo, 'saveCombo': op_save_combo, 'removeCombo': op_remove_combo,
        'setMemo': op_set_memo, 'setBands': op_set_bands, 'setCollapsed': op_set_collapsed,
-       'addColumn': op_add_column, 'removeColumn': op_remove_column, 'setColumn': op_set_column}
+       'addColumn': op_add_column, 'removeColumn': op_remove_column, 'setColumn': op_set_column,
+       'addBoardKey': op_add_board_key, 'setBoardKey': op_set_board_key, 'removeBoardKey': op_remove_board_key}
 RESULT_FIELDS = ('key', 'node', 'bundle', 'values', 'nodes', 'effects', 'removed', 'seeded')
 
 
@@ -861,6 +916,24 @@ def _prefixes(bundle):
     return [p for p, _ in c.most_common()]
 
 
+SLOT_SOURCES = {'Ref': 'ref', 'Fixed': 'fixed', 'Board': 'board'}
+
+
+def _board_model(e, data, r):
+    """Board panel: scopes, key types and every key with the slots that write (▸) or read (◂) it. None when boards are off."""
+    cfg = e.cfg
+    t = cfg.board_table(e.reg)
+    if t is None:
+        return None
+    uses = usage(r['mods'], e.d) if 'mods' in r else []
+    scopes = [dict(name=s, label=localized((v or {}).get('label') or s, cfg['language']), kinds=cfg.scope_kinds(s))
+              for s, v in cfg['board']['scopes'].items()]
+    keys = [dict(name=name, type=row.get('Type'), scope=row.get('Scope'), default=row.get('Default'), desc=row.get('Desc') or '',
+                 uses=[dict(bundle=b, node=nid, slot=slot, writes=w) for b, nid, slot, k, w in uses if k == name])
+            for name, row in sorted(board_keys(data, cfg, e.reg).items())]
+    return dict(table=t, sheet=e.tables[t]['sheet'], types=list(BOARD_TYPES), scopes=scopes, keys=keys)
+
+
 def build_model(e, r, done=()):
     lo, d, cfg = e.loaded, e.d, e.cfg
     data = e.data()
@@ -882,6 +955,9 @@ def build_model(e, r, done=()):
                  display=d.display, issues=[i.to_dict() for i in r['errors'] + r['warnings']],
                  ops=[dict(op=o['op'], **{k: v for k, v in o.items() if k in RESULT_FIELDS}) for o in done],
                  owners=[], bundles=[], values=[], keyNames={}, resources=[], aux=e.aux)
+    board = _board_model(e, data, r)
+    if board is not None:
+        model['board'] = board
     if 'mods' not in r:
         return model
     mods, vals, reach = r['mods'], r['vals'], r['reach'] or {}
@@ -922,7 +998,7 @@ def build_model(e, r, done=()):
                 own = own_links[k].get((nid, s[0]))
                 entry = dict(name=s[0], source='default', value=s[4], definedIn=None, own=own is not None)
                 if lk is not None:
-                    entry.update(source='ref' if lk['source'] == 'Ref' else 'fixed', value=lk['value'], definedIn=lk['_from'])
+                    entry.update(source=SLOT_SOURCES[lk['source']], value=lk['value'], definedIn=lk['_from'])
                 elif own is not None and own['Source'] == 'Default':
                     entry.update(definedIn=k)
                 slots.append(entry)
@@ -1067,6 +1143,8 @@ def save(loaded, e, base=None):
             for name, t in e.tables.items():
                 mine = [c for c in items if c['table'] == name]
                 if t['doc'] == doc and mine:
+                    if t['sheet'] not in wb.sheetnames:  # the first rows of an optional table
+                        write_header(wb.create_sheet(t['sheet']), t['table'], loaded.registry)
                     write_sheet(wb[t['sheet']], t, mine)
             fd, temp = tempfile.mkstemp(prefix='.' + path.stem + '.', suffix='.xlsx', dir=path.parent)
             os.close(fd)

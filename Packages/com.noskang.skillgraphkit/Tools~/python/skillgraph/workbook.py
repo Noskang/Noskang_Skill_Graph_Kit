@@ -50,8 +50,8 @@ def parse(c, raw, rep, at, enums, cfg):
         if any(x == '' for x in items):
             rep.e('EmptyListItem', at, raw=raw); return None
         return [parse(sub, int(x) if re.fullmatch(r'-?\d+', x) else x, rep, at, enums, cfg) for x in items]
-    if kind == 'value':
-        if isinstance(raw, bool) or not (is_num(raw) or isinstance(raw, str)):
+    if kind in ('value', 'any'):  # any: a value or TRUE / FALSE (board key defaults)
+        if not (is_num(raw) or isinstance(raw, str) or (kind == 'any' and isinstance(raw, bool))):
             rep.e('ValueType', at, raw=raw); return None
         return raw.strip() if isinstance(raw, str) else raw
     raise ValueError(kind)
@@ -63,7 +63,9 @@ def token(reg, export):
 
 def read_table(wb, t, rep, reg, cfg):
     if t['sheet'] not in wb.sheetnames:
-        rep.e('MissingSheet', dict(doc=t['document']), sheet=t['sheet']); return []
+        if not t.get('optional'):
+            rep.e('MissingSheet', dict(doc=t['document']), sheet=t['sheet'])
+        return []
     ws, cols, h = wb[t['sheet']], t['columns'], t['headerRows']
     sheet = dict(sheet=t['sheet'])
     if ws.sheet_state != 'visible':

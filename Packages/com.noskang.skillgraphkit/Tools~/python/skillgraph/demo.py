@@ -442,7 +442,8 @@ def write_workbooks(cfg, reg, rows, folder):
     folder.mkdir(parents=True, exist_ok=True)
     out = {}
     for doc, file_name in cfg['documents'].items():
-        tables = [t for t in reg['tables'] if t['document'] == doc]
+        # An optional table gets a sheet only when it has rows (the board key sheet of a demo without keys stays out).
+        tables = [t for t in reg['tables'] if t['document'] == doc and (rows.get(t['json']) or not t.get('optional'))]
         if not tables:
             continue
         wb = openpyxl.Workbook()

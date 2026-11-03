@@ -103,7 +103,7 @@ namespace Noskang.SkillGraph.Editor
                 // Looks like a popup field; opens a searchable list of every owner in key order (SkillGraphOwnerPicker).
                 var current=model.OwnerOf(s.owner)??model.Owners[0];
                 var picker=new SkillGraphOwnerField(OwnerLabel(current)){style={minWidth=230}};picker.tooltip=T("toolbar.ownerTip");
-                picker.Opened+=()=>SkillGraphOwnerPicker.Show(new Rect(position.position+picker.worldBound.position,picker.worldBound.size),model.Owners.Select(o=>(o.Key,o.Name)),current.Key,SelectOwner);
+                picker.Opened+=()=>SkillGraphOwnerPicker.Show(new Rect(position.position+picker.worldBound.position,picker.worldBound.size),model.Owners.Select(o=>(o.Key,o.Name)),current.Key,SelectOwner).Closed+=picker.RestoreTooltip;
                 toolbar.Add(picker);
             }
             layerBar=new VisualElement();layerBar.AddToClassList("sg-layer");toolbar.Add(layerBar);BuildLayerBar();
@@ -281,7 +281,22 @@ namespace Noskang.SkillGraph.Editor
             // Moving between tiers of one family keeps the same layer depth.
             var prev=model.OwnerOf(s.owner);int depth=prev!=null?Array.IndexOf(prev.Chain,s.layer):-1;
             s.owner=key;s.layer=depth>=0&&depth<o.Chain.Length&&prev.Stage!=null&&o.Stage!=null&&prev.Stage.Group==o.Stage.Group?o.Chain[depth]:o.Bundle;
-            selected=null;SaveSession();Relayout();BuildToolbar();top.schedule.Execute(()=>{top.FrameAll();bottom.FrameAll();}).StartingIn(50);
+            selected=null;SaveSession();Relayout();BuildToolbar();FrameOwner();top.schedule.Execute(FrameOwner);
+        }
+        // Fits a newly picked owner from the layout's own box bounds: GraphView can only frame boxes it has measured, and the new
+        // boxes may not be measured yet. One scale for both graphs, at most 100%; runs again next frame once the toolbar settles.
+        private void FrameOwner()
+        {
+            if(layout==null||top==null)return;
+            Vector2 tv=top.layout.size,bv=bottom.layout.size;
+            if(!(tv.x>0&&tv.y>0))return;
+            var tb=layout.TopBounds;var bb=layout.BottomBounds;bool hasBottom=bb.width>0;bool shown=hasBottom&&s.view!=View.Logic&&bv.x>0&&bv.y>0;
+            float scale=SkillGraphCanvas.FitScale(tb,tv,top.MinScale,1f);
+            if(shown)scale=Mathf.Min(scale,SkillGraphCanvas.FitScale(bb,bv,bottom.MinScale,1f));
+            float left=hasBottom?Mathf.Min(tb.xMin,bb.xMin):tb.xMin;
+            syncing=true;
+            try{top.FrameAt(left,tb.yMin,scale);if(hasBottom)bottom.FrameAt(left,bb.yMin,scale);}
+            finally{syncing=false;}
         }
 
         private void OnSelect(SkillGraphLayout.Card c){selected=c;selectedSlot=null;Highlight(c);if(s.tab!="resources"||!c.Presentation)s.tab=c.Presentation&&s.view==View.PresentationEdit?"resources":"node";BuildPanel();}

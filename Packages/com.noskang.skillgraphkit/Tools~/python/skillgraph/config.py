@@ -69,6 +69,10 @@ DEFAULTS = {
     'dictionary': {'balanceKind': 'balance'},
     # Simple structural rules: an <event> node in a <kind> bundle needs a <requires> module next to it.
     'rules': {'companions': []},
+    # Board keys: named values nodes write and read while a skill runs. table = registry json name of the key table
+    # (None, or a registry without it, turns boards off). scopes: {scope: {label, kinds}} — label renames the scope in the
+    # editor ({language: text} or text, None = the scope name); kinds limits the bundle kinds (roles or names) that use it.
+    'board': {'table': 'BoardKeyData', 'scopes': {'Cast': {'label': None, 'kinds': None}, 'Actor': {'label': None, 'kinds': None}}},
     'keyframes': {
         'function': 'SkillKeyframe',
         'animRoot': 'Animations',
@@ -222,6 +226,20 @@ class Config:
     @property
     def max_depth(self):
         return len(self['layers'])
+
+    # ---- board
+    def board_table(self, reg):
+        """Json name of the board key table, or None when boards are off (no setting, or the registry has no such table)."""
+        t = self['board'].get('table')
+        return t if t and t in reg['by_json'] else None
+
+    def board_scopes(self):
+        return list(self['board']['scopes'])
+
+    def scope_kinds(self, scope):
+        """Bundle kind names that may use a scope (None = every kind)."""
+        kinds = (self['board']['scopes'].get(scope) or {}).get('kinds')
+        return None if kinds is None else [self.kind(k) if k in self['bundleKinds'] else k for k in kinds]
 
     # ---- time
     def on_grid(self, seconds):

@@ -32,6 +32,9 @@ LEVELS = {
     'FromNodeUnexpected': ERROR, 'OrderTie': ERROR, 'PresentationEvent': ERROR, 'PresentationToLogic': ERROR,
     'SpawnCycle': ERROR, 'SpawnNotEffect': ERROR, 'SubscriptionSubject': ERROR, 'CompanionMissing': ERROR,
     'FixedBalance': WARNING, 'FixedTiming': WARNING, 'OffGrid': WARNING,
+    # board keys
+    'UnknownBoardKey': ERROR, 'BoardTypeMismatch': ERROR, 'BoardScopeMismatch': ERROR, 'BoardWriteTarget': ERROR,
+    'BoardKeyName': ERROR, 'BoardKeyType': ERROR, 'UnusedBoardKey': WARNING,
     # keyframe time references
     'KeyframeEvent': ERROR, 'KeyframeName': ERROR, 'KeyframeMissing': ERROR, 'KeyframeClip': ERROR, 'KeyframeMotion': ERROR,
     'KeyframeMotionSpeed': ERROR, 'KeyframeMotionStart': ERROR, 'KeyframeOffsetNegative': ERROR, 'KeyframeUnreachable': ERROR,

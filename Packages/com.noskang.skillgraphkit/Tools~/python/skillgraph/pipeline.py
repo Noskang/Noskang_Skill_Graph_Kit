@@ -1,6 +1,7 @@
 """Read -> expand -> validate -> export. The editor backend runs the same path on edited rows."""
 from pathlib import Path
 
+from .board import board_keys, key_json, validate_board
 from .core import Dictionary, Report, SkillDataError, canonical, load_registry, sha, sha_file
 from .expand import expand_modules, expand_values, ordered_nodes
 from .keyframes import is_keyframe_ref, keyframe_time, validate_keyframes
@@ -43,11 +44,12 @@ def run_data(data, rep, d, reg, cfg, product=True, practice=False):
     validate_keyframes(data, mods, rep, d, cfg)
     unused = Report(rep.lang)
     reach, types = validate_owners(data, mods, vals, rep, d, cfg, unused)
+    validate_board(data, mods, rep, d, cfg, reg, unused)
     ctx = dict(data=data, mods=mods, vals=vals, reach=reach, types=types, dictionary=d, registry=reg, config=cfg,
                report=rep, product=product, practice=practice)
     for check in cfg.plugins()['validate']:
         check(ctx)
-    rep.extend(unused)  # unused values last: the final pass over every value, after the host checks
+    rep.extend(unused)  # unused values and board keys last: the final pass over every value, after the host checks
     result = dict(errors=rep.errors, warnings=rep.warnings, report=rep, data=data, mods=mods, vals=vals, reach=reach,
                   types=types, dictionary=d, registry=reg)
     if not rep.errors:
@@ -60,10 +62,13 @@ def run_data(data, rep, d, reg, cfg, product=True, practice=False):
 
 
 def export(data, mods, vals, types, reg, d, cfg):
-    """Names become numbers: events, modules, enum values and value names are written as indexes."""
+    """Names become numbers: events, modules, enum values, value names and board keys are written as indexes.
+    boardKeys (both files, name order) is written only when the key table has rows, so data without keys keeps its bytes."""
     names = sorted({n for b in mods.values() for n, _, _ in names_in(b, d)} | {m['ValueName'] for m in data.get('ModifierData', [])}
                    | {n for v in vals.values() for n in v})
     nid_of = {n: i for i, n in enumerate(names)}
+    board = [key_json(r) for _, r in sorted(board_keys(data, cfg, reg).items())]
+    bid_of = {k['name']: i for i, k in enumerate(board)}
     ev_index = {e: i for i, e in enumerate(d.events)}
     q = cfg.snap
 
@@ -84,7 +89,12 @@ def export(data, mods, vals, types, reg, d, cfg):
             if lnid != nid:
                 continue
             index, s = d.slot(n['Module'], slot)
-            links.append([index, 'ref', nid_of[lk['value']]] if lk['source'] == 'Ref' else [index, 'fixed', fixed(s, lk['value'])])
+            if lk['source'] == 'Ref':
+                links.append([index, 'ref', nid_of[lk['value']]])
+            elif lk['source'] == 'Board':
+                links.append([index, 'board', bid_of[lk['value']]])
+            else:
+                links.append([index, 'fixed', fixed(s, lk['value'])])
         links.sort(key=lambda x: x[0])
         ev = n['EventValue']
         if d.is_subscription(n):
@@ -128,6 +138,8 @@ def export(data, mods, vals, types, reg, d, cfg):
                 metas=[dict(key=r['Key'], nameLoc=r.get('NameLoc') or '', descLoc=r.get('DescLoc') or '', icon=r.get('IconKey') or 0) for _, r in all_owners],
                 resources=[dict(key=r['PresentationKey'], skin=r.get('Skin') or 0, clip=r.get('Clip') or '', effect=r.get('Effect') or '', sound=r.get('Sound') or '')
                            for r in sorted(data.get('PresentationResourceData', []), key=lambda r: (r['PresentationKey'], r.get('Skin') or 0))])
+    if board:
+        logic['boardKeys'] = pres['boardKeys'] = board
     return logic, pres, names
 
 

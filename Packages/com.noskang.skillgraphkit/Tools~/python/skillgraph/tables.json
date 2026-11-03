@@ -1,11 +1,11 @@
 {
- "about": "Default table registry. A host may replace it (settings: registry). Types: string, loc, int, float, time, value, key:<band role or digits>, enum:<NAME>[:default], list:<type>. EVENT, MODULE and BUNDLE_KIND are filled from the module dictionary and settings.",
+ "about": "Default table registry. A host may replace it (settings: registry). Types: string, loc, int, float, time, value, any (a value or TRUE / FALSE), key:<band role or digits>, enum:<NAME>[:default], list:<type>. EVENT, MODULE and BUNDLE_KIND are filled from the module dictionary and settings. An optional table may be missing from its workbook (read as empty).",
  "enums": {
   "BUFF_CATEGORY": ["Buff", "Debuff", "System"],
   "MODIFIER_OP": ["Override", "Add", "Multiply"],
   "LINE": ["Logic", "Presentation"],
   "OVERRIDE": ["None", "+", "-"],
-  "SOURCE": ["Ref", "Fixed", "Default"]
+  "SOURCE": ["Ref", "Fixed", "Default", "Board"]
  },
  "tables": [
   {
@@ -98,6 +98,16 @@
     {"name": "Slot", "desc": {"en": "Module slot", "ko": "모듈 칸 이름"}, "type": "string", "export": "both", "required": true, "default": null},
     {"name": "Source", "desc": {"en": "Source", "ko": "출처"}, "type": "enum:SOURCE:Ref", "export": "both", "required": true, "default": null},
     {"name": "Value", "desc": {"en": "Value name (Ref) or value (Fixed)", "ko": "수치 이름(Ref) 또는 값(Fixed)"}, "type": "value", "export": "both", "required": false, "default": null}
+   ]
+  },
+  {
+   "document": "ModuleBundles", "sheet": {"en": "Board Keys", "ko": "보드 키"}, "json": "BoardKeyData", "key": ["Name"], "optional": true,
+   "columns": [
+    {"name": "Name", "desc": {"en": "Board key name (Object.Name)", "ko": "보드 키 이름(객체.이름)"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Type", "desc": {"en": "Type: int, float, bool, text or key:<band role>", "ko": "형식: int·float·bool·text·key:<대역>"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Scope", "desc": {"en": "Scope: Cast (one cast) or Actor (one character)", "ko": "범위: Cast(시전 한 번)·Actor(캐릭터 한 명)"}, "type": "string", "export": "both", "required": true, "default": null},
+    {"name": "Default", "desc": {"en": "Value when the scope starts (blank = 0, false or empty text)", "ko": "범위가 처음 생길 때의 값(빈 칸 = 0·false·빈 글자)"}, "type": "any", "export": "both", "required": false, "default": null},
+    {"name": "Desc", "desc": {"en": "Description", "ko": "설명"}, "type": "string", "export": "none", "required": false, "default": null}
    ]
   },
   {

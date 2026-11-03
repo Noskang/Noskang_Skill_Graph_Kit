@@ -58,6 +58,14 @@ namespace Noskang.SkillGraph.Editor
             };
         }
 
+        public const float FramePad=24;
+        // Largest scale (clamped to min..max) at which bounds in content points fit a view of this size with FramePad around them.
+        public static float FitScale(Rect bounds,Vector2 view,float min,float max)
+            =>Mathf.Clamp(Mathf.Min((view.x-2*FramePad)/Mathf.Max(1,bounds.width),(view.y-2*FramePad)/Mathf.Max(1,bounds.height)),min,max);
+        public float MinScale=>minScale;
+        // Puts content point (left, top) FramePad from the view's top-left corner at the given scale.
+        public void FrameAt(float left,float top,float scale)=>UpdateViewTransform(new Vector3(FramePad-left*scale,FramePad-top*scale,0),Vector3.one*scale);
+
         public void Show(SkillGraphLayout layout)
         {
             Layout=layout;var guard=graphViewChanged;graphViewChanged=null;DeleteElements(graphElements.ToList());graphViewChanged=guard;cards.Clear();heads.Clear();highlight?.RemoveFromHierarchy();highlight=null;ClearDrop();

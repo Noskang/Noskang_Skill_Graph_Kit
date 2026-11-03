@@ -21,6 +21,7 @@ L = {
                     'Source', 'Set in', 'Override', 'Note'],
                    ['주인 Key', '이름', '묶음 Key', '묶음 설명', '노드', '줄', '이벤트', '이벤트 값', '모듈', '칸', '최종 값', '출처', '정한 묶음', '오버라이드', '메모']),
     'default': ('default', '기본값'), 'value': ('value {name}', '수치 {name}'), 'fixed': ('fixed in graph', '그래프 고정'),
+    'board': ('board {name}', '보드 {name}'),
     'missing': ('(missing)', '(없음)'), 'added': ('+ node ({key})', '+ 노드({key})'), 'slotOverride': ('slot override ({key})', '칸 덮어씀({key})'),
     'dictSheet': ('Module dictionary', '모듈 사전'), 'notes': ('!Notes', '!안내'),
     'dictNote': ('[Generated] Module dictionary view (read only). The source of truth is the C# module declarations. Dictionary hash {hash}',
@@ -55,6 +56,8 @@ def expanded_view(r, cfg):
                     elif lk['source'] == 'Ref':
                         v = vb.get(lk['value'])
                         final, src, from_b = (v[0] if v else tr(cfg, 'missing')), tr(cfg, 'value', name=lk['value']), f"{lk['_from']} / {v[1] if v else '-'}"
+                    elif lk['source'] == 'Board':
+                        final, src, from_b = '', tr(cfg, 'board', name=lk['value']), str(lk['_from'])
                     else:
                         final, src, from_b = lk['value'], tr(cfg, 'fixed'), str(lk['_from'])
                     marks = [tr(cfg, 'added', key=n['_from'])] if n['_mark'] else []
@@ -161,6 +164,8 @@ def graph_model(r, cfg, source):
                             v = vals.get(meta[owner]['ValueBundleKey'], {}).get(lk['value'])
                             resolved.append(dict(owner=owner, value=v[0] if v else None, definedIn=v[1] if v else None))
                         slots.append(dict(name=s[0], type=s[1], source='ref', value=lk['value'], definedIn=lk['_from'], resolved=resolved))
+                    elif lk['source'] == 'Board':
+                        slots.append(dict(name=s[0], type=s[1], source='board', value=lk['value'], definedIn=lk['_from'], resolved=[]))
                     else:
                         slots.append(dict(name=s[0], type=s[1], source='fixed', value=lk['value'], definedIn=lk['_from'], resolved=[]))
                 nodes.append(dict(id=nid, line=line, event=n['Event'], eventValue=n['EventValue'], module=n['Module'],

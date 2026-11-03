@@ -4,6 +4,29 @@
   "combos": [],
   "format": "SkillGraph Aux 1"
  },
+ "board": {
+  "keys": [],
+  "scopes": [
+   {
+    "kinds": null,
+    "label": "Cast",
+    "name": "Cast"
+   },
+   {
+    "kinds": null,
+    "label": "Actor",
+    "name": "Actor"
+   }
+  ],
+  "sheet": "Board Keys",
+  "table": "BoardKeyData",
+  "types": [
+   "int",
+   "float",
+   "bool",
+   "text"
+  ]
+ },
  "bundles": [
   {
    "chain": [

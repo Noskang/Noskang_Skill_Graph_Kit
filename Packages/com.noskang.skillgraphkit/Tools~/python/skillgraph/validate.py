@@ -1,4 +1,5 @@
 """Checks against the module dictionary (events, slots, sources) and between owners, bundles and values."""
+from .board import is_board_slot
 from .core import NAME_RE, NUMERIC, is_num
 from .keyframes import is_keyframe_ref
 from .messages import text
@@ -90,6 +91,10 @@ def validate_bundles(mods, rep, d, cfg, product):
             _, s = d.slot(n['Module'], slot)
             if s is None:
                 rep.e('UnknownSlot', at, module=n['Module']); continue
+            if is_board_slot(s[1]) and lk['source'] != 'Board':
+                rep.e('BoardWriteTarget', at, module=n['Module'], source=lk['source']); continue
+            if lk['source'] == 'Board':
+                continue  # checked against the key table (board.validate_board)
             if lk['source'] == 'Ref':
                 if not isinstance(lk['value'], str) or not NAME_RE.match(lk['value']):
                     rep.e('RefName', at, value=lk['value'])

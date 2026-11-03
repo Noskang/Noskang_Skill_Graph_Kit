@@ -381,6 +381,36 @@ namespace Noskang.SkillGraph.Tests
                 Assert.That(UnityEngine.UIElements.UQueryExtensions.Q(f,className:c).GetClasses(),Is.EquivalentTo(UnityEngine.UIElements.UQueryExtensions.Q(probe,className:c).GetClasses()),c);
             Assert.That(f.Text,Is.EqualTo("2100101 Slash"));
         }
+        [Test]public void OwnerFieldPutsItsTooltipAwayWhileTheListIsOpen()
+        {
+            // A tooltip shown while hovering must not stay over the opened list; it comes back when the list closes.
+            var f=new SkillGraphOwnerField("2100101 Slash"){tooltip="Pick a skill"};int opened=0;f.Opened+=()=>opened++;
+            f.Press();
+            Assert.That((f.tooltip,opened),Is.EqualTo(("",1)),"outside a panel the list opens at once");
+            var p=SkillGraphOwnerPicker.Create(PickerOwners,2100101,_=>{});p.Closed+=f.RestoreTooltip;
+            p.Choose();
+            Assert.That(f.tooltip,Is.EqualTo("Pick a skill"),"closing the list brings the tooltip back");
+        }
+        [Test]public void OwnerFramingFitsTheNewOwner()
+        {
+            // Switching owners frames from the layout's box bounds: everything fits, never above 100%, never below the zoom range.
+            var view=new Vector2(1200,420);float pad=2*SkillGraphCanvas.FramePad;
+            foreach(var owner in Model().Owners)
+            {
+                var b=Layout(owner.Key).TopBounds;float s=SkillGraphCanvas.FitScale(b,view,0.2f,1f);
+                Assert.That(s,Is.InRange(0.2f,1f),owner.Key.ToString());
+                if(s>0.2f)Assert.That(b.width*s+pad<=view.x+0.01f&&b.height*s+pad<=view.y+0.01f,Is.True,owner.Key+": fits");
+            }
+            Assert.That(SkillGraphCanvas.FitScale(new Rect(0,0,100,50),view,0.2f,1f),Is.EqualTo(1f),"a small graph is not blown up past 100%");
+            Assert.That(SkillGraphCanvas.FitScale(new Rect(0,0,2304,100),view,0.2f,1f),Is.EqualTo(0.5f).Within(1e-4),"(1200 - 48) / 2304");
+            Assert.That(SkillGraphCanvas.FitScale(new Rect(0,0,100000,50),view,0.2f,1f),Is.EqualTo(0.2f),"a huge graph stops at the smallest zoom");
+        }
+        [Test]public void CaptureKeepsTheLastShotOnlyWithoutQuit()
+        {
+            Assert.That(SkillGraphCapture.KeepsShot(false,2,3),Is.True,"quit: false keeps the last shot on screen");
+            Assert.That(SkillGraphCapture.KeepsShot(false,1,3),Is.False,"earlier shots close what they opened");
+            Assert.That(SkillGraphCapture.KeepsShot(true,2,3),Is.False,"quit: true exits");
+        }
         [Test]public void RuntimeAssemblyIsInPlayerBuildsByDefault()
         {
             // The runtime assembly drops out of player builds only when a project defines SKILLGRAPH_EDITOR_ONLY.
