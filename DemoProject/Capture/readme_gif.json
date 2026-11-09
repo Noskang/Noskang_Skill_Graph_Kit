@@ -1,0 +1,13 @@
+{
+ "quit": true,
+ "gif": {"out": "../../docs/images/demo.gif", "width": 960, "colors": 256},
+ "shots": [
+  {"name": "fire_bolt_1", "ms": 2200, "out": "../Library/SkillGraphKit/readme-gif/1_fire_bolt_1.png", "owner": 2100201, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8},
+  {"name": "fire_bolt_2", "ms": 1800, "out": "../Library/SkillGraphKit/readme-gif/2_fire_bolt_2.png", "owner": 2100202, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8},
+  {"name": "fire_bolt_3", "ms": 1800, "out": "../Library/SkillGraphKit/readme-gif/3_fire_bolt_3.png", "owner": 2100203, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8},
+  {"name": "pick_slot", "ms": 2200, "out": "../Library/SkillGraphKit/readme-gif/4_pick_slot.png", "owner": 2100202, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8, "select": {"bundle": 2200202, "node": 11}, "slot": "AngleStep"},
+  {"name": "save_change", "ms": 2600, "out": "../Library/SkillGraphKit/readme-gif/5_save_change.png", "owner": 2100202, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8, "select": {"bundle": 2200202, "node": 11}, "slot": "AngleStep", "ops": [{"op": "setValue", "values": 2300202, "name": "Bolt.Spread", "value": 12}], "open": {"window": "save"}},
+  {"name": "board", "ms": 2400, "out": "../Library/SkillGraphKit/readme-gif/6_board.png", "owner": 2100101, "view": "Logic", "panel": "board", "boardKey": "Combo.Count", "size": [1280, 720], "frame": "main", "zoom": 0.55, "expand": [2200113, 2200114]},
+  {"name": "korean", "ms": 2200, "out": "../Library/SkillGraphKit/readme-gif/7_korean.png", "language": "ko", "owner": 2100202, "view": "Both", "panel": "values", "size": [1280, 720], "frame": "main", "zoom": 0.8, "select": {"bundle": 2200202, "node": 11}, "slot": "AngleStep"}
+ ]
+}

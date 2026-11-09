@@ -6,7 +6,7 @@
 
 여러 액션 게임에서 쓸 수 있도록 만든 도구로, 기획자는 그래프와 Excel에서 기술을 만들고 고치고, 프로그래머는 모듈 하나를 작은 함수 하나로 씁니다.
 
-<!-- 데모 움짤: docs/images/demo.gif (단계 2에서 넣음) -->
+![SkillGraph Kit 편집기: Fire Bolt 1·2·3단계 상속, 노드 칸을 고르면 수치 행이 강조되고, 수치를 고치면 바뀐 칸만 저장 목록에, 보드 키, 한국어 글자](docs/images/demo.gif)
 
 ## 무엇을 하나
 
@@ -61,7 +61,7 @@ cd Packages/com.noskang.skillgraphkit/Tools~/python
 python -X utf8 -m unittest discover -s tests -t tests        # Python 66개
 ```
 
-- **Python 66개**는 GitHub Actions가 push마다 Windows · Python 3.12에서 돌립니다(위 배지).
+- **Python 66개**는 GitHub Actions가 main에 push할 때마다 Windows · Python 3.12에서 돌립니다(위 배지, [워크플로](.github/workflows/python-tests.yml)).
 - **Unity 39개**: **Window › General › Test Runner › EditMode › Run All**. batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`. Unity 라이선스가 필요해 CI에서는 돌리지 않습니다.
 
 ## 라이선스
@@ -107,7 +107,7 @@ python -X utf8 -m unittest discover -s tests -t tests        # Python 66개
 | ![보드 노드](docs/images/09_board_nodes.png) | ![보드 탭 한국어](docs/images/10_board_tab_ko.png) |
 | **보드 키 칸** — 검사 노드가 `Combo.Count ≥ 3`이면 마무리 공격, 아니면 보통 공격 | **보드 탭(한국어)** — 같은 화면을 한국어 글자로 |
 
-화면은 모두 `DemoProject/Capture/screens.json`을 캡처 명령으로 찍은 것입니다(손으로 자르거나 고치지 않음).
+화면은 모두 `DemoProject/Capture/screens.json`을 캡처 명령으로 찍은 것입니다(손으로 자르거나 고치지 않음). 맨 위 움짤은 `DemoProject/Capture/readme_gif.json`을 같은 명령으로 찍고 [`tools/make_gif.py`](tools/make_gif.py)로 합친 것입니다.
 
 ## 구조
 
@@ -152,6 +152,8 @@ Packages/com.noskang.skillgraphkit/   UPM 패키지
 DemoProject/                          데모 Unity 프로젝트(장면·데모 모듈·시험·캡처 명세)
 docs/                                 설계·데이터 계약·편집기 안내·붙이기 안내·화면
 tools/audit_public.py                 공개 감사(금지어 목록은 저장소 밖에 둠)
+tools/make_gif.py                     README 움짤 합성(캡처 명세 → GIF, Pillow)
+.github/workflows/python-tests.yml    Python 시험 CI
 ```
 
 ## 한계

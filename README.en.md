@@ -8,7 +8,7 @@ A tool set made to be usable across action games. Designers build and tune skill
 write each module as one small function. The full documentation is in Korean ([README](README.md), [docs/](docs/)); this
 page is a short English overview.
 
-<!-- Demo GIF: docs/images/demo.gif (added in step 2) -->
+![SkillGraph Kit editor: Fire Bolt tiers 1-3 inherit, picking a node slot marks its value row, an edit lists only the changed cell to save, board keys, Korean editor text](docs/images/demo.gif)
 
 ## What it does
 
@@ -60,6 +60,6 @@ A complete worked example with a made-up 2D brawler (settings, declarations, wor
 
 ## Tests and license
 
-105 automated tests: 66 Python tests (run by GitHub Actions on Windows with Python 3.12) and 39 Unity EditMode tests (run
-locally; they need a Unity license). Checked on Windows only. [MIT](LICENSE). Acknowledgements are in the
-[Korean README](README.md#감사의-말).
+105 automated tests: 66 Python tests (run by GitHub Actions on Windows with Python 3.12 on every push to main) and 39 Unity
+EditMode tests (run locally; they need a Unity license). Checked on Windows only. [MIT](LICENSE). Acknowledgements are in
+the [Korean README](README.md#감사의-말).
