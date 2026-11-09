@@ -60,6 +60,7 @@ A complete worked example with a made-up 2D brawler (settings, declarations, wor
 
 ## Tests and license
 
-105 automated tests: 66 Python tests (run by GitHub Actions on Windows with Python 3.12 on every push to main) and 39 Unity
-EditMode tests (run locally; they need a Unity license). Checked on Windows only. [MIT](LICENSE). Acknowledgements are in
-the [Korean README](README.md#감사의-말).
+105 automated tests: 66 Python tests and 39 Unity EditMode tests (run locally; they need a Unity license). GitHub Actions
+runs 65 of the Python tests on Windows with Python 3.12 on every push to main; the one left out rebuilds the demo sample
+workbooks byte for byte, which depends on the zlib build that wrote them. Checked on Windows only. [MIT](LICENSE).
+Acknowledgements are in the [Korean README](README.md#감사의-말).

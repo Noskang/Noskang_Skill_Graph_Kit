@@ -11,9 +11,10 @@ permissions:
 
 jobs:
   test:
-    # One test rebuilds the demo sample workbooks and compares them byte for byte with the committed ones. A zip header
-    # records the operating system that wrote it, and the samples were written on Windows, so the tests run there.
-    # The 39 Unity EditMode tests need a Unity license and run locally (see README).
+    # 65 of the 66 Python tests. The one left out rebuilds the demo sample workbooks and compares them byte for byte with
+    # the committed ones; deflate output depends on the zlib build, and the samples were written with a different one than
+    # the runner's Python, so that test runs locally only (see README). The 39 Unity EditMode tests need a Unity license
+    # and also run locally.
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,6 +23,22 @@ jobs:
           python-version: '3.12'
       - name: Install openpyxl
         run: python -m pip install "openpyxl==3.1.5"
-      - name: Python tests (66)
+      - name: Python tests (65)
         working-directory: Packages/com.noskang.skillgraphkit/Tools~/python
-        run: python -X utf8 -m unittest discover -s tests -t tests
+        env:
+          PYTHONUTF8: '1'
+        shell: python
+        run: |
+          import os, sys, unittest
+          LEFT_OUT = 'test_pipeline.SampleTests.test_committed_sample_is_reproducible'
+          sys.path.insert(0, os.getcwd())
+          def flat(suite):
+              for t in suite:
+                  yield from flat(t) if isinstance(t, unittest.TestSuite) else [t]
+          found = list(flat(unittest.defaultTestLoader.discover('tests', top_level_dir='tests')))
+          kept = [t for t in found if t.id() != LEFT_OUT]
+          if len(found) - len(kept) != 1:
+              sys.exit(f'expected to leave out exactly one test ({LEFT_OUT}), found {len(found) - len(kept)}')
+          print(f'{len(kept)} of {len(found)} tests (left out: {LEFT_OUT})', flush=True)
+          result = unittest.TextTestRunner(verbosity=1).run(unittest.TestSuite(kept))
+          sys.exit(0 if result.wasSuccessful() else 1)
