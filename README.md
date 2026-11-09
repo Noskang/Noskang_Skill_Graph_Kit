@@ -1,24 +1,78 @@
+**[English](README.en.md)** · [![Python tests](https://github.com/Noskang/Noskang_Skill_Graph_Kit/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Noskang/Noskang_Skill_Graph_Kit/actions/workflows/python-tests.yml) [![Release](https://img.shields.io/github/v/release/Noskang/Noskang_Skill_Graph_Kit)](https://github.com/Noskang/Noskang_Skill_Graph_Kit/releases) [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE) ![Unity 6000.3](https://img.shields.io/badge/Unity-6000.3-black?logo=unity)
+
 # SkillGraph Kit
 
 **모듈을 조합해 기술을 만들고, 수치는 Excel에 두고, 그래프 편집기로 고치는 Unity 도구 모음**
 
-![Fire Bolt II: 상속 층, 단계별 수치 표, 위 판정 · 아래 연출](docs/images/01_overview_tiers.png)
+여러 액션 게임에서 쓸 수 있도록 만든 도구로, 기획자는 그래프와 Excel에서 기술을 만들고 고치고, 프로그래머는 모듈 하나를 작은 함수 하나로 씁니다.
 
-> **English summary** — SkillGraph Kit splits a game skill into *behaviour* (a graph of event + module nodes) and *numbers*
-> (rows in Excel). Skills inherit from base layers like prefab variants, a Python backend expands and validates every layer
-> and round-trips the workbooks without touching cells you did not edit, and a GraphView editor in Unity draws the logic
-> graph and the presentation graph on the same time columns. Animation keyframes can drive hit timing (`@node:Swing`).
-> Board keys (named values such as `Combo.Count`, per cast or per character) let nodes write and read state while a skill
-> runs, so stacking passives and combo counters need no custom code.
-> Event names, bundle kinds, key layout, layer names and the time grid all come from settings, so the core is not tied to
-> one genre (a turn-based preset is part of the test suite). Includes a demo project, 105 automated tests and a capture
-> command that produced the screenshots below. Unity 6000.3, Python 3.10+ with openpyxl, MIT.
+<!-- 데모 움짤: docs/images/demo.gif (단계 2에서 넣음) -->
 
-개인 게임 프로젝트에서 기술 데이터를 옮기며 만든 도구를, 다른 프로젝트에서도 쓸 수 있게 장르에 묶이지 않는 형태로 다시 정리한 저장소입니다.
+## 무엇을 하나
+
+- **3층 상속** — 공통 바탕 → 기술 → 단계(1·2·3단계)로 이어받습니다. 자식 층은 노드를 더하고(`+`), 빼고(`−`), 칸 하나만 덮어씁니다. 비슷한 기술을 복사하지 않고 다른 점만 적습니다.
+- **그래프 편집기** — 기술 하나를 "언제(이벤트) 무엇을(모듈)" 하는 노드로 그립니다. 위는 판정, 아래는 연출을 같은 시간 열에 놓고, 칸마다 값이 어디서 오는지(수치 표 · 고정 · 보드 키 · 기본값) 기호로 보입니다.
+- **Excel 왕복** — 노드와 수치의 원본은 Excel입니다. 편집기에서 고친 칸만 다시 쓰고, 저장 전에 잠금 · 외부 변경을 검사합니다. 검증이 모든 층을 펼쳐 빠진 값 · 맞지 않는 이벤트 같은 실수를 잡습니다.
+
+애니메이션 키프레임에 맞춘 타격 시각, 콤보 수 같은 보드 키, 한/영 편집기 글자도 있습니다. 자세한 것은 아래 [해결 방식](#해결-방식)과 [대표 화면](#대표-화면)에 있습니다.
+
+## 시작하기 (데모)
+
+**필요한 것**
+- Unity **6000.3** (6000.3.24f1에서 확인). 패키지 시험 틀(test-framework)이 Unity에 들어 있어 외부망이 필요 없습니다.
+- Python **3.10 이상**과 **openpyxl 3.1**. 그래프 편집기와 Excel 저장에 필요합니다(데모 장면 실행에는 필요 없음).
+
+```bash
+git clone https://github.com/Noskang/Noskang_Skill_Graph_Kit.git
+python -m pip install "openpyxl>=3.1,<4"
+```
+
+1. Unity Hub에서 **`DemoProject`** 폴더를 프로젝트로 엽니다.
+2. **Edit › Preferences › SkillGraph Kit** 에서 *Python* 칸에 openpyxl이 있는 `python.exe`를 고릅니다. *Settings* 칸은 비워 두면 `DemoProject/skillgraph.json`을 씁니다.
+3. **Tools › SkillGraph Kit › Skill Graph Editor** 를 엽니다. 위쪽 목록에서 기술을 고르고, 노드의 칸을 누르면 오른쪽 수치 표의 그 행이 강조됩니다. 툴바 오른쪽 `한` / `EN` 단추로 글자 언어를 바꿉니다(기본 영어).
+4. 수치 칸을 눌러 값을 바꾸고 **Save(저장)** 하면 변경 목록을 보여 준 뒤 `DemoProject/SkillData/*.xlsx`의 그 칸만 고칩니다.
+
+**데모 장면**: `Assets/SkillGraphDemo/Demo.unity`를 열고 Play(장면을 다시 만들려면 **Tools › SkillGraph Kit › Demo › Rebuild Demo Scene**). 숫자 **1~9**로 기술을 씁니다(9번 Charge Beam은 누르고 있다가 뗌, 1번 Slash는 세 번 맞히면 다음 휘두르기가 마무리 공격). 동작과 시각은 모두 `Assets/StreamingAssets/SkillData/`의 판정 JSON에서 옵니다. Excel을 고쳤다면 **Tools › SkillGraph Kit › Demo › Export Skill Data to StreamingAssets** 로 다시 내보냅니다.
+
+## 내 프로젝트에 붙이기
+
+게임마다 다른 것은 설정 파일 · C# 모듈 선언 · Python 플러그인 세 곳에만 두고, 코어는 고치지 않습니다.
+지어낸 격투 액션 게임으로 처음부터 끝까지 따라 하는 예는 **[다른 액션 게임에 붙이기](docs/integration-guide.md)** 에 있습니다.
+
+1. **패키지 넣기** — `Packages/manifest.json`의 `dependencies`에
+   `"com.noskang.skillgraphkit": "https://github.com/Noskang/Noskang_Skill_Graph_Kit.git?path=/Packages/com.noskang.skillgraphkit"`
+   (또는 이 저장소를 받아 `file:` 경로).
+2. **모듈 선언** — `ModuleSetProvider`를 상속한 클래스 하나에 이벤트·묶음 종류·모듈을 선언합니다. 예시는 [`DemoModules.cs`](DemoProject/Assets/SkillGraphDemo/Scripts/DemoModules.cs).
+3. **설정 파일** — 프로젝트 폴더에 `skillgraph.json`. 내용이 `{}`이면 모두 기본값(통합 문서 폴더 `Data/`)이고, Key 대역·층 이름·시간 격자·폴더를 바꿀 때만 적습니다([설정 목록](docs/data-contract.md#설정-skillgraphjson)).
+4. **사전 내보내기** — **Tools › SkillGraph Kit › Export Module Dictionary**.
+5. **통합 문서 만들기** — 데모를 본뜨는 것이 가장 빠릅니다. 패키지 관리자의 *Samples › Demo data* 를 받거나, 패키지의 `Tools~/python` 폴더에서 `python -m skillgraph.demo --out <임시 폴더>`를 돌린 뒤, **`Data/*.xlsx` 세 파일만** 내 프로젝트의 통합 문서 폴더로 복사하고 행을 지우고 씁니다(생성기는 설정·사전 파일도 쓰므로 프로젝트 폴더에 바로 돌리지 않습니다). 패키지를 git URL로 받았다면 패키지 폴더는 `Library/PackageCache/com.noskang.skillgraphkit@…/` 아래입니다.
+6. **실행** — **Tools › SkillGraph Kit › Skill Graph Editor › More(더 보기) › Build skill data** 로 판정·연출 JSON을 내보내고, `SkillData.Load(판정 바이트, new MyModules().Build(), 연출 JSON의 valueNames)`로 읽은 뒤 `IModuleHandler`에서 모듈마다 게임 동작을 씁니다. 데모의 [`DemoRunner.cs`](DemoProject/Assets/SkillGraphDemo/Scripts/DemoRunner.cs)(`LoadData`)가 가장 작은 예입니다.
+
+7. **보드 키(선택)** — 사전에 `BoardModules.AddTo(builder)`(표시는 `BoardModules.AddDisplay(display)`), 실행기는 `new SkillRunner(data, BoardModules.Handler(내 처리기))`. 캐릭터마다 `data.NewBoard("Actor")`를 하나 두고 `runner.Start(기술, 그 보드)`로 넘깁니다. 자기 실행기를 쓰는 게임은 노드마다 `BoardModules.Run(node, values, scopes, out result)`를 부르고, 보드 값을 다른 쪽(예: 클라)에 보낼 때는 `Changed`·`Values()`·`Load()`를 씁니다([설계 12절](docs/architecture.md#12-보드-키)).
+
+게임 고유의 검사·내보내기는 Python 플러그인(`plugins.validate`·`plugins.export`)으로 덧붙입니다. 코어를 고치지 않습니다.
+
+## 시험
+
+자동 시험 **105개**(Python 66 + Unity EditMode 39)입니다.
+
+```bash
+cd Packages/com.noskang.skillgraphkit/Tools~/python
+python -X utf8 -m unittest discover -s tests -t tests        # Python 66개
+```
+
+- **Python 66개**는 GitHub Actions가 push마다 Windows · Python 3.12에서 돌립니다(위 배지).
+- **Unity 39개**: **Window › General › Test Runner › EditMode › Run All**. batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`. Unity 라이선스가 필요해 CI에서는 돌리지 않습니다.
+
+## 라이선스
+
+[MIT](LICENSE)
 
 ---
 
 ## 푼 문제
+
+개인 게임 프로젝트에서 기술 데이터를 옮기며 만든 도구를, 다른 프로젝트에서도 쓸 수 있게 장르에 묶이지 않는 형태로 다시 정리한 저장소입니다.
 
 기술 하나에 동작 코드와 수치가 섞여 있으면 기획자가 혼자 고칠 수 없습니다. 수치 하나를 바꾸려 해도 프로그래머를 거쳐야 하고, 비슷한 기술이 늘면 같은 코드가 복사됩니다. 단계(1단계·2단계·3단계)마다 조금씩 다른 기술은 더 그렇습니다.
 
@@ -42,14 +96,16 @@
 
 | | |
 |---|---|
-| ![검사 출구](docs/images/02_charge_branch.png) | ![키프레임 열](docs/images/03_keyframe_column.png) |
-| **통과/실패 갈래** — 충전 노드의 출구 열이 계단처럼 붙고, 갈래마다 다른 효과를 만듭니다 | **키프레임 열** — `Swing : 0.25s`, 노드 탭에 애니메이션 키프레임 목록 |
-| ![연출 편집](docs/images/04_presentation_edit.png) | ![효과·버프 상자](docs/images/05_effect_and_buff_boxes.png) |
-| **연출 편집 보기** — 판정은 흐리게, 3단계가 뺀 소리 노드는 반투명 | **효과·버프 상자** — 생성 선을 따라 효과 객체와 버프 묶음을 펼쳐 봅니다 |
-| ![열 바꾸기](docs/images/06_column_keyframe_dialog.png) | ![한국어](docs/images/07_overview_ko.png) |
-| **열 바꾸기** — 키프레임 + 오프셋(+0.05초 → 0.3초) | **편집기 글자 영/한 전환** |
-| ![보드 탭](docs/images/08_board_tab.png) | ![보드 노드](docs/images/09_board_nodes.png) |
-| **보드 탭** — Slash 콤보 수 `Combo.Count`를 쓰는(`▸`)·읽는(`◂`) 노드에 테두리, 쓰기 → 읽기 점선 | **보드 키 칸** — 검사 노드가 `Combo.Count ≥ 3`이면 마무리 공격, 아니면 보통 공격 |
+| ![상속 층](docs/images/01_overview_tiers.png) | ![검사 출구](docs/images/02_charge_branch.png) |
+| **상속 층** — Fire Bolt II: 위 판정 · 아래 연출, 오른쪽에 단계별 수치 표 | **통과/실패 갈래** — 충전 노드의 출구 열이 계단처럼 붙고, 갈래마다 다른 효과를 만듭니다 |
+| ![키프레임 열](docs/images/03_keyframe_column.png) | ![연출 편집](docs/images/04_presentation_edit.png) |
+| **키프레임 열** — `Swing : 0.25s`, 노드 탭에 애니메이션 키프레임 목록 | **연출 편집 보기** — 판정은 흐리게, 3단계가 뺀 소리 노드는 반투명 |
+| ![효과·버프 상자](docs/images/05_effect_and_buff_boxes.png) | ![열 바꾸기](docs/images/06_column_keyframe_dialog.png) |
+| **효과·버프 상자** — 생성 선을 따라 효과 객체와 버프 묶음을 펼쳐 봅니다 | **열 바꾸기** — 키프레임 + 오프셋(+0.05초 → 0.3초) |
+| ![한국어](docs/images/07_overview_ko.png) | ![보드 탭](docs/images/08_board_tab.png) |
+| **편집기 글자 영/한 전환** | **보드 탭** — Slash 콤보 수 `Combo.Count`를 쓰는(`▸`)·읽는(`◂`) 노드에 테두리, 쓰기 → 읽기 점선 |
+| ![보드 노드](docs/images/09_board_nodes.png) | ![보드 탭 한국어](docs/images/10_board_tab_ko.png) |
+| **보드 키 칸** — 검사 노드가 `Combo.Count ≥ 3`이면 마무리 공격, 아니면 보통 공격 | **보드 탭(한국어)** — 같은 화면을 한국어 글자로 |
 
 화면은 모두 `DemoProject/Capture/screens.json`을 캡처 명령으로 찍은 것입니다(손으로 자르거나 고치지 않음).
 
@@ -82,47 +138,7 @@ flowchart LR
 - **화면과 모델의 경계는 JSON**: 편집기는 "처음 읽은 Excel + 편집 동작 목록"을 백엔드에 보내고 펼친 모델을 받습니다. 되돌리기/다시하기는 동작 목록을 줄이고 늘리는 일이라 편집기 안에서 끝납니다.
 - **판정과 연출은 다른 파일**: 서버·판정은 판정 JSON만, 화면은 연출 JSON을 함께 읽습니다.
 
-자세한 설명은 [docs/architecture.md](docs/architecture.md), 파일 형식은 [docs/data-contract.md](docs/data-contract.md), 편집기 조작은 [docs/editor-guide.md](docs/editor-guide.md)에 있습니다.
-
-## 빠른 시작 (데모)
-
-**필요한 것**
-- Unity **6000.3** (6000.3.24f1에서 확인). 패키지 시험 틀(test-framework)이 Unity에 들어 있어 외부망이 필요 없습니다.
-- Python **3.10 이상**과 **openpyxl 3.1**. 그래프 편집기와 Excel 저장에 필요합니다(데모 장면 실행에는 필요 없음).
-
-```bash
-git clone https://github.com/Noskang/Noskang_Skill_Graph_Kit.git
-python -m pip install "openpyxl>=3.1,<4"
-```
-
-1. Unity Hub에서 **`DemoProject`** 폴더를 프로젝트로 엽니다.
-2. **Edit › Preferences › SkillGraph Kit** 에서 *Python* 칸에 openpyxl이 있는 `python.exe`를 고릅니다. *Settings* 칸은 비워 두면 `DemoProject/skillgraph.json`을 씁니다.
-3. **Tools › SkillGraph Kit › Skill Graph Editor** 를 엽니다. 위쪽 목록에서 기술을 고르고, 노드의 칸을 누르면 오른쪽 수치 표의 그 행이 강조됩니다. 툴바 오른쪽 `한` / `EN` 단추로 글자 언어를 바꿉니다(기본 영어).
-4. 수치 칸을 눌러 값을 바꾸고 **Save(저장)** 하면 변경 목록을 보여 준 뒤 `DemoProject/SkillData/*.xlsx`의 그 칸만 고칩니다.
-
-**데모 장면**: `Assets/SkillGraphDemo/Demo.unity`를 열고 Play(장면을 다시 만들려면 **Tools › SkillGraph Kit › Demo › Rebuild Demo Scene**). 숫자 **1~9**로 기술을 씁니다(9번 Charge Beam은 누르고 있다가 뗌, 1번 Slash는 세 번 맞히면 다음 휘두르기가 마무리 공격). 동작과 시각은 모두 `Assets/StreamingAssets/SkillData/`의 판정 JSON에서 옵니다. Excel을 고쳤다면 **Tools › SkillGraph Kit › Demo › Export Skill Data to StreamingAssets** 로 다시 내보냅니다.
-
-**시험**
-```bash
-cd Packages/com.noskang.skillgraphkit/Tools~/python
-python -X utf8 -m unittest discover -s tests -t tests        # Python 66개
-```
-Unity: **Window › General › Test Runner › EditMode › Run All** (39개). batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`.
-
-## 내 프로젝트에 붙이기
-
-1. **패키지 넣기** — `Packages/manifest.json`의 `dependencies`에
-   `"com.noskang.skillgraphkit": "https://github.com/Noskang/Noskang_Skill_Graph_Kit.git?path=/Packages/com.noskang.skillgraphkit"`
-   (또는 이 저장소를 받아 `file:` 경로).
-2. **모듈 선언** — `ModuleSetProvider`를 상속한 클래스 하나에 이벤트·묶음 종류·모듈을 선언합니다. 예시는 [`DemoModules.cs`](DemoProject/Assets/SkillGraphDemo/Scripts/DemoModules.cs).
-3. **설정 파일** — 프로젝트 폴더에 `skillgraph.json`. 내용이 `{}`이면 모두 기본값(통합 문서 폴더 `Data/`)이고, Key 대역·층 이름·시간 격자·폴더를 바꿀 때만 적습니다([설정 목록](docs/data-contract.md#설정-skillgraphjson)).
-4. **사전 내보내기** — **Tools › SkillGraph Kit › Export Module Dictionary**.
-5. **통합 문서 만들기** — 데모를 본뜨는 것이 가장 빠릅니다. 패키지 관리자의 *Samples › Demo data* 를 받거나, 패키지의 `Tools~/python` 폴더에서 `python -m skillgraph.demo --out <임시 폴더>`를 돌린 뒤, **`Data/*.xlsx` 세 파일만** 내 프로젝트의 통합 문서 폴더로 복사하고 행을 지우고 씁니다(생성기는 설정·사전 파일도 쓰므로 프로젝트 폴더에 바로 돌리지 않습니다). 패키지를 git URL로 받았다면 패키지 폴더는 `Library/PackageCache/com.noskang.skillgraphkit@…/` 아래입니다.
-6. **실행** — **Tools › SkillGraph Kit › Skill Graph Editor › More(더 보기) › Build skill data** 로 판정·연출 JSON을 내보내고, `SkillData.Load(판정 바이트, new MyModules().Build(), 연출 JSON의 valueNames)`로 읽은 뒤 `IModuleHandler`에서 모듈마다 게임 동작을 씁니다. 데모의 [`DemoRunner.cs`](DemoProject/Assets/SkillGraphDemo/Scripts/DemoRunner.cs)(`LoadData`)가 가장 작은 예입니다.
-
-7. **보드 키(선택)** — 사전에 `BoardModules.AddTo(builder)`(표시는 `BoardModules.AddDisplay(display)`), 실행기는 `new SkillRunner(data, BoardModules.Handler(내 처리기))`. 캐릭터마다 `data.NewBoard("Actor")`를 하나 두고 `runner.Start(기술, 그 보드)`로 넘깁니다. 자기 실행기를 쓰는 게임은 노드마다 `BoardModules.Run(node, values, scopes, out result)`를 부르고, 보드 값을 다른 쪽(예: 클라)에 보낼 때는 `Changed`·`Values()`·`Load()`를 씁니다([설계 12절](docs/architecture.md#12-보드-키)).
-
-게임 고유의 검사·내보내기는 Python 플러그인(`plugins.validate`·`plugins.export`)으로 덧붙입니다. 코어를 고치지 않습니다.
+자세한 설명은 [docs/architecture.md](docs/architecture.md), 파일 형식은 [docs/data-contract.md](docs/data-contract.md), 편집기 조작은 [docs/editor-guide.md](docs/editor-guide.md), 다른 게임에 붙이는 예는 [docs/integration-guide.md](docs/integration-guide.md)에 있습니다.
 
 ## 저장소 구성
 
@@ -134,7 +150,7 @@ Packages/com.noskang.skillgraphkit/   UPM 패키지
   Tools~/python/skillgraph/           Python 백엔드(펼침·검증·Excel 왕복·편집 동작·serve)
   Samples~/Demo/                      데모 통합 문서·사전·애니메이션(생성기로 바이트까지 재현)
 DemoProject/                          데모 Unity 프로젝트(장면·데모 모듈·시험·캡처 명세)
-docs/                                 설계·데이터 계약·편집기 안내·화면
+docs/                                 설계·데이터 계약·편집기 안내·붙이기 안내·화면
 tools/audit_public.py                 공개 감사(금지어 목록은 저장소 밖에 둠)
 ```
 
@@ -147,10 +163,6 @@ tools/audit_public.py                 공개 감사(금지어 목록은 저장�
 - **Excel 수식은 받지 않습니다**(값만). 셀 서식은 고친 행 위의 행을 따라 복사합니다.
 - **보드 키**는 실시간 실행만 있습니다. 시각 칸(이벤트 값)은 아직 보드를 읽지 않고, 턴제의 '계산 → 재생'(대상별 범위, 줄마다 시간 축)은 아직 없습니다.
 - Windows에서만 확인했습니다.
-
-## 라이선스
-
-[MIT](LICENSE)
 
 ## 감사의 말
 
