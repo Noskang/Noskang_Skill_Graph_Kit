@@ -62,5 +62,6 @@ A complete worked example with a made-up 2D brawler (settings, declarations, wor
 
 105 automated tests: 66 Python tests and 39 Unity EditMode tests (run locally; they need a Unity license). GitHub Actions
 runs 65 of the Python tests on Windows with Python 3.12 on every push to main; the one left out rebuilds the demo sample
-workbooks byte for byte, which depends on the zlib build that wrote them. Checked on Windows only. [MIT](LICENSE).
+workbooks byte for byte, which depends on the zlib build that wrote them. Checked on Windows only. Changes per version:
+[CHANGELOG.md](CHANGELOG.md) and the [releases](https://github.com/Noskang/Noskang_Skill_Graph_Kit/releases). [MIT](LICENSE).
 Acknowledgements are in the [Korean README](README.md#감사의-말).

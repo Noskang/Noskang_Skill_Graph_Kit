@@ -64,6 +64,10 @@ python -X utf8 -m unittest discover -s tests -t tests        # Python 66개
 - **Python 66개** 중 데모 샘플 xlsx를 다시 만들어 바이트까지 비교하는 1개(`test_committed_sample_is_reproducible`)는 압축(zlib) 판이 샘플을 만든 환경과 다르면 실패합니다. 그래서 GitHub Actions는 main에 push할 때마다 Windows · Python 3.12에서 이 1개를 뺀 **65개**를 돌립니다(위 배지, [워크플로](.github/workflows/python-tests.yml)).
 - **Unity 39개**: **Window › General › Test Runner › EditMode › Run All**. batchmode는 `Unity -batchmode -projectPath DemoProject -runTests -testPlatform EditMode`. Unity 라이선스가 필요해 CI에서는 돌리지 않습니다.
 
+## 변경 기록
+
+판마다 바뀐 것은 [CHANGELOG.ko.md](CHANGELOG.ko.md)(한국어)와 [CHANGELOG.md](CHANGELOG.md)(영어 원문)에, 판별 내려받기는 [Releases](https://github.com/Noskang/Noskang_Skill_Graph_Kit/releases)에 있습니다.
+
 ## 라이선스
 
 [MIT](LICENSE)

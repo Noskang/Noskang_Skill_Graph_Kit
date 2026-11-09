@@ -1,6 +1,7 @@
 # Changelog
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
+Korean: [CHANGELOG.ko.md](CHANGELOG.ko.md).
 
 ## [0.5.0] - 2026-11-03
 
